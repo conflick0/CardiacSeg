@@ -90,6 +90,7 @@ def get_loader(args):
     # datalist_json = os.path.join(data_dir, args.json_list)
     data_dicts = get_data_dicts(data_dir)
     train_files, val_files = data_dicts[:24], data_dicts[24:]
+    num_samples = 4
     # -----------------------------------------------------------
 
     train_transform = transforms.Compose(
@@ -114,7 +115,7 @@ def get_loader(args):
                 spatial_size=(args.roi_x, args.roi_y, args.roi_z),
                 pos=1,
                 neg=1,
-                num_samples=4,
+                num_samples=num_samples,
                 image_key="image",
                 image_threshold=0,
             ),
