@@ -49,7 +49,7 @@ class MMWHSTransform(Transform):
                     spatial_size=(96, 96, 96),
                     pos=1,
                     neg=1,
-                    num_samples=args.num_samples,
+                    num_samples=self.args.num_samples,
                     image_key="image",
                     image_threshold=0,
                 ),
