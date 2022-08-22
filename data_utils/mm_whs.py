@@ -152,7 +152,7 @@ def get_loader(args):
             shuffle=False,
             args=args
         )
-        return test_loader
+        return [test_loader]
     else:
         train_transform = get_train_transform(args)
         val_transform = get_val_transform()
