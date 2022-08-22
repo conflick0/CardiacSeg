@@ -88,7 +88,7 @@ def run_training(
     global_step = start_epoch * len(train_loader)
     val_acc_best = best_acc
 
-    for epoch in range(start_epoch, args.max_epoch):
+    for epoch in range(start_epoch, args.max_epoch+1):
         global_step = train_epoch(
             train_loader,
             model,

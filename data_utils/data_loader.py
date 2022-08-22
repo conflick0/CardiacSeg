@@ -26,8 +26,7 @@ def split_dataset(data_dicts, split_train_ratio=0.8):
     num_data = len(data_dicts)
     num_train_val_data = math.ceil(num_data * split_train_ratio)
     num_train_data = math.ceil(num_train_val_data * split_train_ratio)
-    num_val_data = num_train_val_data - num_train_data
-    return data_dicts[:num_val_data], data_dicts[num_val_data:num_train_val_data], data_dicts[num_train_val_data:]
+    return data_dicts[:num_train_data], data_dicts[num_train_data:num_train_val_data], data_dicts[num_train_val_data:]
 
 
 class MyDataLoader:
@@ -47,7 +46,7 @@ class MyDataLoader:
                 shuffle=False,
                 args=self.args
             )
-            return test_loader
+            return [test_loader]
         else:
             train_loader = get_dl(
                 files=train_files,
