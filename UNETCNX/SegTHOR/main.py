@@ -1,11 +1,11 @@
 import sys
+
 # set package path
 sys.path.append("/content/drive/MyDrive/CardiacSeg")
 
 import argparse
 import os
 from functools import partial
-from pathlib import PurePath
 
 import pandas as pd
 
@@ -17,11 +17,10 @@ from monai.losses import DiceCELoss
 from monai.metrics import DiceMetric
 from monai.transforms import AsDiscrete
 
-from data_utils.segthor import get_loader, get_train_val_test_files
+from data_utils.segthor_dataset import get_loader, get_test_pids
 from runners.trainer import run_training
 from runners.tester import run_testing
 from networks.unetcnx import UNETCNX
-
 
 parser = argparse.ArgumentParser(description="model segmentation pipeline")
 # mode
@@ -109,9 +108,9 @@ def main_worker(args):
             start_epoch = checkpoint["epoch"]
         if "best_acc" in checkpoint:
             best_acc = checkpoint["best_acc"]
-        print("=> loaded checkpoint '{}' (epoch {}) (bestacc {})".format(args.checkpoint, start_epoch, best_acc))    
-    
-    # loss
+        print("=> loaded checkpoint '{}' (epoch {}) (bestacc {})".format(args.checkpoint, start_epoch, best_acc))
+
+        # loss
     dice_loss = DiceCELoss(to_onehot_y=True, softmax=True)
 
     # optimizer
@@ -159,9 +158,7 @@ def main_worker(args):
             post_pred,
         )
 
-        train_files, val_files, test_files = get_train_val_test_files(args.data_dir)
-
-        pids = list(map(lambda x: PurePath(x['image']).parts[-1].split('.')[0], test_files))
+        pids = get_test_pids(args.data_dir)
 
         eval_tt_df = pd.DataFrame({
             'patientId': pids,
@@ -172,8 +169,8 @@ def main_worker(args):
         eval_tt_df.to_csv(os.path.join(args.eval_dir, f'best_model_eval.csv'), index=False)
 
         print("\neval result:")
-        print('avg dice: ',eval_tt_df['dice'].mean())
-        print('avg hd95:',eval_tt_df['dice'].mean())
+        print('avg dice: ', eval_tt_df['dice'].mean())
+        print('avg hd95:', eval_tt_df['dice'].mean())
         print(eval_tt_df.to_string())
 
 
