@@ -17,7 +17,8 @@ from monai.losses import DiceCELoss
 from monai.metrics import DiceMetric
 from monai.transforms import AsDiscrete
 
-from data_utils.segthor_dataset import get_loader, get_test_pids
+from data_utils.segthor_dataset import get_loader
+from data_utils.utils import get_pids_by_loader
 from runners.trainer import run_training
 from runners.tester import run_testing
 from networks.unetcnx import UNETCNX
@@ -40,6 +41,7 @@ parser.add_argument("--val_every", default=20, type=int, help="validation freque
 parser.add_argument("--max_epoch", default=2000, type=int, help="max number of training epochs")
 
 # data
+parser.add_argument("--fold", default=4, type=int, help="index of fold")
 parser.add_argument("--num_samples", default=2, type=int, help="number of samples")
 parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
 parser.add_argument("--pin_memory", action="store_true", help="pin memory")
@@ -110,7 +112,7 @@ def main_worker(args):
             best_acc = checkpoint["best_acc"]
         print("=> loaded checkpoint '{}' (epoch {}) (bestacc {})".format(args.checkpoint, start_epoch, best_acc))
 
-        # loss
+    # loss
     dice_loss = DiceCELoss(to_onehot_y=True, softmax=True)
 
     # optimizer
@@ -158,7 +160,7 @@ def main_worker(args):
             post_pred,
         )
 
-        pids = get_test_pids(args.data_dir)
+        pids = get_pids_by_loader(loader[0])
 
         eval_tt_df = pd.DataFrame({
             'patientId': pids,
