@@ -30,10 +30,10 @@ def get_slicer_cmap(num_classes):
     return ListedColormap(colorarray[:num_classes])
 
 
-def show_img_lbl_pred(img, lbl, pred, slice_idx, num_classes, axis_off=True, alpha=0.9):
+def show_img_lbl_pred(img, lbl, pred, slice_idx, num_classes, axis_off=True, alpha=0.9, fig_size=(20, 10)):
     cmap = get_slicer_cmap(num_classes)
 
-    plt.figure("check", (20, 10))
+    plt.figure("check", fig_size)
 
     plt.subplot(1, 3, 1)
     plt.title(f"image (slice: {slice_idx})")
@@ -63,10 +63,10 @@ def show_img_lbl_pred(img, lbl, pred, slice_idx, num_classes, axis_off=True, alp
     plt.show()
 
 
-def show_img_lbl(img, lbl, slice_idx, num_classes, axis_off=True, alpha=0.9):
+def show_img_lbl(img, lbl, slice_idx, num_classes, axis_off=True, alpha=0.9, fig_size=(20, 10)):
     cmap = get_slicer_cmap(num_classes)
 
-    plt.figure("check", (20, 10))
+    plt.figure("check", fig_size)
 
     plt.subplot(1, 2, 1)
     plt.title(f"image (slice: {slice_idx})")

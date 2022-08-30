@@ -29,15 +29,14 @@ def get_files(data_dicts, idxs):
     return [data_dicts[i] for i in idxs]
 
 
-def split_data_dicts(data_dicts, fold):
-    split_train_ratio = 0.8
+def split_data_dicts(data_dicts, fold, split_train_ratio, num_fold):
     num_data = len(data_dicts)
     num_train_data = math.ceil(num_data * split_train_ratio)
 
     train_val_idxs = list(range(0, num_train_data))
     test_idxs = list(range(num_train_data, num_data))
 
-    kf = KFold(n_splits=5)
+    kf = KFold(n_splits=num_fold)
     flods = list(kf.split(train_val_idxs))
     train_idxs, val_idxs = flods[fold]
 
@@ -56,7 +55,12 @@ def split_data_dicts(data_dicts, fold):
 class MyDataLoader:
     def __init__(self, data_dicts, train_transform, val_transform, args):
         self.data_dicts = data_dicts
-        self.train_files, self.val_files, self.test_files = split_data_dicts(self.data_dicts, args.fold)
+        self.train_files, self.val_files, self.test_files = split_data_dicts(
+          self.data_dicts, 
+          args.fold, 
+          args.split_train_ratio,
+          args.num_fold
+        )
         self.train_transform = train_transform
         self.val_transform = val_transform
         self.args = args
