@@ -91,3 +91,4 @@ def show_img_lbl(img, lbl, slice_idx, num_classes, axis_off=True, alpha=0.9, fig
 
     plt.tight_layout()
     plt.show()
+

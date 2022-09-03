@@ -1,6 +1,9 @@
 import os
 
+from monai.transforms import AddChannel
+
 from data_utils.data_loader import MyDataLoader
+from data_utils.io import load_json
 from transforms.chgh_transform import CHGHTransform
 
 
@@ -15,10 +18,15 @@ def get_data_dicts(data_dir):
     return data_dicts
 
 
+
 def get_loader(args):
     tf = CHGHTransform(args)
 
-    data_dicts = get_data_dicts(args.data_dir)
+    if args.data_dicts_json:
+      data_dicts = load_json(args.data_dicts_json)
+    else:
+      data_dicts = get_data_dicts(args.data_dir)
+    
     train_transform = tf.get_train_transform()
     val_transform = tf.get_val_transform()
 
@@ -30,3 +38,11 @@ def get_loader(args):
     )
 
     return dl.get_loader()
+
+
+def get_infer_data(data_dict, keys, args):
+    tf = CHGHTransform(args)
+    inf_transform = tf.get_inf_transform(keys)
+    data = inf_transform(data_dict)
+    return data
+

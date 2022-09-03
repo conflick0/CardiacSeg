@@ -94,3 +94,27 @@ class CHGHTransform(Transform):
                 ToTensord(keys=["image", "label"]),
             ]
         )
+
+    def get_inf_transform(self, keys):
+        if len(keys) == 2:
+          mode = ("bilinear", "nearest")
+        else:
+          mode = ("bilinear")
+
+        return Compose(
+            [
+                LoadImaged(keys=keys),
+                AddChanneld(keys=keys),
+                Orientationd(keys=keys, axcodes="RAS"),
+                Spacingd(
+                    keys=keys,
+                    pixdim=(1, 1, 0.77),
+                    mode=mode,
+                ),
+                ScaleIntensityRanged(
+                    keys=keys, a_min=-175, a_max=250, b_min=0.0, b_max=1.0, clip=True
+                ),
+                AddChanneld(keys=keys),
+                ToTensord(keys=keys)
+            ]
+        )

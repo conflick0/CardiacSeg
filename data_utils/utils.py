@@ -24,6 +24,10 @@ def get_pids_by_loader(loader):
     return get_pids_by_files(files)
 
 
+def get_label_classes(label):
+  return label.flatten().unique().numpy()
+
+
 def get_data_info(data_dicts):
     '''show data info for eda'''
     base_transforms = Compose(
@@ -41,7 +45,7 @@ def get_data_info(data_dicts):
       img_space = list(d['image_meta_dict']['pixdim'])[1:4]
       lbl_shape = list(d['label_meta_dict']['spatial_shape'])
       lbl_space = list(d['label_meta_dict']['pixdim'])[1:4]
-      lbl_ids = d['label'].flatten().unique().numpy()
+      lbl_ids = get_label_classes(d['label'])
 
       print('pid:', pid)
       print('file_pth:', file_pth)
@@ -73,3 +77,4 @@ def get_data_info(data_dicts):
       )
       print()
     return df
+
