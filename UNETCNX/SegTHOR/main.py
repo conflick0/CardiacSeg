@@ -41,7 +41,10 @@ parser.add_argument("--val_every", default=20, type=int, help="validation freque
 parser.add_argument("--max_epoch", default=2000, type=int, help="max number of training epochs")
 
 # data
+parser.add_argument("--data_dicts_json", default=None, type=str, help="data dicts json")
 parser.add_argument("--fold", default=4, type=int, help="index of fold")
+parser.add_argument("--split_train_ratio", default=0.75, type=float, help="split train ratio")
+parser.add_argument("--num_fold", default=5, type=float, help="num fold")
 parser.add_argument("--num_samples", default=2, type=int, help="number of samples")
 parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
 parser.add_argument("--pin_memory", action="store_true", help="pin memory")
@@ -58,7 +61,6 @@ parser.add_argument("--reg_weight", default=1e-5, type=float, help="regularizati
 # scheduler
 parser.add_argument("--lrschedule", default="warmup_cosine", type=str, help="type of learning rate scheduler")
 parser.add_argument("--warmup_epochs", default=50, type=int, help="number of warmup epochs")
-parser.add_argument("--resume_ckpt", action="store_true", help="resume training from pretrained checkpoint")
 
 # infer
 parser.add_argument("--sw_batch_size", default=4, type=int, help="number of sliding window batch size")
@@ -84,7 +86,7 @@ def main_worker(args):
         print("cuda is not available")
         args.device = torch.device("cpu")
 
-    # data loader
+    # load train and test data
     loader = get_loader(args)
 
     # model
@@ -100,18 +102,13 @@ def main_worker(args):
     best_acc = 0
     if args.checkpoint is not None:
         checkpoint = torch.load(args.checkpoint, map_location="cpu")
-        from collections import OrderedDict
-
-        new_state_dict = OrderedDict()
-        for k, v in checkpoint["state_dict"].items():
-            new_state_dict[k.replace("backbone.", "")] = v
-        model.load_state_dict(new_state_dict, strict=False)
+        model.load_state_dict(checkpoint["state_dict"])
         if "epoch" in checkpoint and args.start_epoch == 0:
             start_epoch = checkpoint["epoch"]
         if "best_acc" in checkpoint:
             best_acc = checkpoint["best_acc"]
         print("=> loaded checkpoint '{}' (epoch {}) (bestacc {})".format(args.checkpoint, start_epoch, best_acc))
-
+    
     # loss
     dice_loss = DiceCELoss(to_onehot_y=True, softmax=True)
 
@@ -134,13 +131,15 @@ def main_worker(args):
     writer = SummaryWriter(log_dir=args.log_dir)
 
     if not args.test_mode:
+        tr_loader, val_loader = loader
+        
         # training
         run_training(
             start_epoch=start_epoch,
             best_acc=best_acc,
             model=model,
-            train_loader=loader[0],
-            val_loader=loader[1],
+            train_loader=tr_loader,
+            val_loader=val_loader,
             optimizer=optimizer,
             loss_func=dice_loss,
             acc_func=dice_acc,
@@ -151,16 +150,18 @@ def main_worker(args):
             args=args,
         )
     else:
+        tt_loader = loader[0]
+
         # test
         dc_vals, hd95_vals = run_testing(
             model,
-            loader[0],
+            tt_loader,
             model_inferer,
             post_label,
             post_pred,
         )
 
-        pids = get_pids_by_loader(loader[0])
+        pids = get_pids_by_loader(tt_loader)
 
         eval_tt_df = pd.DataFrame({
             'patientId': pids,
@@ -172,8 +173,9 @@ def main_worker(args):
 
         print("\neval result:")
         print('avg dice: ', eval_tt_df['dice'].mean())
-        print('avg hd95:', eval_tt_df['dice'].mean())
+        print('avg hd95:', eval_tt_df['hd95'].mean())
         print(eval_tt_df.to_string())
+        
 
 
 if __name__ == "__main__":
