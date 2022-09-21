@@ -1,7 +1,7 @@
 import os
 
 from data_utils.data_loader import MyDataLoader
-from transforms.mmwhs_transform import MMWHSTransform
+from transforms.mmwhs_transform import get_train_transform, get_val_transform
 
 
 def get_data_dicts(data_dir):
@@ -19,11 +19,9 @@ def get_data_dicts(data_dir):
 
 
 def get_loader(args):
-    tf = MMWHSTransform(args)
-
     data_dicts = get_data_dicts(args.data_dir)
-    train_transform = tf.get_train_transform()
-    val_transform = tf.get_val_transform()
+    train_transform = get_train_transform(args)
+    val_transform = get_val_transform(args)
 
     dl = MyDataLoader(
         data_dicts,

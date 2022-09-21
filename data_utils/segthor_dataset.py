@@ -1,8 +1,13 @@
 import os
 
-from data_utils.data_loader import MyDataLoader
-from transforms.segthor_transform import SegTHORTransform
-
+from data_utils.nnunet_dataset import setup_nnunet_dataset
+from data_utils.data_loader import MyDataLoader, split_data_dicts
+from data_utils.io import load_json
+from transforms.segthor_transform import (
+    get_train_transform, 
+    get_val_transform, 
+    save_transform_lbl
+)
 
 def get_data_dicts(data_dir):
     data_dicts = []
@@ -15,11 +20,13 @@ def get_data_dicts(data_dir):
 
 
 def get_loader(args):
-    tf = SegTHORTransform(args)
-
-    data_dicts = get_data_dicts(args.data_dir)
-    train_transform = tf.get_train_transform()
-    val_transform = tf.get_val_transform()
+    if args.data_dicts_json:
+      data_dicts = load_json(args.data_dicts_json)
+    else:
+      data_dicts = get_data_dicts(args.data_dir)
+    
+    train_transform = get_train_transform(args)
+    val_transform = get_val_transform(args)
 
     dl = MyDataLoader(
         data_dicts,
@@ -29,3 +36,28 @@ def get_loader(args):
     )
 
     return dl.get_loader()
+
+
+def convert_to_nnunet_dataset(
+        src_data_dir, 
+        dst_data_dir,
+        fold,
+        split_train_ratio,
+        num_fold
+    ):
+    '''convert dataset to nnunet dataset format'''
+    os.makedirs(dst_data_dir, exist_ok=True)
+
+    data_dicts = get_data_dicts(src_data_dir)
+
+    # split data dicts to tr and tt
+    tr_files, val_files, tt_files = split_data_dicts(data_dicts, fold, split_train_ratio, num_fold)
+    tr_data_dicts = tr_files + val_files
+    tt_data_dicts = tt_files
+
+    # setup tr nnunet dataset
+    setup_nnunet_dataset(tr_data_dicts, dst_data_dir, save_transform_lbl, test_mode=False)
+    # setup tt nnunet dataset
+    setup_nnunet_dataset(tt_data_dicts, dst_data_dir, save_transform_lbl, test_mode=True)
+
+

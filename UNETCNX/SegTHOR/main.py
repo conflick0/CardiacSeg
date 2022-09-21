@@ -21,9 +21,12 @@ from data_utils.segthor_dataset import get_loader
 from data_utils.utils import get_pids_by_loader
 from runners.trainer import run_training
 from runners.tester import run_testing
-from networks.unetcnx import UNETCNX
+from networks.network import network
+from optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
+
 
 parser = argparse.ArgumentParser(description="model segmentation pipeline")
+
 # mode
 parser.add_argument("--test_mode", action="store_true", help="test mode")
 
@@ -43,14 +46,30 @@ parser.add_argument("--max_epoch", default=2000, type=int, help="max number of t
 # data
 parser.add_argument("--data_dicts_json", default=None, type=str, help="data dicts json")
 parser.add_argument("--fold", default=4, type=int, help="index of fold")
-parser.add_argument("--split_train_ratio", default=0.75, type=float, help="split train ratio")
+parser.add_argument("--split_train_ratio", default=0.8, type=float, help="split train ratio")
 parser.add_argument("--num_fold", default=5, type=float, help="num fold")
-parser.add_argument("--num_samples", default=2, type=int, help="number of samples")
 parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
 parser.add_argument("--pin_memory", action="store_true", help="pin memory")
 parser.add_argument("--workers", default=2, type=int, help="number of workers")
 
+# transform
+parser.add_argument("--num_samples", default=2, type=int, help="number of samples")
+parser.add_argument("--a_min", default=-175.0, type=float, help="a_min in ScaleIntensityRanged")
+parser.add_argument("--a_max", default=250.0, type=float, help="a_max in ScaleIntensityRanged")
+parser.add_argument("--b_min", default=0.0, type=float, help="b_min in ScaleIntensityRanged")
+parser.add_argument("--b_max", default=1.0, type=float, help="b_max in ScaleIntensityRanged")
+parser.add_argument("--space_x", default=1.5, type=float, help="spacing in x direction")
+parser.add_argument("--space_y", default=1.5, type=float, help="spacing in y direction")
+parser.add_argument("--space_z", default=2.0, type=float, help="spacing in z direction")
+parser.add_argument("--roi_x", default=96, type=int, help="roi size in x direction")
+parser.add_argument("--roi_y", default=96, type=int, help="roi size in y direction")
+parser.add_argument("--roi_z", default=96, type=int, help="roi size in z direction")
+parser.add_argument("--rand_flipd_prob", default=0.1, type=float, help="RandFlipd aug probability")
+parser.add_argument("--rand_rotate90d_prob", default=0.1, type=float, help="RandRotate90d aug probability")
+parser.add_argument("--rand_shift_intensityd_prob", default=0.1, type=float, help="RandShiftIntensityd aug probability")
+
 # model
+parser.add_argument("--model_name", default=None, type=str, help="model name")
 parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
 parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
 
@@ -59,7 +78,7 @@ parser.add_argument("--optim_lr", default=1e-4, type=float, help="optimization l
 parser.add_argument("--reg_weight", default=1e-5, type=float, help="regularization weight")
 
 # scheduler
-parser.add_argument("--lrschedule", default="warmup_cosine", type=str, help="type of learning rate scheduler")
+parser.add_argument("--lrschedule", default=None, type=str, help="type of learning rate scheduler")
 parser.add_argument("--warmup_epochs", default=50, type=int, help="number of warmup epochs")
 
 # infer
@@ -90,12 +109,7 @@ def main_worker(args):
     loader = get_loader(args)
 
     # model
-    model = UNETCNX(
-        in_channels=args.in_channels,
-        out_channels=args.out_channels,
-        feature_size=48,
-        patch_size=4
-    ).to(args.device)
+    model = network(args.model_name, args)
 
     # check point
     start_epoch = args.start_epoch
@@ -113,7 +127,16 @@ def main_worker(args):
     dice_loss = DiceCELoss(to_onehot_y=True, softmax=True)
 
     # optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.optim_lr, weight_decay=args.reg_weight)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.optim_lr, weight_decay=args.reg_weight)
+
+    # lrschedule
+    if args.lrschedule == "warmup_cosine":
+        print(f'lrschedule: {args.lrschedule}')
+        scheduler = LinearWarmupCosineAnnealingLR(
+            optimizer, warmup_epochs=args.warmup_epochs, max_epochs=args.max_epoch
+        )
+    else:
+        scheduler = None
 
     # inferer
     post_label = AsDiscrete(to_onehot=args.out_channels)
@@ -121,7 +144,7 @@ def main_worker(args):
     dice_acc = DiceMetric(include_background=True, reduction="mean", get_not_nans=False)
     model_inferer = partial(
         sliding_window_inference,
-        roi_size=[96, 96, 96],
+        roi_size=[args.roi_x, args.roi_y, args.roi_z],
         sw_batch_size=args.sw_batch_size,
         predictor=model,
         overlap=args.infer_overlap,
@@ -141,6 +164,7 @@ def main_worker(args):
             train_loader=tr_loader,
             val_loader=val_loader,
             optimizer=optimizer,
+            scheduler=scheduler,
             loss_func=dice_loss,
             acc_func=dice_acc,
             model_inferer=model_inferer,

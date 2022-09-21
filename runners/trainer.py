@@ -76,6 +76,7 @@ def run_training(
         train_loader,
         val_loader,
         optimizer,
+        scheduler,
         loss_func,
         acc_func,
         model_inferer,
@@ -137,3 +138,6 @@ def run_training(
                         val_acc_best, val_avg_acc
                     )
                 )
+
+        if scheduler is not None:
+            scheduler.step()        
