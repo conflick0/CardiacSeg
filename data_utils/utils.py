@@ -4,6 +4,7 @@ from monai.transforms import (
   Compose,
   LoadImaged
 )
+from monai.utils import first
 import pandas as pd
 
 from data_utils.visualization import show_img_lbl
@@ -78,3 +79,25 @@ def get_data_info(data_dicts):
       print()
     return df
 
+
+def check_data(loader):
+    # check data
+    slice_idx = 48
+    alpha = 0.5
+    axis_off = False
+    fig_size = (10, 5)
+
+    # check train data
+    print('train data')
+    tr_data = first(loader)
+    num_classes = len(tr_data['label'].flatten().unique())
+    print('img shape:', tr_data['image'].shape)
+    show_img_lbl(
+        tr_data['image'][0,0,:,:,slice_idx],
+        tr_data['label'][0,0,:,:,slice_idx],
+        slice_idx,
+        num_classes, 
+        axis_off,
+        alpha,
+        fig_size
+    )

@@ -14,8 +14,6 @@ from monai.transforms import (
     MapLabelValued
 )
 
-from transforms.transform import Transform
-
 
 def get_train_transform(args):
     return Compose(

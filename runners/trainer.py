@@ -125,7 +125,9 @@ def run_training(
                     model,
                     epoch,
                     val_acc_best,
-                    args
+                    args,
+                    optimizer,
+                    scheduler
                 )
                 print(
                     "Model Was Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(

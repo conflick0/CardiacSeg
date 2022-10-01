@@ -64,8 +64,11 @@ def show_img_lbl_pred(img, lbl, pred, slice_idx, num_classes, axis_off=True, alp
 
 
 def show_img_lbl(img, lbl, slice_idx, num_classes, axis_off=True, alpha=0.9, fig_size=(20, 10)):
-    cmap = get_slicer_cmap(num_classes)
-
+    if num_classes < 8:
+      cmap = get_slicer_cmap(num_classes)
+    else:
+      cmap = 'viridis'
+    
     plt.figure("check", fig_size)
 
     plt.subplot(1, 2, 1)
