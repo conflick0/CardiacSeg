@@ -4,7 +4,7 @@ from monai.transforms import AddChannel
 
 from data_utils.data_loader import MyDataLoader
 from data_utils.io import load_json
-from transforms.chgh_transform import CHGHTransform
+from transforms.chgh_transform import get_train_transform, get_val_transform, get_inf_transform
 
 
 def get_data_dicts(data_dir):
@@ -13,22 +13,20 @@ def get_data_dicts(data_dir):
     for patient_dir in patient_dirs:
         data_dicts.append({
             "image": os.path.join(os.path.join(data_dir, patient_dir, f'{patient_dir}.nii.gz')),
-            "label": os.path.join(os.path.join(data_dir, patient_dir, f'GT.nii.gz'))
+            "label": os.path.join(os.path.join(data_dir, patient_dir, f'{patient_dir}_gt.nii.gz'))
         })
     return data_dicts
 
 
 
 def get_loader(args):
-    tf = CHGHTransform(args)
-
     if args.data_dicts_json:
       data_dicts = load_json(args.data_dicts_json)
     else:
       data_dicts = get_data_dicts(args.data_dir)
     
-    train_transform = tf.get_train_transform()
-    val_transform = tf.get_val_transform()
+    train_transform = get_train_transform(args)
+    val_transform = get_val_transform(args)
 
     dl = MyDataLoader(
         data_dicts,
@@ -41,8 +39,7 @@ def get_loader(args):
 
 
 def get_infer_data(data_dict, keys, args):
-    tf = CHGHTransform(args)
-    inf_transform = tf.get_inf_transform(keys)
+    inf_transform = get_inf_transform(keys, args)
     data = inf_transform(data_dict)
     return data
 
