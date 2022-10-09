@@ -59,5 +59,3 @@ def convert_to_nnunet_dataset(
     setup_nnunet_dataset(tr_data_dicts, dst_data_dir, save_transform_lbl, test_mode=False)
     # setup tt nnunet dataset
     setup_nnunet_dataset(tt_data_dicts, dst_data_dir, save_transform_lbl, test_mode=True)
-
-

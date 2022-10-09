@@ -3,9 +3,9 @@ from monai.data import NibabelWriter
 from monai.transforms import AddChannel
 
 
-def save_json(data, file_path):
+def save_json(data, file_path, sort_keys=True):
     with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+        json.dump(data, f, ensure_ascii=False, indent=4, sort_keys=sort_keys)
     print(f'save json to {file_path}')
 
 

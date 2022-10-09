@@ -37,6 +37,7 @@ parser.add_argument("--log_dir", default="logs", type=str, help="directory to sa
 parser.add_argument("--eval_dir", default="evals", type=str, help="directory to save the eval result")
 parser.add_argument("--checkpoint", default=None, help="start training from saved checkpoint")
 parser.add_argument("--filename", default="best_model.pth", help="save model file name")
+parser.add_argument("--ssl_pretrained", default=None, type=str, help="use self-supervised pretrained weights")
 
 # train loop
 parser.add_argument("--start_epoch", default=0, type=int, help="start epoch")
@@ -136,7 +137,7 @@ def main_worker(args):
         # load optimizer
         optimizer.load_state_dict(checkpoint['optimizer'])
         # load lrschedule
-        if args.lrschedule is not None:
+        if args.lrschedule is not None and 'scheduler' in checkpoint:
           scheduler.load_state_dict(checkpoint['scheduler'])
         # load check point epoch and best acc
         if "epoch" in checkpoint and args.start_epoch == 0:
@@ -144,6 +145,30 @@ def main_worker(args):
         if "best_acc" in checkpoint:
             best_acc = checkpoint["best_acc"]
         print("=> loaded checkpoint '{}' (epoch {}) (bestacc {})".format(args.checkpoint, start_epoch, best_acc))
+
+    # use ssl head pretrain
+    if args.ssl_pretrained:
+        try:
+            model_dict = torch.load(args.ssl_pretrained)
+            state_dict = model_dict["state_dict"]
+            # fix potential differences in state dict keys from pre-training to
+            # fine-tuning
+            if "module." in list(state_dict.keys())[0]:
+                print("Tag 'module.' found in state dict - fixing!")
+                for key in list(state_dict.keys()):
+                    state_dict[key.replace("module.", "")] = state_dict.pop(key)
+            if "swin_vit" in list(state_dict.keys())[0]:
+                print("Tag 'swin_vit' found in state dict - fixing!")
+                for key in list(state_dict.keys()):
+                    state_dict[key.replace("swin_vit", "swinViT")] = state_dict.pop(key)
+            # We now load model weights, setting param `strict` to False, i.e.:
+            # this load the encoder weights (Swin-ViT, SSL pre-trained), but leaves
+            # the decoder weights untouched (CNN UNet decoder).
+            model.load_state_dict(state_dict, strict=False)
+            print("Using pretrained self-supervised Swin UNETR backbone weights !")
+        except ValueError:
+            raise ValueError("Self-supervised pre-trained weights not available for" + str(args.model_name))
+
 
     # inferer
     post_label = AsDiscrete(to_onehot=args.out_channels)
