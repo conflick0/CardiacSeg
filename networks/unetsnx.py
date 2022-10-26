@@ -37,22 +37,21 @@ class Mlp(BaseModule):
 class StemConv(BaseModule):
     def __init__(self, in_channels, out_channels, norm_cfg=dict(type='BN3d', requires_grad=True)):
         super(StemConv, self).__init__()
-
         self.proj = nn.Sequential(
             nn.Conv3d(in_channels, out_channels // 2,
-                      kernel_size=(3, 3), stride=(2, 2), padding=(1, 1)),
+                      kernel_size=3, stride=2, padding=1),
             build_norm_layer(norm_cfg, out_channels // 2)[1],
             nn.GELU(),
             nn.Conv3d(out_channels // 2, out_channels,
-                      kernel_size=(3, 3), stride=(2, 2), padding=(1, 1)),
+                      kernel_size=3, stride=2, padding=1),
             build_norm_layer(norm_cfg, out_channels)[1],
         )
 
     def forward(self, x):
         x = self.proj(x)
-        _, _, H, W = x.size()
+        _, _, H, W, D = x.size()
         x = x.flatten(2).transpose(1, 2)
-        return x, H, W
+        return x, H, W, D
 
 
 class AttentionModule(BaseModule):
@@ -136,6 +135,9 @@ class Block(BaseModule):
     def forward(self, x, H, W, D):
         B, N, C = x.shape
         x = x.permute(0, 2, 1).view(B, C, H, W, D)
+        print(self.layer_scale_1.unsqueeze(-1).unsqueeze(-1).shape)
+        print(self.norm1(x).shape)
+        print(self.attn(self.norm1(x)).shape)
         x = x + self.drop_path(self.layer_scale_1.unsqueeze(-1).unsqueeze(-1)
                                * self.attn(self.norm1(x)))
         x = x + self.drop_path(self.layer_scale_2.unsqueeze(-1).unsqueeze(-1)
@@ -169,7 +171,7 @@ class OverlapPatchEmbed(BaseModule):
 class MSCAN(BaseModule):
     def __init__(self,
         in_chans=3,
-        embed_dims=[64, 128, 256, 512],
+        embed_dims=[96, 192, 384, 768],
         mlp_ratios=[4, 4, 4, 4],
         drop_rate=0.,
         drop_path_rate=0.,
@@ -198,7 +200,7 @@ class MSCAN(BaseModule):
 
         for i in range(num_stages):
             if i == 0:
-                patch_embed = StemConv(3, embed_dims[0], norm_cfg=norm_cfg)
+                patch_embed = StemConv(1, embed_dims[0], norm_cfg=norm_cfg)
             else:
                 patch_embed = OverlapPatchEmbed(patch_size=7 if i == 0 else 3,
                                                 stride=4 if i == 0 else 2,

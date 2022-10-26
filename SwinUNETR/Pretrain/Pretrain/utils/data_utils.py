@@ -53,20 +53,28 @@ def get_loader(args):
 
     num_workers = 2
 
-    datalist1 = load_data_dicts(data_json_pth1, 'training')
-    datalist2 = load_data_dicts(data_json_pth2, 'training')
+    data_names = []
+    if args.data_name == 'all':
+        data_names = ['segthor', 'mmwhs']
+        data_json_pths = [data_json_pth1, data_json_pth2]
+    elif args.data_name == 'segthor':
+        data_names = ['segthor']
+        data_json_pths = [data_json_pth1]
+    elif args.data_name == 'mmwhs':
+        data_names = ['mmwhs']
+        data_json_pths = [data_json_pth2]
+    else:
+      raise ValueError(f'not found data name: {args.data_name}')
 
-    vallist1 = load_data_dicts(data_json_pth1, 'validation')
-    vallist2 = load_data_dicts(data_json_pth2, 'validation')
-
-    print("Dataset 1 SegTHOR: number of tr data: {}".format(len(datalist1)))
-    print("Dataset 2 MMWHS: number of tr data: {}".format(len(datalist2)))
-
-    print("Dataset 1 SegTHOR: number of val data: {}".format(len(vallist1)))
-    print("Dataset 2 MMWHS: number of val data: {}".format(len(vallist2)))
-
-    datalist = datalist1 + datalist2
-    val_files = vallist1 + vallist2
+    datalist = []
+    val_files = []
+    for i, (data_name, data_json_pth) in enumerate(zip(data_names, data_json_pths), 1):
+      tr_list = load_data_dicts(data_json_pth, 'training')
+      val_list = load_data_dicts(data_json_pth, 'validation')
+      print(f"Dataset {i} {data_name}: number of tr data: {len(tr_list)}")
+      print(f"Dataset {i} {data_name}: number of val data: {len(val_list)}")
+      datalist += tr_list
+      val_files += val_list
     
     print("Dataset all training: number of data: {}".format(len(datalist)))
     print("Dataset all validation: number of data: {}".format(len(val_files)))

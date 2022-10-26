@@ -189,6 +189,7 @@ def main():
     parser.add_argument("--dist-url", default="env://", help="url used to set up distributed training")
     parser.add_argument("--smartcache_dataset", action="store_true", help="use monai smartcache Dataset")
     parser.add_argument("--cache_dataset", action="store_true", help="use monai cache Dataset")
+    parser.add_argument("--data_name", default='all', type=str, help="name of dataset for pretrain")
 
     args = parser.parse_args()
     logdir = "./runs/" + args.logdir

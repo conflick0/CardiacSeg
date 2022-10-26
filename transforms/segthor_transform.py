@@ -10,6 +10,7 @@ from monai.transforms import (
     RandFlipd,
     RandCropByPosNegLabeld,
     RandShiftIntensityd,
+    RandScaleIntensityd,
     ScaleIntensityRanged,
     Spacingd,
     RandRotate90d,
@@ -19,7 +20,16 @@ from monai.transforms import (
     SaveImaged
 )
 
+
+def get_crop_fg_margin(crop_fg_key):
+  if crop_fg_key == "image":
+    return 0
+  else:
+    return 40
+
+
 def get_train_transform(args):
+    margin = get_crop_fg_margin(args.crop_fg_key)
     return Compose(
         [
             LoadImaged(keys=["image", "label"]),
@@ -40,7 +50,11 @@ def get_train_transform(args):
                 b_max=args.b_max,
                 clip=True,
             ),
-            CropForegroundd(keys=['image', 'label'], source_key='label', margin=40),
+            CropForegroundd(
+              keys=['image', 'label'], 
+              source_key=args.crop_fg_key,
+              margin=margin
+            ),
             RandCropByPosNegLabeld(
                 keys=["image", "label"],
                 label_key="label",
@@ -71,6 +85,11 @@ def get_train_transform(args):
                 prob=args.rand_rotate90d_prob,
                 max_k=3,
             ),
+            RandScaleIntensityd(
+              keys=["image"], 
+              factors=0.1, 
+              prob=args.rand_scale_intensityd_prob
+            ),
             RandShiftIntensityd(
                 keys=["image"],
                 offsets=0.10,
@@ -81,6 +100,7 @@ def get_train_transform(args):
     )
 
 def get_val_transform(args):
+    margin = get_crop_fg_margin(args.crop_fg_key)
     return Compose(
         [
             LoadImaged(keys=["image", "label"]),
@@ -96,7 +116,11 @@ def get_val_transform(args):
             ScaleIntensityRanged(
                 keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
             ),
-            CropForegroundd(keys=['image', 'label'], source_key='label', margin=40),
+            CropForegroundd(
+              keys=['image', 'label'], 
+              source_key=args.crop_fg_key,
+              margin=margin
+            ),
             ToTensord(keys=["image", "label"]),
         ]
     )

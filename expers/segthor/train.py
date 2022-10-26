@@ -36,19 +36,21 @@ parser.add_argument("--model_dir", default="models", type=str, help="directory t
 parser.add_argument("--log_dir", default="logs", type=str, help="directory to save the tensorboard logs")
 parser.add_argument("--eval_dir", default="evals", type=str, help="directory to save the eval result")
 parser.add_argument("--checkpoint", default=None, help="start training from saved checkpoint")
-parser.add_argument("--filename", default="best_model.pth", help="save model file name")
 parser.add_argument("--ssl_pretrained", default=None, type=str, help="use self-supervised pretrained weights")
 
 # train loop
 parser.add_argument("--start_epoch", default=0, type=int, help="start epoch")
 parser.add_argument("--val_every", default=20, type=int, help="validation frequency")
 parser.add_argument("--max_epoch", default=2000, type=int, help="max number of training epochs")
+parser.add_argument("--early_stop_count", default=0, type=int, help="early stop count")
+parser.add_argument("--max_early_stop_count", default=20, type=int, help="max early stop count")
+parser.add_argument("--save_checkpoint_freq", default=1, type=int, help="save final checkpoint freq, if value is 0 won't save.")
 
 # data
 parser.add_argument("--data_dicts_json", default=None, type=str, help="data dicts json")
 parser.add_argument("--fold", default=4, type=int, help="index of fold")
-parser.add_argument("--split_train_ratio", default=0.8, type=float, help="split train ratio")
-parser.add_argument("--num_fold", default=5, type=float, help="num fold")
+parser.add_argument("--split_train_ratio", default=0.75, type=float, help="split train ratio")
+parser.add_argument("--num_fold", default=5, type=int, help="num fold")
 parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
 parser.add_argument("--pin_memory", action="store_true", help="pin memory")
 parser.add_argument("--workers", default=2, type=int, help="number of workers")
@@ -68,6 +70,8 @@ parser.add_argument("--roi_z", default=96, type=int, help="roi size in z directi
 parser.add_argument("--rand_flipd_prob", default=0.1, type=float, help="RandFlipd aug probability")
 parser.add_argument("--rand_rotate90d_prob", default=0.1, type=float, help="RandRotate90d aug probability")
 parser.add_argument("--rand_shift_intensityd_prob", default=0.1, type=float, help="RandShiftIntensityd aug probability")
+parser.add_argument("--rand_scale_intensityd_prob", default=0.1, type=float, help="RandScaleIntensityd aug probability")
+parser.add_argument("--crop_fg_key", default="label", type=str, help="CropForegroundd key")
 
 # model
 parser.add_argument("--model_name", default=None, type=str, help="model name")
@@ -108,7 +112,7 @@ def main_worker(args):
 
     # load train and test data
     loader = get_loader(args)
-
+    
     # model
     model = network(args.model_name, args)
 
@@ -129,6 +133,7 @@ def main_worker(args):
 
     # check point
     start_epoch = args.start_epoch
+    early_stop_count = args.early_stop_count
     best_acc = 0
     if args.checkpoint is not None:
         checkpoint = torch.load(args.checkpoint, map_location="cpu")
@@ -144,7 +149,12 @@ def main_worker(args):
             start_epoch = checkpoint["epoch"]
         if "best_acc" in checkpoint:
             best_acc = checkpoint["best_acc"]
-        print("=> loaded checkpoint '{}' (epoch {}) (bestacc {})".format(args.checkpoint, start_epoch, best_acc))
+        if "early_stop_count" in checkpoint and args.early_stop_count == 0:
+            early_stop_count = checkpoint["early_stop_count"]
+        print(
+          "=> loaded checkpoint '{}' (epoch {}) (bestacc {}) (early stop count {})"\
+          .format(args.checkpoint, start_epoch, best_acc, early_stop_count)
+        )
 
     # use ssl head pretrain
     if args.ssl_pretrained:
@@ -192,6 +202,7 @@ def main_worker(args):
         run_training(
             start_epoch=start_epoch,
             best_acc=best_acc,
+            early_stop_count=early_stop_count,
             model=model,
             train_loader=tr_loader,
             val_loader=val_loader,

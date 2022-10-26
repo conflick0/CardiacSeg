@@ -4,6 +4,7 @@ from networks.unetcnx import UNETCNX
 from networks.unetcnx_x1 import UNETCNX_X1
 
 from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
+from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
 
 
 def network(model_name, args):
@@ -78,6 +79,17 @@ def network(model_name, args):
             deep_supervision=False
         ).to(args.device)
 
+    elif model_name == 'uxnet':
+        return UXNET(
+            in_chans=args.in_channels,
+            out_chans=args.out_channels,
+            depths=[2, 2, 2, 2],
+            feat_size=[48, 96, 192, 384],
+            drop_path_rate=0,
+            layer_scale_init_value=1e-6,
+            spatial_dims=3,
+        ).to(args.device)
+        
     elif model_name == 'unetcnx_x1':
         return UNETCNX(
               in_channels=args.in_channels,
@@ -85,7 +97,6 @@ def network(model_name, args):
               feature_size=48,
               patch_size=4
         ).to(args.device)
-
     else:
       raise ValueError(f'not found model name: {model_name}')
 

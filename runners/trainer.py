@@ -57,14 +57,19 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
     return global_step
 
 
-def save_checkpoint(model, epoch, best_acc, args, optimizer=None, scheduler=None):
+def save_checkpoint(filename, model, epoch, best_acc, early_stop_count, args, optimizer=None, scheduler=None):
     state_dict = model.state_dict()
-    save_dict = {"epoch": epoch, "best_acc": best_acc, "state_dict": state_dict}
+    save_dict = {
+      "epoch": epoch,
+      "best_acc": best_acc,
+      "early_stop_count": early_stop_count,
+      "state_dict": state_dict,
+    }
     if optimizer is not None:
         save_dict["optimizer"] = optimizer.state_dict()
     if scheduler is not None:
         save_dict["scheduler"] = scheduler.state_dict()
-    filename = os.path.join(args.model_dir, args.filename)
+    filename = os.path.join(args.model_dir, filename)
     torch.save(save_dict, filename)
     print("Saving checkpoint", filename)
 
@@ -72,6 +77,7 @@ def save_checkpoint(model, epoch, best_acc, args, optimizer=None, scheduler=None
 def run_training(
         start_epoch,
         best_acc,
+        early_stop_count,
         model,
         train_loader,
         val_loader,
@@ -90,6 +96,9 @@ def run_training(
     val_acc_best = best_acc
 
     for epoch in range(start_epoch, args.max_epoch+1):
+        if early_stop_count == args.max_early_stop_count:
+            break
+
         global_step = train_epoch(
             train_loader,
             model,
@@ -121,25 +130,48 @@ def run_training(
 
             if val_avg_acc > val_acc_best:
                 val_acc_best = val_avg_acc
+                early_stop_count = 0
                 save_checkpoint(
+                    'best_model.pth',
                     model,
                     epoch,
                     val_acc_best,
+                    early_stop_count,
                     args,
                     optimizer,
                     scheduler
                 )
                 print(
-                    "Model Was Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
+                    "Best Model Was Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
                         val_acc_best, val_avg_acc
                     )
                 )
             else:
-                print(
-                    "Model Was Not Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
-                        val_acc_best, val_avg_acc
+                early_stop_count += 1
+                print("Early stop count: ", early_stop_count)
+                if args.save_checkpoint_freq != 0 and early_stop_count % args.save_checkpoint_freq == 0:
+                    print(
+                        "Final Model Was Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
+                            val_acc_best, val_avg_acc
+                        )
                     )
-                )
+                    save_checkpoint(
+                        'final_model.pth',
+                        model,
+                        epoch,
+                        val_acc_best,
+                        early_stop_count,
+                        args,
+                        optimizer,
+                        scheduler
+                    )
+                else:
+                  print(
+                      "Model Was Not Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
+                          val_acc_best, val_avg_acc
+                      )
+                  )
 
         if scheduler is not None:
-            scheduler.step()        
+            scheduler.step()
+
