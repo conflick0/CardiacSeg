@@ -2,13 +2,15 @@ import torch
 import torch.nn as nn
 import math
 import warnings
-from torch.nn.modules.utils import _pair as to_2tuple
+from typing import Any
 
 
 from mmcv.cnn import build_norm_layer
 from mmcv.runner import BaseModule
 from mmcv.cnn.bricks import DropPath
 from mmcv.cnn.utils.weight_init import (constant_init, normal_init, trunc_normal_init)
+
+from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetrPrUpBlock, UnetOutBlock
 
 
 class Mlp(BaseModule):
@@ -135,12 +137,9 @@ class Block(BaseModule):
     def forward(self, x, H, W, D):
         B, N, C = x.shape
         x = x.permute(0, 2, 1).view(B, C, H, W, D)
-        print(self.layer_scale_1.unsqueeze(-1).unsqueeze(-1).shape)
-        print(self.norm1(x).shape)
-        print(self.attn(self.norm1(x)).shape)
-        x = x + self.drop_path(self.layer_scale_1.unsqueeze(-1).unsqueeze(-1)
+        x = x + self.drop_path(self.layer_scale_1.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)
                                * self.attn(self.norm1(x)))
-        x = x + self.drop_path(self.layer_scale_2.unsqueeze(-1).unsqueeze(-1)
+        x = x + self.drop_path(self.layer_scale_2.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)
                                * self.mlp(self.norm2(x)))
         x = x.view(B, C, N).permute(0, 2, 1)
         return x
@@ -152,7 +151,7 @@ class OverlapPatchEmbed(BaseModule):
 
     def __init__(self, patch_size=7, stride=4, in_chans=3, embed_dim=768, norm_cfg=dict(type='BN3d', requires_grad=True)):
         super().__init__()
-        patch_size = to_2tuple(patch_size)
+        patch_size = (patch_size, patch_size, patch_size)
 
         self.proj = nn.Conv3d(in_chans, embed_dim, kernel_size=patch_size, stride=stride,
                               padding=(patch_size[0] // 2, patch_size[1] // 2, patch_size[1] // 2))
@@ -170,7 +169,7 @@ class OverlapPatchEmbed(BaseModule):
 
 class MSCAN(BaseModule):
     def __init__(self,
-        in_chans=3,
+        in_chans=1,
         embed_dims=[96, 192, 384, 768],
         mlp_ratios=[4, 4, 4, 4],
         drop_rate=0.,
@@ -263,3 +262,91 @@ class DWConv(nn.Module):
     def forward(self, x):
         x = self.dwconv(x)
         return x
+
+
+
+class UNETSNX(nn.Module):
+    def __init__(
+        self,
+        in_channels=1,
+        out_channels=2,
+        feature_size=48,
+        patch_size=4,
+        spatial_dims=3,
+        norm_name='instance',
+        **kwargs: Any
+    ) -> None:
+        super().__init__()
+        self.encoder = MSCAN()
+
+        self.encoder5 = UnetrPrUpBlock(
+            spatial_dims=spatial_dims,
+            in_channels=16 * feature_size,
+            out_channels=16 * feature_size,
+            num_layer=0,
+            kernel_size=3,
+            stride=1,
+            upsample_kernel_size=2,
+            norm_name=norm_name,
+            conv_block=True,
+            res_block=True,
+        )
+
+        self.decoder4 = UnetrUpBlock(
+            spatial_dims=spatial_dims,
+            in_channels=16 * feature_size,
+            out_channels=8 * feature_size,
+            kernel_size=3,
+            upsample_kernel_size=1,
+            norm_name=norm_name,
+            res_block=True,
+        )
+
+        self.decoder3 = UnetrUpBlock(
+            spatial_dims=spatial_dims,
+            in_channels=8 * feature_size,
+            out_channels=4 * feature_size,
+            kernel_size=3,
+            upsample_kernel_size=2,
+            norm_name=norm_name,
+            res_block=True,
+        )
+
+        self.decoder2 = UnetrUpBlock(
+            spatial_dims=spatial_dims,
+            in_channels=4 * feature_size,
+            out_channels=2 * feature_size,
+            kernel_size=3,
+            upsample_kernel_size=2,
+            norm_name=norm_name,
+            res_block=True,
+        )
+
+        self.decoder1 = UnetrUpBlock(
+            spatial_dims=spatial_dims,
+            in_channels=2 * feature_size,
+            out_channels=feature_size,
+            kernel_size=3,
+            upsample_kernel_size=2,
+            norm_name=norm_name,
+            res_block=True,
+        )
+
+        self.decoder0 = nn.ConvTranspose3d(
+            in_channels=feature_size * 2,
+            out_channels=feature_size,
+            kernel_size=patch_size,
+            stride=patch_size,
+            bias=False
+        )
+
+        self.out = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size, out_channels=out_channels)
+
+    def forward(self, x):
+        enc1, enc2, enc3, enc4 = self.encoder(x)
+        dec4 = self.encoder5(enc4)
+        dec3 = self.decoder4(dec4, enc3)
+        dec2 = self.decoder3(dec3, enc2)
+        dec1 = self.decoder2(dec2, enc1)
+        dec0 = self.decoder0(dec1)
+        return self.out(dec0)

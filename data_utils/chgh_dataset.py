@@ -2,7 +2,7 @@ import os
 
 from monai.transforms import AddChannel
 
-from data_utils.data_loader import MyDataLoader
+from data_utils.data_loader import MyDataLoader, get_dl
 from data_utils.io import load_json
 from transforms.chgh_transform import get_train_transform, get_val_transform, get_inf_transform
 
@@ -16,7 +16,6 @@ def get_data_dicts(data_dir):
             "label": os.path.join(os.path.join(data_dir, patient_dir, f'{patient_dir}_gt.nii.gz'))
         })
     return data_dicts
-
 
 
 def get_loader(args):
@@ -38,8 +37,20 @@ def get_loader(args):
     return dl.get_loader()
 
 
-def get_infer_data(data_dict, keys, args):
+def get_infer_data(data_dict, args):
+    keys = data_dict.keys()
     inf_transform = get_inf_transform(keys, args)
     data = inf_transform(data_dict)
     return data
 
+
+def get_infer_loader(keys, args):
+    data_dicts = [{'image': args.img_pth, 'label': args.lbl_pth}]
+    inf_transform = get_inf_transform(keys, args)
+    inf_loader = get_dl(
+        files=data_dicts,
+        transform=inf_transform,
+        shuffle=False,
+        args=args
+    )
+    return inf_loader

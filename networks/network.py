@@ -5,6 +5,7 @@ from networks.unetcnx_x1 import UNETCNX_X1
 
 from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
 from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
+from networks.unetsnx import UNETSNX
 
 
 def network(model_name, args):
@@ -92,6 +93,14 @@ def network(model_name, args):
         
     elif model_name == 'unetcnx_x1':
         return UNETCNX(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              feature_size=48,
+              patch_size=4
+        ).to(args.device)
+
+    elif model_name == 'unetsnx':
+        return UNETSNX(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               feature_size=48,

@@ -1,11 +1,16 @@
 import os
 
+from monai.utils import set_determinism
 from monai.data import decollate_batch
 from monai.inferers import sliding_window_inference
 
 import torch
 
 from tqdm import tqdm
+
+
+# set deterministic training for reproducibility
+set_determinism(seed=0)
 
 
 def val_epoch(loader, model, model_inferer, acc_func, post_label, post_pred, global_step, args):

@@ -42,12 +42,15 @@ parser.add_argument("--filename", default="best_model.pth", help="save model fil
 parser.add_argument("--start_epoch", default=0, type=int, help="start epoch")
 parser.add_argument("--val_every", default=20, type=int, help="validation frequency")
 parser.add_argument("--max_epoch", default=2000, type=int, help="max number of training epochs")
+parser.add_argument("--early_stop_count", default=0, type=int, help="early stop count")
+parser.add_argument("--max_early_stop_count", default=10, type=int, help="max early stop count")
+parser.add_argument("--save_checkpoint_freq", default=1, type=int, help="save final checkpoint freq, if value is 0 won't save.")
 
 # data
 parser.add_argument("--data_dicts_json", default=None, type=str, help="data dicts json")
 parser.add_argument("--fold", default=1, type=int, help="index of fold")
 parser.add_argument("--split_train_ratio", default=0.6, type=float, help="split train ratio")
-parser.add_argument("--num_fold", default=2, type=float, help="num fold")
+parser.add_argument("--num_fold", default=2, type=int, help="num fold")
 parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
 parser.add_argument("--pin_memory", action="store_true", help="pin memory")
 parser.add_argument("--workers", default=2, type=int, help="number of workers")
@@ -128,6 +131,7 @@ def main_worker(args):
 
     # check point
     start_epoch = args.start_epoch
+    early_stop_count = args.early_stop_count
     best_acc = 0
     if args.checkpoint is not None:
         checkpoint = torch.load(args.checkpoint, map_location="cpu")
@@ -136,14 +140,19 @@ def main_worker(args):
         # load optimizer
         optimizer.load_state_dict(checkpoint['optimizer'])
         # load lrschedule
-        if args.lrschedule is not None:
+        if args.lrschedule is not None and 'scheduler' in checkpoint:
           scheduler.load_state_dict(checkpoint['scheduler'])
         # load check point epoch and best acc
         if "epoch" in checkpoint and args.start_epoch == 0:
             start_epoch = checkpoint["epoch"]
         if "best_acc" in checkpoint:
             best_acc = checkpoint["best_acc"]
-        print("=> loaded checkpoint '{}' (epoch {}) (bestacc {})".format(args.checkpoint, start_epoch, best_acc))
+        if "early_stop_count" in checkpoint and args.early_stop_count == 0:
+            early_stop_count = checkpoint["early_stop_count"]
+        print(
+          "=> loaded checkpoint '{}' (epoch {}) (bestacc {}) (early stop count {})"\
+          .format(args.checkpoint, start_epoch, best_acc, early_stop_count)
+        )
 
     # inferer
     post_label = AsDiscrete(to_onehot=args.out_channels)
@@ -167,6 +176,7 @@ def main_worker(args):
         run_training(
             start_epoch=start_epoch,
             best_acc=best_acc,
+            early_stop_count=early_stop_count,
             model=model,
             train_loader=tr_loader,
             val_loader=val_loader,

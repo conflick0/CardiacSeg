@@ -11,8 +11,12 @@ import pandas as pd
 from data_utils.visualization import show_img_lbl
 
 
+def get_pid_by_file(file):
+    return PurePath(file).parts[-1].split('.')[0]
+
+
 def get_pids_by_files(files):
-    pids = list(map(lambda x: PurePath(x).parts[-1].split('.')[0], files))
+    pids = list(map(lambda x: get_pid_by_file(x), files))
     return pids
 
 
@@ -26,18 +30,23 @@ def get_pids_by_loader(loader):
     return get_pids_by_files(files)
 
 
+def get_pid_by_data(data):
+    file = data['image_meta_dict']['filename_or_obj'][0]
+    return get_pid_by_file(file)
+
+
 def get_label_classes(label):
   return label.flatten().unique().numpy()
 
 
-def get_data_info(data_dicts):
+def get_data_info(data_dicts, base_transforms=None):
     '''show data info for eda'''
-    base_transforms = Compose(
-        [
-            LoadImaged(keys=["image"]),
-            LoadImaged(keys=["label"])
-        ]
-    )
+    if base_transforms is None:
+      base_transforms = Compose(
+          [
+              LoadImaged(keys=["image", "label"])
+          ]
+      )
     df = pd.DataFrame()
     for data_dict in data_dicts:
       d = base_transforms(data_dict)
