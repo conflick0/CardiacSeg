@@ -6,6 +6,8 @@ from networks.unetcnx_x1 import UNETCNX_X1
 from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
 from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
 from networks.unetsnx import UNETSNX
+from networks.TransUNet.networks.vit_seg_modeling import VisionTransformer as ViT_seg
+from networks.TransUNet.networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
 
 
 def network(model_name, args):
@@ -90,7 +92,21 @@ def network(model_name, args):
             layer_scale_init_value=1e-6,
             spatial_dims=3,
         ).to(args.device)
-        
+
+    elif model_name == 'transunet':
+        vit_name = 'R50-ViT-B_16'
+        img_size = args.roi_x
+        vit_patches_size = 16
+        config_vit = CONFIGS_ViT_seg[vit_name]
+        config_vit.n_classes = args.out_channels
+        config_vit.n_skip = 3
+        config_vit.patches.grid = (int(img_size / vit_patches_size), int(img_size / vit_patches_size))
+        return ViT_seg(
+          config_vit, 
+          img_size=img_size, 
+          num_classes=config_vit.n_classes
+        ).to(args.device)
+
     elif model_name == 'unetcnx_x1':
         return UNETCNX(
               in_channels=args.in_channels,

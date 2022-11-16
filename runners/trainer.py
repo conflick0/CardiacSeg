@@ -179,4 +179,3 @@ def run_training(
 
         if scheduler is not None:
             scheduler.step()
-

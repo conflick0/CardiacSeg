@@ -9,7 +9,7 @@ from monai.data import (
 from data_utils.utils import get_pids_by_data_dicts
 
 
-def get_dl(files, transform, shuffle, args):
+def get_dl(files, transform, shuffle, batch_size, args):
     ds = CacheDataset(
         data=files,
         transform=transform,
@@ -17,7 +17,7 @@ def get_dl(files, transform, shuffle, args):
     )
     loader = DataLoader(
         ds,
-        batch_size=args.batch_size,
+        batch_size=batch_size,
         shuffle=shuffle,
         num_workers=args.workers,
         pin_memory=args.pin_memory
@@ -72,6 +72,7 @@ class MyDataLoader:
                 files=self.test_files,
                 transform=self.val_transform,
                 shuffle=False,
+                batch_size=self.args.batch_size,
                 args=self.args
             )
             return [test_loader]
@@ -81,6 +82,7 @@ class MyDataLoader:
                 files=self.train_files,
                 transform=self.train_transform,
                 shuffle=True,
+                batch_size=self.args.batch_size,
                 args=self.args
             )
             print('\nload val dataset ...')
@@ -88,7 +90,46 @@ class MyDataLoader:
                 files=self.val_files,
                 transform=self.val_transform,
                 shuffle=False,
+                batch_size=self.args.batch_size,
                 args=self.args
             )
             return [train_loader, val_loader]
 
+
+class MyDataLoader2d:
+    def __init__(self, data_dicts, train_transform, val_transform, args):
+        self.data_dicts = data_dicts
+        self.train_transform = train_transform
+        self.val_transform = val_transform
+        self.args = args
+        self.train_files, self.val_files, self.test_files = self.data_dicts['training'], self.data_dicts['validation'], self.data_dicts['test']
+
+    def get_loader(self):
+        if self.args.test_mode:
+            print('\nload test dataset ...',)
+            test_loader = get_dl(
+                files=self.test_files,
+                transform=self.val_transform,
+                shuffle=False,
+                batch_size=self.args.val_batch_size,
+                args=self.args
+            )
+            return [test_loader]
+        else:
+            print('\nload train dataset ...')
+            train_loader = get_dl(
+                files=self.train_files,
+                transform=self.train_transform,
+                shuffle=True,
+                batch_size=self.args.batch_size,
+                args=self.args
+            )
+            print('\nload val dataset ...')
+            val_loader = get_dl(
+                files=self.val_files,
+                transform=self.val_transform,
+                shuffle=False,
+                batch_size=self.args.val_batch_size,
+                args=self.args
+            )
+            return [train_loader, val_loader]

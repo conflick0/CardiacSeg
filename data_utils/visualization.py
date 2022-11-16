@@ -95,3 +95,39 @@ def show_img_lbl(img, lbl, slice_idx, num_classes, axis_off=True, alpha=0.9, fig
     plt.tight_layout()
     plt.show()
 
+
+def show_img_lbl_preds(imgs, lbls, preds, pred_names, slice_idxs, num_classes, axis_off=True, alpha=0.9, fig_size=(20, 10)):
+    cmap = get_slicer_cmap(num_classes)
+    row_num = len(imgs)
+    col_num = (len(preds[0]) + 2)
+    subplot_idx = 1
+    plt.figure("check", fig_size)
+    for (img, lbl, pred_ls, slice_idx) in zip(imgs, lbls, preds, slice_idxs):
+        plt.subplot(row_num, col_num, subplot_idx)
+        plt.title(f"image (slice: {slice_idx})")
+        plt.imshow(img, cmap="gray")
+        if axis_off:
+            plt.axis('off')
+
+        titles = ['label'] + pred_names
+        ims = [lbl] + pred_ls
+        subplot_idx += 1
+        for (t, im) in zip(titles, ims):
+            plt.subplot(row_num, col_num, subplot_idx)
+            plt.title(f"{t} (slice: {slice_idx})")
+            plt.imshow(img, cmap="gray")
+            im_masked = np.ma.masked_where(im == 0, im)
+            plt.imshow(
+                im_masked,
+                cmap,
+                interpolation='none',
+                alpha=alpha,
+                vmin=1,
+                vmax=num_classes
+            )
+            if axis_off:
+                plt.axis('off')
+            subplot_idx += 1
+
+    plt.tight_layout()
+    plt.show()
