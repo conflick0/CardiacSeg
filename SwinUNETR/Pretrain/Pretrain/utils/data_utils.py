@@ -64,7 +64,9 @@ def get_loader(args):
         data_names = ['mmwhs']
         data_json_pths = [data_json_pth2]
     else:
-      raise ValueError(f'not found data name: {args.data_name}')
+        data_json_pths = [args.data_name]
+        data_names = ['data_dict']
+        print(data_json_pths)
 
     datalist = []
     val_files = []

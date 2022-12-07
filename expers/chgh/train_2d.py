@@ -20,7 +20,7 @@ from monai.transforms import AsDiscrete
 from data_utils.chgh_dataset_2d import get_loader
 from data_utils.utils import get_pids_by_loader
 from runners.trainer_2d import run_training
-from runners.tester import run_testing
+from runners.tester_2d import run_testing
 from networks.network import network
 from optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
@@ -43,7 +43,7 @@ parser.add_argument("--start_epoch", default=0, type=int, help="start epoch")
 parser.add_argument("--val_every", default=20, type=int, help="validation frequency")
 parser.add_argument("--max_epoch", default=2000, type=int, help="max number of training epochs")
 parser.add_argument("--early_stop_count", default=0, type=int, help="early stop count")
-parser.add_argument("--max_early_stop_count", default=10, type=int, help="max early stop count")
+parser.add_argument("--max_early_stop_count", default=20, type=int, help="max early stop count")
 parser.add_argument("--save_checkpoint_freq", default=1, type=int, help="save final checkpoint freq, if value is 0 won't save.")
 
 # data
@@ -204,7 +204,7 @@ def main_worker(args):
         dc_vals, hd95_vals = run_testing(
             model,
             tt_loader,
-            model_inferer,
+            model_inferer_2d_to_3d,
             post_label,
             post_pred,
         )

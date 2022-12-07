@@ -32,7 +32,7 @@ def main():
         torch.save(state, checkpoint_dir)
 
     def train(args, global_step, train_loader, val_best, scaler):
-
+        
         model.train()
         loss_train = []
         loss_train_recon = []
@@ -91,26 +91,37 @@ def main():
                 writer.add_image("Validation/x1_aug", img_list[1], global_step, dataformats="HW")
                 writer.add_image("Validation/x1_recon", img_list[2], global_step, dataformats="HW")
 
+                checkpoint = {
+                    "global_step": global_step,
+                    "state_dict": model.state_dict(),
+                    "optimizer": optimizer.state_dict()
+                }
+
                 if val_loss_recon < val_best:
                     val_best = val_loss_recon
-                    checkpoint = {
-                        "global_step": global_step,
-                        "state_dict": model.state_dict(),
-                        "optimizer": optimizer.state_dict(),
-                    }
+                    args.early_stop_count = 0
+                    checkpoint['val_best'] = val_best
+                    checkpoint['early_stop_count'] = args.early_stop_count
                     save_ckp(checkpoint, logdir + "/model_bestValRMSE.pt")
                     print(
                         "Model was saved ! Best Recon. Val Loss: {:.4f}, Recon. Val Loss: {:.4f}".format(
                             val_best, val_loss_recon
                         )
                     )
+                    
                 else:
+                    args.early_stop_count += 1
+                    checkpoint['val_best'] = val_best
+                    checkpoint['early_stop_count'] = args.early_stop_count
                     print(
                         "Model was not saved ! Best Recon. Val Loss: {:.4f} Recon. Val Loss: {:.4f}".format(
                             val_best, val_loss_recon
                         )
                     )
-        return global_step, loss, val_best
+                    print('early stop count:', args.early_stop_count)
+                    save_ckp(checkpoint, logdir + "/model_final.pt")
+                    
+        return global_step, val_best
 
     def validation(args, test_loader):
         model.eval()
@@ -190,10 +201,13 @@ def main():
     parser.add_argument("--smartcache_dataset", action="store_true", help="use monai smartcache Dataset")
     parser.add_argument("--cache_dataset", action="store_true", help="use monai cache Dataset")
     parser.add_argument("--data_name", default='all', type=str, help="name of dataset for pretrain")
+    parser.add_argument("--early_stop_count", default=0, type=int, help="early stop count")
+    parser.add_argument("--max_early_stop_count", default=10, type=int, help="max early stop count")
+    parser.add_argument("--best_val", default=1e8, type=float, help="best val")
 
     args = parser.parse_args()
-    logdir = "./runs/" + args.logdir
-    train_log = os.path.join('./runs/', args.logdir, 'log')
+    logdir = args.logdir
+    train_log = os.path.join(args.logdir, 'log')
 
     args.amp = not args.noamp
     torch.backends.cudnn.benchmark = True
@@ -241,8 +255,12 @@ def main():
         model_pth = args.resume
         model_dict = torch.load(model_pth)
         model.load_state_dict(model_dict["state_dict"])
-        model.epoch = model_dict["epoch"]
         model.optimizer = model_dict["optimizer"]
+        if "early_stop_count" in model_dict and args.early_stop_count == 0:
+            args.early_stop_count = model_dict["early_stop_count"]
+        if "best_val" in model_dict and args.best_val == 0:
+            args.best_val = model_dict["best_val"]
+        print('load model:', model_pth)
 
     if args.lrdecay:
         if args.lr_schedule == "warmup_cosine":
@@ -262,22 +280,15 @@ def main():
     train_loader, test_loader = get_loader(args)
 
     global_step = 0
-    best_val = 1e8
+    best_val = args.best_val
     if args.amp:
         scaler = GradScaler()
     else:
         scaler = None
     while global_step < args.num_steps:
-        global_step, loss, best_val = train(args, global_step, train_loader, best_val, scaler)
-    checkpoint = {"epoch": args.epochs, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict()}
-
-    if args.distributed:
-        if dist.get_rank() == 0:
-            torch.save(model.state_dict(), logdir + "final_model.pth")
-        dist.destroy_process_group()
-    else:
-        torch.save(model.state_dict(), logdir + "final_model.pth")
-    save_ckp(checkpoint, logdir + "/model_final_epoch.pt")
+        if args.early_stop_count == args.max_early_stop_count:
+            break
+        global_step, best_val = train(args, global_step, train_loader, best_val, scaler)
 
 
 if __name__ == "__main__":

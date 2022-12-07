@@ -1,5 +1,6 @@
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
+from PIL import Image
 import numpy as np
 import matplotlib as mpl
 
@@ -96,22 +97,29 @@ def show_img_lbl(img, lbl, slice_idx, num_classes, axis_off=True, alpha=0.9, fig
     plt.show()
 
 
-def show_img_lbl_preds(imgs, lbls, preds, pred_names, slice_idxs, num_classes, axis_off=True, alpha=0.9, fig_size=(20, 10)):
+def show_img_lbl_preds(imgs, lbls, preds, pred_titles, slice_idxs, num_classes, axis_off=True, alpha=0.9, fig_size=(20, 10), show_img=True, show_lbl_dc=False):
     cmap = get_slicer_cmap(num_classes)
     row_num = len(imgs)
-    col_num = (len(preds[0]) + 2)
+    col_num = len(preds[0]) + 1
+    if show_img:
+      col_num += 1
+
+    lbl_title = 'label (dice:1.00)' if show_lbl_dc else 'label'
+    
     subplot_idx = 1
     plt.figure("check", fig_size)
     for (img, lbl, pred_ls, slice_idx) in zip(imgs, lbls, preds, slice_idxs):
-        plt.subplot(row_num, col_num, subplot_idx)
-        plt.title(f"image (slice: {slice_idx})")
-        plt.imshow(img, cmap="gray")
-        if axis_off:
-            plt.axis('off')
+        if show_img:
+            plt.subplot(row_num, col_num, subplot_idx)
+            plt.title(f"image (slice: {slice_idx})")
+            plt.imshow(img, cmap="gray")
+            subplot_idx += 1
+            if axis_off:
+                plt.axis('off')
 
-        titles = ['label'] + pred_names
+        titles = [lbl_title] + pred_titles
         ims = [lbl] + pred_ls
-        subplot_idx += 1
+
         for (t, im) in zip(titles, ims):
             plt.subplot(row_num, col_num, subplot_idx)
             plt.title(f"{t} (slice: {slice_idx})")
@@ -131,3 +139,90 @@ def show_img_lbl_preds(imgs, lbls, preds, pred_names, slice_idxs, num_classes, a
 
     plt.tight_layout()
     plt.show()
+
+
+
+def norm_img(img):
+    img = np.array(img)
+    _min = np.min(img)
+    _max = np.max(img)
+    norm = (img - _min) * 255.0 / (_max - _min)
+    return np.uint8(norm)
+
+
+def get_pred_label_overlap_img(image, pred, label):
+    '''
+    output red color is predict mask,
+    green color is gt mask,
+    yellow color is the intersection of prediction mask and gt mask
+    '''
+    image = norm_img(image)
+    image = np.array(image)
+    pred = np.array(pred)
+    label = np.array(label)
+    image = image.astype(np.uint8)
+
+    pred_mask = (image * pred).astype(np.uint8)
+    label_mask = (image * label).astype(np.uint8)
+
+    union_mask = (image * np.logical_or(pred_mask, label_mask)).astype(np.uint8)
+
+    no_mask = image - union_mask
+
+    r = no_mask + pred_mask
+    g = no_mask + label_mask
+    b = no_mask
+
+    rgb_img = np.stack([r, g, b], -1)
+    rgb_img = Image.fromarray(rgb_img)
+    return rgb_img
+
+
+def show_img_lbl_preds_overlap(
+      imgs, 
+      lbls, 
+      preds, 
+      pred_titles, 
+      slice_idxs, 
+      num_classes, 
+      axis_off=True, 
+      alpha=0.9, 
+      fig_size=(20, 10), 
+      show_img=True, 
+      show_lbl_dc=False
+    ):
+
+    cmap = get_slicer_cmap(num_classes)
+    row_num = len(imgs)
+    col_num = len(preds[0])
+    if show_img:
+      col_num += 1
+
+    lbl_title = 'label (dice:1.00)' if show_lbl_dc else 'label'
+    
+    subplot_idx = 1
+    plt.figure("check", fig_size)
+    for (img, lbl, pred_ls, slice_idx) in zip(imgs, lbls, preds, slice_idxs):
+        if show_img:
+            plt.subplot(row_num, col_num, subplot_idx)
+            plt.title(f"image (slice: {slice_idx})")
+            plt.imshow(img, cmap="gray")
+            subplot_idx += 1
+            if axis_off:
+                plt.axis('off')
+        
+        titles = pred_titles
+        for (t, prd) in zip(titles, pred_ls):
+            plt.subplot(row_num, col_num, subplot_idx)
+            plt.title(f"{t} (slice: {slice_idx})")
+
+            overlap_img = get_pred_label_overlap_img(img, prd, lbl)
+            plt.imshow(overlap_img)
+
+            if axis_off:
+                plt.axis('off')
+            subplot_idx += 1
+
+    plt.tight_layout()
+    plt.show()
+
