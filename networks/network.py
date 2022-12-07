@@ -2,6 +2,7 @@ from monai.networks.nets import SwinUNETR, UNETR, UNet, AttentionUnet
 
 from networks.unetcnx import UNETCNX
 from networks.unetcnx_x1 import UNETCNX_X1
+from networks.unetcnx_x0 import UNETCNX_X0
 
 from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
 from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
@@ -122,6 +123,15 @@ def network(model_name, args):
               feature_size=48,
               patch_size=4
         ).to(args.device)
+
+    elif model_name == 'unetcnx_x0':
+        return UNETCNX_X0(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            feature_size=24,
+            patch_size=2
+        ).to(args.device)
+
     else:
       raise ValueError(f'not found model name: {model_name}')
 
