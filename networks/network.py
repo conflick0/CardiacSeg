@@ -4,6 +4,9 @@ from networks.unetcnx import UNETCNX
 from networks.unetcnx_x1 import UNETCNX_X1
 from networks.unetcnx_x0 import UNETCNX_X0
 
+from networks.EfficientSegNet.networks.network_x0 import EfficientSegNet_X0
+from networks.EfficientSegNet.networks.network_x1 import EfficientSegNet_X1
+
 from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
 from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
 from networks.unetsnx import UNETSNX
@@ -108,14 +111,6 @@ def network(model_name, args):
           num_classes=config_vit.n_classes
         ).to(args.device)
 
-    elif model_name == 'unetcnx_x1':
-        return UNETCNX(
-              in_channels=args.in_channels,
-              out_channels=args.out_channels,
-              feature_size=48,
-              patch_size=4
-        ).to(args.device)
-
     elif model_name == 'unetsnx':
         return UNETSNX(
               in_channels=args.in_channels,
@@ -132,7 +127,43 @@ def network(model_name, args):
             patch_size=2
         ).to(args.device)
 
+    elif model_name == 'unetcnx_x1':
+        return UNETCNX_X1(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              feature_size=24,
+              patch_size=2
+        ).to(args.device)
+
+    elif model_name == 'efficient_segnet_x0':
+        return EfficientSegNet_X0(
+          in_channels=args.in_channels,
+          out_channels=args.out_channels,
+        ).to(args.device)
+    elif model_name == 'efficient_segnet_x0':
+        return EfficientSegNet_X0(
+          in_channels=args.in_channels,
+          out_channels=args.out_channels,
+        ).to(args.device)
+    elif model_name == 'efficient_segnet_x0_1':
+        return EfficientSegNet_X0(
+          in_channels=args.in_channels,
+          out_channels=args.out_channels,
+          feature_size=16
+        ).to(args.device)
+    elif model_name == 'efficient_segnet_x0_2':
+        return EfficientSegNet_X0(
+          in_channels=args.in_channels,
+          out_channels=args.out_channels,
+          feature_size=24
+        ).to(args.device)
+    elif model_name == 'efficient_segnet_x1':
+        return EfficientSegNet_X1(
+          in_channels=args.in_channels,
+          out_channels=args.out_channels,
+        ).to(args.device)
+
+
     else:
       raise ValueError(f'not found model name: {model_name}')
-
 

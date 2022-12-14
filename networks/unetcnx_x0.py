@@ -321,4 +321,12 @@ class UNETCNX_X0(ConvNeXt):
         out = self.out(dec0)
         return out
 
+    def encode(self, x):
+        inc = self.inc(x)
+        enc1 = self.encoder1(inc)
+        enc2 = self.encoder2(enc1)
+        enc3 = self.encoder3(enc2)
+        enc4 = self.encoder4(enc3)
+        return enc4
+
         

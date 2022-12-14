@@ -170,11 +170,15 @@ def main_worker(args):
                 print("Tag 'swin_vit' found in state dict - fixing!")
                 for key in list(state_dict.keys()):
                     state_dict[key.replace("swin_vit", "swinViT")] = state_dict.pop(key)
+            if "net" in list(state_dict.keys())[0]:
+                print("Tag 'net' found in state dict - fixing!")
+                for key in list(state_dict.keys()):
+                    state_dict[key.replace("net.", "")] = state_dict.pop(key)
             # We now load model weights, setting param `strict` to False, i.e.:
             # this load the encoder weights (Swin-ViT, SSL pre-trained), but leaves
             # the decoder weights untouched (CNN UNet decoder).
             model.load_state_dict(state_dict, strict=False)
-            print("Using pretrained self-supervised Swin UNETR backbone weights !")
+            print("Using pretrained self-supervised backbone weights !")
         except ValueError:
             raise ValueError("Self-supervised pre-trained weights not available for" + str(args.model_name))
 
