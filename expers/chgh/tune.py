@@ -253,6 +253,14 @@ if __name__ == "__main__":
               5e-5,
             ]),
         }
+    elif args.tune_mode == 't1':
+        search_space = {
+            "exp": tune.grid_search([
+              {
+                  'transform': 't0',
+              }
+            ])
+        }
     else:
       raise ValueError("Invalid args tune_mode")
 

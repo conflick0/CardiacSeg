@@ -7,6 +7,8 @@ from networks.unetcnx_x0 import UNETCNX_X0
 from networks.EfficientSegNet.networks.network_x0 import EfficientSegNet_X0
 from networks.EfficientSegNet.networks.network_x1 import EfficientSegNet_X1
 
+from networks.unetr_pp.network_architecture.synapse.unetr_pp_synapse import UNETR_PP
+
 from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
 from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
 from networks.unetsnx import UNETSNX
@@ -163,6 +165,17 @@ def network(model_name, args):
           out_channels=args.out_channels,
         ).to(args.device)
 
+    elif model_name == 'unetr_pp':
+        return UNETR_PP(
+          in_channels=args.in_channels,
+          out_channels=args.out_channels,
+          img_size=[args.roi_x, args.roi_y, args.roi_z],
+          feature_size=12,
+          num_heads=4,
+          depths=[3, 3, 3, 3],
+          dims=[24, 48, 96, 192],
+          do_ds=False,
+        ).to(args.device)
 
     else:
       raise ValueError(f'not found model name: {model_name}')

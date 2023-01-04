@@ -21,6 +21,12 @@ def get_data_dicts(data_dir):
 def get_loader(args):
     if args.data_dicts_json:
       data_dicts = load_json(args.data_dicts_json)
+      data_dicts = [
+        {
+          "image": os.path.join(args.data_dir, data_dict['image']),
+          "label": os.path.join(args.data_dir, data_dict['label'])
+        } for data_dict in data_dicts
+      ]
     else:
       data_dicts = get_data_dicts(args.data_dir)
     
