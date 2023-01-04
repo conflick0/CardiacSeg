@@ -1,6 +1,6 @@
 import sys
 # set package path
-sys.path.append("/content/drive/MyDrive/CardiacSeg")
+sys.path.append("/nfs/Workspace/CardiacSeg")
 
 import argparse
 import os
@@ -101,19 +101,58 @@ def main(config):
     if args.tune_mode == 'transform_intesity':
         args.a_min = config['a_min']
         args.a_max = config['a_max']
+        
     elif args.tune_mode == 'transform_space':
         search_space = config['space']
         args.space_x = search_space[0]
         args.space_y = search_space[1]
         args.space_z = search_space[2]
+        
     elif args.tune_mode == 'transform_roi':
         search_space = config['roi']
         args.roi_x = search_space[0]
         args.roi_y = search_space[1]
         args.roi_z = search_space[2]
+        
     elif args.tune_mode == 'optim_adamw':
         args.optim_lr = config['optim_lr']
         args.reg_weight = config['reg_weight']
+        
+    elif args.tune_mode == 'optim_adamw_lrschedule_LinearWarmupCosineAnnealingLR':
+        args.optim_lr = config['optim']['optim_lr']
+        args.reg_weight = config['optim']['reg_weight']
+        args.warmup_epochs = config['lrschedule']['warmup_epochs']
+        args.max_epoch = config['lrschedule']['max_epoch']
+        
+    elif args.tune_mode == 'optim_lrschedule_early_stop_epoch':
+        args.a_min = config['transform']['a_min']
+        args.a_max =  config['transform']['a_max']
+        args.space_x = config['transform']['space'][0]
+        args.space_y = config['transform']['space'][1]
+        args.space_z = config['transform']['space'][2]
+        args.roi_x = config['transform']['roi'][0]
+        args.roi_y = config['transform']['roi'][1]
+        args.roi_z = config['transform']['roi'][2]
+        args.optim_lr = config['optim']['optim_lr']
+        args.reg_weight = config['optim']['reg_weight']
+        args.warmup_epochs = config['lrschedule']['warmup_epochs']
+        args.max_epoch = config['lrschedule']['max_epoch']
+        args.max_early_stop_count = config['max_early_stop_count']
+        
+    elif args.tune_mode == 'train':
+        train_cfg = config['train']
+        args.a_min = train_cfg['a_min']
+        args.a_max = train_cfg['a_max']
+        args.space_x = train_cfg['space'][0]
+        args.space_y = train_cfg['space'][1]
+        args.space_z = train_cfg['space'][2]
+        args.roi_x = train_cfg['roi'][0]
+        args.roi_y = train_cfg['roi'][1]
+        args.roi_z = train_cfg['roi'][2]
+        args.optim_lr = train_cfg['optim_lr']
+        args.reg_weight = train_cfg['reg_weight']
+        args.warmup_epochs = train_cfg['warmup_epochs']
+        args.max_epoch = train_cfg['max_epoch']
 
     main_worker(args)
 
@@ -252,6 +291,63 @@ if __name__ == "__main__":
               5e-4,
               5e-5,
             ]),
+        }
+    elif args.tune_mode == 'optim_adamw_lrschedule_LinearWarmupCosineAnnealingLR':
+        search_space = {
+            "optim": tune.grid_search([
+                {'optim_lr':4e-4, 'reg_weight': 5e-5},
+                {'optim_lr':4e-3, 'reg_weight': 5e-5},
+                {'optim_lr':4e-3, 'reg_weight': 5e-4},
+                {'optim_lr':4e-3, 'reg_weight': 5e-3},
+                {'optim_lr':4e-3, 'reg_weight': 5e-2}
+            ]),
+            "lrschedule": tune.grid_search([
+                {'warmup_epochs':20,'max_epoch':1200},
+                {'warmup_epochs':40,'max_epoch':1200},
+            ])
+        }
+    elif args.tune_mode == 'optim_lrschedule_early_stop_epoch':
+        search_space = {
+            "transform": tune.grid_search([
+                {
+                    'a_min': 32,
+                    'a_max': 294,
+                    'space': [0.76,0.76,1.0],
+                    'roi':[128,128,128],
+                }
+            ]),
+            "optim": tune.grid_search([
+                {'optim_lr':4e-3, 'reg_weight': 5e-4},
+                {'optim_lr':4e-3, 'reg_weight': 5e-3},
+                {'optim_lr':4e-3, 'reg_weight': 5e-2}
+            ]),
+            "lrschedule": tune.grid_search([
+                {'warmup_epochs':20,'max_epoch':1200},
+                {'warmup_epochs':40,'max_epoch':1200},
+                {'warmup_epochs':20,'max_epoch':1600},
+                {'warmup_epochs':40,'max_epoch':1600},
+                {'warmup_epochs':60,'max_epoch':1600},
+            ]),
+            "max_early_stop_count": tune.grid_search([
+                10, 
+                20
+            ])
+        }
+        
+    elif args.tune_mode == 'train':
+        search_space = {
+            "train": tune.grid_search([
+                {
+                    'a_min': 32,
+                    'a_max': 294,
+                    'space': [0.76,0.76,1.0],
+                    'roi':[128,128,128],
+                    'optim_lr':4e-4, 
+                    'reg_weight': 5e-5,
+                    'warmup_epochs':20,
+                    'max_epoch':1200
+                }
+            ])
         }
     elif args.tune_mode == 't1':
         search_space = {

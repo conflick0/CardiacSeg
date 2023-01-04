@@ -180,7 +180,7 @@ def run_training(
                   )
 
             # Send the current training result back to Tune
-            tune.report(avg_acc=val_avg_acc, best_acc=val_acc_best)
+            tune.report(avg_acc=val_avg_acc, best_acc=val_acc_best, early_stop_count=early_stop_count)
 
         if scheduler is not None:
             scheduler.step()
