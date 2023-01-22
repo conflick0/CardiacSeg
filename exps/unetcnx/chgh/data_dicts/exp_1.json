@@ -1,0 +1,26 @@
+[
+    {
+        "image": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_27/pid_27.nii.gz",
+        "label": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_27/pid_27_gt.nii.gz"
+    },
+    {
+        "image": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_57/pid_57.nii.gz",
+        "label": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_57/pid_57_gt.nii.gz"
+    },
+    {
+        "image": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_106/pid_106.nii.gz",
+        "label": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_106/pid_106_gt.nii.gz"
+    },
+    {
+        "image": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_107/pid_107.nii.gz",
+        "label": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_107/pid_107_gt.nii.gz"
+    },
+    {
+        "image": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_108/pid_108.nii.gz",
+        "label": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_108/pid_108_gt.nii.gz"
+    },
+    {
+        "image": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_110/pid_110.nii.gz",
+        "label": "/content/drive/MyDrive/CardiacSeg/dataset/CHGH/dataset_1/pid_110/pid_110_gt.nii.gz"
+    }
+]

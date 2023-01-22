@@ -93,7 +93,7 @@ parser.add_argument("--infer_overlap", default=0.25, type=float, help="sliding w
 def main():
     args = parser.parse_args()
     main_worker(args)
-
+    
 
 def main_worker(args):
     # make dir

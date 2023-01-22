@@ -123,7 +123,7 @@ def main_worker(args):
     loss = loss_func(args.loss_name)
 
     # optimizer
-    optimizer = optim(model, args)
+    optimizer = optim(model.parameters(), args)
 
     # lrschedule
     if args.lrschedule == "warmup_cosine":

@@ -1,19 +1,21 @@
 from monai.networks.nets import SwinUNETR, UNETR, UNet, AttentionUnet
 
+from networks.TransUNet.networks.vit_seg_modeling import VisionTransformer as ViT_seg
+from networks.TransUNet.networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
+
+from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
+from networks.unetr_pp.network_architecture.synapse.unetr_pp_synapse import UNETR_PP
+
+from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
+
 from networks.unetcnx import UNETCNX
 from networks.unetcnx_x1 import UNETCNX_X1
 from networks.unetcnx_x0 import UNETCNX_X0
-
+from networks.unetsnx import UNETSNX
 from networks.EfficientSegNet.networks.network_x0 import EfficientSegNet_X0
 from networks.EfficientSegNet.networks.network_x1 import EfficientSegNet_X1
 
-from networks.unetr_pp.network_architecture.synapse.unetr_pp_synapse import UNETR_PP
-
-from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
-from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
-from networks.unetsnx import UNETSNX
-from networks.TransUNet.networks.vit_seg_modeling import VisionTransformer as ViT_seg
-from networks.TransUNet.networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
+from networks.MedicalZooPytorch.DenseVoxelNet import DenseVoxelNet
 
 
 def network(model_name, args):
@@ -176,7 +178,11 @@ def network(model_name, args):
           dims=[24, 48, 96, 192],
           do_ds=False,
         ).to(args.device)
-
+    elif model_name == 'dense_vox_net':
+        return DenseVoxelNet(
+            in_channels=args.in_channels, 
+            classes=args.out_channels
+        ).to(args.device)
     else:
       raise ValueError(f'not found model name: {model_name}')
 

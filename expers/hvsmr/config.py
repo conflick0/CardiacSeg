@@ -1,0 +1,71 @@
+import argparse
+
+def get_args():
+    parser = argparse.ArgumentParser(description="model segmentation pipeline")
+
+    # mode
+    parser.add_argument("--test_mode", action="store_true", help="test mode")
+
+    # dir and path
+    parser.add_argument("--data_dir", default="", type=str, help="dataset directory")
+    parser.add_argument("--model_dir", default="models", type=str, help="directory to save the models")
+    parser.add_argument("--log_dir", default="logs", type=str, help="directory to save the tensorboard logs")
+    parser.add_argument("--eval_dir", default="evals", type=str, help="directory to save the eval result")
+    parser.add_argument("--infer_dir", default="infers", type=str, help="directory to save the infer result")
+    parser.add_argument("--checkpoint", default=None, help="start training from saved checkpoint")
+    parser.add_argument("--img_pth", default=None, help="target img for infer")
+    parser.add_argument("--lbl_pth", default=None, help="target lbl for infer")
+
+    # train loop
+    parser.add_argument("--start_epoch", default=0, type=int, help="start epoch")
+    parser.add_argument("--val_every", default=20, type=int, help="validation frequency")
+    parser.add_argument("--max_epoch", default=2000, type=int, help="max number of training epochs")
+    parser.add_argument("--early_stop_count", default=0, type=int, help="early stop count")
+    parser.add_argument("--max_early_stop_count", default=20, type=int, help="max early stop count")
+    parser.add_argument("--save_checkpoint_freq", default=1, type=int, help="save final checkpoint freq, if value is 0 won't save.")
+
+    # data
+    parser.add_argument("--data_dicts_json", default=None, type=str, help="data dicts json")
+    parser.add_argument("--fold", default=2, type=int, help="index of fold")
+    parser.add_argument("--split_train_ratio", default=0.6, type=float, help="split train ratio")
+    parser.add_argument("--num_fold", default=3, type=float, help="num fold")
+    parser.add_argument("--batch_size", default=1, type=int, help="number of batch size")
+    parser.add_argument("--pin_memory", action="store_true", help="pin memory")
+    parser.add_argument("--workers", default=2, type=int, help="number of workers")
+
+    # transform
+    parser.add_argument("--num_samples", default=2, type=int, help="number of samples")
+    parser.add_argument("--a_min", default=0.0, type=float, help="a_min in ScaleIntensityRanged")
+    parser.add_argument("--a_max", default=1735.0, type=float, help="a_max in ScaleIntensityRanged")
+    parser.add_argument("--b_min", default=0.0, type=float, help="b_min in ScaleIntensityRanged")
+    parser.add_argument("--b_max", default=1.0, type=float, help="b_max in ScaleIntensityRanged")
+    parser.add_argument("--space_x", default=0.9, type=float, help="spacing in x direction")
+    parser.add_argument("--space_y", default=0.9, type=float, help="spacing in y direction")
+    parser.add_argument("--space_z", default=1.0, type=float, help="spacing in z direction")
+    parser.add_argument("--roi_x", default=96, type=int, help="roi size in x direction")
+    parser.add_argument("--roi_y", default=96, type=int, help="roi size in y direction")
+    parser.add_argument("--roi_z", default=96, type=int, help="roi size in z direction")
+    parser.add_argument("--rand_flipd_prob", default=0.1, type=float, help="RandFlipd aug probability")
+    parser.add_argument("--rand_rotate90d_prob", default=0.1, type=float, help="RandRotate90d aug probability")
+    parser.add_argument("--rand_shift_intensityd_prob", default=0.1, type=float, help="RandShiftIntensityd aug probability")
+    parser.add_argument("--rand_scale_intensityd_prob", default=0.1, type=float, help="RandScaleIntensityd aug probability")
+
+    # model
+    parser.add_argument("--model_name", default=None, type=str, help="model name")
+    parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
+    parser.add_argument("--out_channels", default=3, type=int, help="number of output channels")
+
+    # optimizer
+    parser.add_argument("--optim_lr", default=1e-4, type=float, help="optimization learning rate")
+    parser.add_argument("--reg_weight", default=1e-5, type=float, help="regularization weight")
+
+    # scheduler
+    parser.add_argument("--lrschedule", default=None, type=str, help="type of learning rate scheduler")
+    parser.add_argument("--warmup_epochs", default=50, type=int, help="number of warmup epochs")
+
+    # infer
+    parser.add_argument("--sw_batch_size", default=4, type=int, help="number of sliding window batch size")
+    parser.add_argument("--infer_overlap", default=0.25, type=float, help="sliding window inference overlap")
+    
+    args = parser.parse_args([])
+    return args

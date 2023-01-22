@@ -1,7 +1,7 @@
 import sys
 
 # set package path
-sys.path.append("/content/drive/MyDrive/CardiacSeg")
+sys.path.append("/nfs/Workspace/CardiacSeg")
 
 import argparse
 import os
