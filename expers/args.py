@@ -84,3 +84,33 @@ def get_parser(argv):
     args.total_iters = args.max_epoch
     
     return args
+
+
+def map_args_transform(config, args):
+    intensity = config['intensity']
+    args.a_min = intensity[0]
+    args.a_max = intensity[1]
+
+    search_space = config['space']
+    args.space_x = search_space[0]
+    args.space_y = search_space[1]
+    args.space_z = search_space[2]
+
+    search_space = config['roi']
+    args.roi_x = search_space[0]
+    args.roi_y = search_space[1]
+    args.roi_z = search_space[2]
+    return args
+
+
+def map_args_optim(config, args):
+    args.lr = config['lr']
+    args.weight_decay = config['weight_decay']
+    return args
+
+
+def map_args_lrschedule(config, args):
+    args.warmup_epochs = config['warmup_epochs']
+    args.max_epochs = config['max_epoch'] # for LinearWarmupCosineAnnealingLR
+    args.max_epoch = config['max_epoch']
+    return args

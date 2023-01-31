@@ -11,13 +11,14 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 import ray
 from ray import air, tune
+from ray.tune import CLIReporter
 
 from monai.inferers import sliding_window_inference
 from monai.losses import DiceCELoss
 from monai.metrics import DiceMetric
 from monai.transforms import AsDiscrete
 
-from expers.args import get_parser
+from expers.args import get_parser, map_args_transform, map_args_optim, map_args_lrschedule
 from data_utils.dataset import DataLoader, get_label_names
 from data_utils.utils import get_pids_by_loader
 from runners.tuner import run_training
@@ -26,21 +27,14 @@ from networks.network import network
 from optimizers.optimizer import Optimizer, LR_Scheduler
 
 
-def main(config):
+def main(config, args=None):
     if args.tune_mode == 'transform':
-        intensity = config['intensity']
-        args.a_min = intensity[0]
-        args.a_max = intensity[1]
-        
-        search_space = config['space']
-        args.space_x = search_space[0]
-        args.space_y = search_space[1]
-        args.space_z = search_space[2]
-        
-        search_space = config['roi']
-        args.roi_x = search_space[0]
-        args.roi_y = search_space[1]
-        args.roi_z = search_space[2]
+        args = map_args_transform(config, args)
+    elif args.tune_mode == 'lrschedule':
+        args = map_args_transform(config['transform'], args)
+        args = map_args_optim(config['optim'], args)
+        args = map_args_lrschedule(config['lrschedule'], args)
+    
     
     # train
     args.test_mode = False
@@ -80,7 +74,7 @@ def main_worker(args):
     optimizer = Optimizer(args.optim, model.parameters(), args)
 
     # lrschedule
-    if args.lrschedule == "warmup_cosine":
+    if args.lrschedule is not None:
         print(f'lrschedule: {args.lrschedule}')
         scheduler = LR_Scheduler(args.lrschedule, optimizer, args)
     else:
@@ -227,11 +221,34 @@ if __name__ == "__main__":
                 [128,128,128],
             ]),
         }
+    elif args.tune_mode == 'lrschedule':
+        search_space = {
+            'transform': tune.grid_search([
+                {
+                    'intensity': [-42,423],
+                    'space': [1.0,1.0,1.0],
+                    'roi':[128,128,128],
+                }
+            ]),
+            'optim': tune.grid_search([
+                {'lr':1e-4, 'weight_decay': 5e-4},
+                {'lr':5e-4, 'weight_decay': 5e-4},
+                {'lr':1e-3, 'weight_decay': 5e-3},
+                {'lr':5e-3, 'weight_decay': 5e-3},
+            ]),
+            'lrschedule': tune.grid_search([
+                {'warmup_epochs':20,'max_epoch':1200},
+                {'warmup_epochs':40,'max_epoch':1200},
+                {'warmup_epochs':20,'max_epoch':1600},
+                {'warmup_epochs':40,'max_epoch':1600},
+                {'warmup_epochs':60,'max_epoch':1600},
+            ])
+        }
     else:
         raise ValueError(f"Invalid args tune mode:{args.tune_mode}")
 
-    trainable_with_cpu_gpu = tune.with_resources(main, {"cpu": 2, "gpu": 1})
-
+    trainable_with_cpu_gpu = tune.with_resources(partial(main, args=args), {"cpu": 2, "gpu": 1})
+    
     if args.resume_tuner:
         print(f'resume tuner form {args.root_exp_dir}')
         restored_tuner = tune.Tuner.restore(os.path.join(args.root_exp_dir, args.exp_name))
@@ -241,8 +258,8 @@ if __name__ == "__main__":
             trainable_with_cpu_gpu,
             param_space=search_space,
             run_config=air.RunConfig(
-              name=args.exp_name,
-              local_dir=args.root_exp_dir,
+                name=args.exp_name,
+                local_dir=args.root_exp_dir
             )
         )
         tuner.fit()
