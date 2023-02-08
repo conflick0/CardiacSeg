@@ -165,6 +165,7 @@ class CN3DBlock(nn.Module):
 class UNETCNX_X2(ConvNeXt):
     def __init__(
         self,
+        img_size=[96, 96, 96],
         in_channels=1,
         out_channels=2,
         feature_size=24,
@@ -262,7 +263,7 @@ class UNETCNX_X2(ConvNeXt):
             upsample_kernel_size=2,
             norm_name=norm_name,
             proj_size=64,
-            out_size=8 * 8 * 8,
+            out_size=img_size[0]//16 * img_size[1]//16 * img_size[2]//16,
         )
         self.decoder4 = UnetrUpBlock(
             spatial_dims=3,
@@ -271,7 +272,7 @@ class UNETCNX_X2(ConvNeXt):
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=norm_name,
-            out_size=16 * 16 * 16,
+            out_size=img_size[0]//8 * img_size[1]//8 * img_size[2]//8,
         )
         self.decoder3 = UnetrUpBlock(
             spatial_dims=3,
@@ -280,7 +281,7 @@ class UNETCNX_X2(ConvNeXt):
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=norm_name,
-            out_size=32 * 32 * 32,
+            out_size=img_size[0]//4 * img_size[1]//4 * img_size[2]//4,
         )
         self.decoder2 = UnetrUpBlock(
             spatial_dims=3,
@@ -289,7 +290,7 @@ class UNETCNX_X2(ConvNeXt):
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=norm_name,
-            out_size=64 * 64 * 64,
+            out_size=img_size[0]//2 * img_size[1]//2 * img_size[2]//2,
         )
         self.decoder1 = UnetrUpBlock(
             spatial_dims=3,
@@ -298,7 +299,7 @@ class UNETCNX_X2(ConvNeXt):
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=norm_name,
-            out_size=128 * 128 * 128,
+            out_size=img_size[0] * img_size[1] * img_size[2],
             conv_decoder=True,
         )
 
