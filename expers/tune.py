@@ -30,10 +30,21 @@ from optimizers.optimizer import Optimizer, LR_Scheduler
 def main(config, args=None):
     if args.tune_mode == 'transform':
         args = map_args_transform(config, args)
-    elif args.tune_mode == 'lrschedule':
+    elif args.tune_mode == 'lrschedule' or args.tune_mode == 'lrschedule_epoch':
         args = map_args_transform(config['transform'], args)
         args = map_args_optim(config['optim'], args)
         args = map_args_lrschedule(config['lrschedule'], args)
+    else:
+        # for LinearWarmupCosineAnnealingLR
+        args.max_epochs = args.max_epoch
+        print('a_max', args.a_max)
+        print('a_min', args.a_min)
+        print('space_x', args.space_x)
+        print('roi_x', args.roi_x)
+        print('lr', args.lr)
+        print('weight_decay', args.weight_decay)
+        print('warmup_epochs',args.warmup_epochs)
+        print('max_epochs',args.max_epochs)
     
     
     # train
@@ -239,9 +250,26 @@ if __name__ == "__main__":
             'lrschedule': tune.grid_search([
                 {'warmup_epochs':20,'max_epoch':1200},
                 {'warmup_epochs':40,'max_epoch':1200},
-                {'warmup_epochs':20,'max_epoch':1600},
-                {'warmup_epochs':40,'max_epoch':1600},
-                {'warmup_epochs':60,'max_epoch':1600},
+                {'warmup_epochs':20,'max_epoch':1200},
+            ])
+        }
+    elif args.tune_mode == 'lrschedule_epoch':
+        search_space = {
+            'transform': tune.grid_search([
+                {
+                    'intensity': [-42,423],
+                    'space': [1.0,1.0,1.0],
+                    'roi':[128,128,128],
+                }
+            ]),
+            'optim': tune.grid_search([
+                {'lr':1e-2, 'weight_decay': 3e-5},
+                {'lr':5e-3, 'weight_decay': 5e-4},
+                {'lr':5e-4, 'weight_decay': 5e-5},
+            ]),
+            'lrschedule': tune.grid_search([
+                {'warmup_epochs':40,'max_epoch':700},
+                {'warmup_epochs':60,'max_epoch':700},
             ])
         }
     else:

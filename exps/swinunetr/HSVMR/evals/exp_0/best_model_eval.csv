@@ -1,0 +1,5 @@
+patientId,type,diceM,hd95M
+training_axial_full_pat6,test,0.62456906,31.20897306865447
+training_axial_full_pat7,test,0.7932766,41.15823125451335
+training_axial_full_pat8,test,0.83896375,4.58257569495584
+training_axial_full_pat9,test,0.73011947,73.57988855658861

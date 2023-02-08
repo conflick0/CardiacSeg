@@ -134,11 +134,12 @@ def network(model_name, args):
 
     elif model_name == 'unetcnx_x2':
         return UNETCNX_X2(
-              in_channels=args.in_channels,
-              out_channels=args.out_channels,
-              feature_size=24,
-              patch_size=2
-          ).to(args.device)
+            img_size=(args.roi_x, args.roi_y, args.roi_z),
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            feature_size=24,
+            patch_size=2
+        ).to(args.device)
 
     elif model_name == 'unetcnx_x1':
         return UNETCNX_X1(
