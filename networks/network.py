@@ -11,7 +11,9 @@ from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
 from networks.unetcnx import UNETCNX
 from networks.unetcnx_x1 import UNETCNX_X1
 from networks.unetcnx_x0 import UNETCNX_X0
-from networks.networkx.unetcnx_x2 import UNETCNX_X2
+from networks.networkx.unetcnx_x2 import UNETCNX_X2 
+from networks.networkx.unetcnx_x2_1 import UNETCNX_X2_1
+from networks.networkx.unetcnx_x2_2 import UNETCNX_X2_2
 from networks.unetsnx import UNETSNX
 from networks.EfficientSegNet.networks.network_x0 import EfficientSegNet_X0
 from networks.EfficientSegNet.networks.network_x1 import EfficientSegNet_X1
@@ -134,13 +136,24 @@ def network(model_name, args):
 
     elif model_name == 'unetcnx_x2':
         return UNETCNX_X2(
-            img_size=(args.roi_x, args.roi_y, args.roi_z),
-            in_channels=args.in_channels,
-            out_channels=args.out_channels,
-            feature_size=24,
-            patch_size=2
-        ).to(args.device)
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              feature_size=24,
+              patch_size=2
+          ).to(args.device)
 
+    elif model_name == 'unetcnx_x2_1':
+        return UNETCNX_X2_1(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              feature_size=24,
+          ).to(args.device)
+    elif model_name == 'unetcnx_x2_2':
+        return UNETCNX_X2_2(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              feature_size=24,
+          ).to(args.device)
     elif model_name == 'unetcnx_x1':
         return UNETCNX_X1(
               in_channels=args.in_channels,

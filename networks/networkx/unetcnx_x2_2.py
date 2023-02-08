@@ -162,13 +162,13 @@ class CN3DBlock(nn.Module):
         return result
 
 
-class UNETCNX_X2(ConvNeXt):
+class UNETCNX_X2_2(ConvNeXt):
     def __init__(
         self,
         in_channels=1,
         out_channels=2,
         feature_size=24,
-        patch_size=2,
+        patch_size=4,
         spatial_dims=3,
         norm_name='instance',
         stochastic_depth_prob: float=0.4,
@@ -182,7 +182,6 @@ class UNETCNX_X2(ConvNeXt):
             CNBlockConfig(feature_size * 2, feature_size * 4, 3),
             CNBlockConfig(feature_size * 4, feature_size * 8, 3),
             CNBlockConfig(feature_size * 8, feature_size * 16, 9),
-            CNBlockConfig(feature_size * 16, feature_size * 32, 3)
         ]
 
         if norm_layer is None:
@@ -249,21 +248,6 @@ class UNETCNX_X2(ConvNeXt):
             self.features[6],
         )
 
-        self.encoder4 = nn.Sequential(
-            self.features[7],
-            self.features[8]
-        )
-
-        self.encoder5 = UnetrUpBlock(
-            spatial_dims=3,
-            in_channels=feature_size * 32,
-            out_channels=feature_size * 16,
-            kernel_size=3,
-            upsample_kernel_size=2,
-            norm_name=norm_name,
-            proj_size=64,
-            out_size=8 * 8 * 8,
-        )
         self.decoder4 = UnetrUpBlock(
             spatial_dims=3,
             in_channels=feature_size * 16,
@@ -271,7 +255,9 @@ class UNETCNX_X2(ConvNeXt):
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=norm_name,
-            out_size=16 * 16 * 16,
+            proj_size=64,
+            depth=2,
+            out_size=8 * 8 * 8,
         )
         self.decoder3 = UnetrUpBlock(
             spatial_dims=3,
@@ -280,7 +266,9 @@ class UNETCNX_X2(ConvNeXt):
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=norm_name,
-            out_size=32 * 32 * 32,
+            proj_size=64,
+            depth=2,
+            out_size=16 * 16 * 16,
         )
         self.decoder2 = UnetrUpBlock(
             spatial_dims=3,
@@ -289,15 +277,19 @@ class UNETCNX_X2(ConvNeXt):
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=norm_name,
-            out_size=64 * 64 * 64,
+            proj_size=64,
+            depth=2,
+            out_size=32 * 32 * 32,
         )
         self.decoder1 = UnetrUpBlock(
             spatial_dims=3,
             in_channels=feature_size * 2,
             out_channels=feature_size,
             kernel_size=3,
-            upsample_kernel_size=2,
+            upsample_kernel_size=4,
             norm_name=norm_name,
+            proj_size=64,
+            depth=2,
             out_size=128 * 128 * 128,
             conv_decoder=True,
         )
@@ -311,14 +303,13 @@ class UNETCNX_X2(ConvNeXt):
         enc1 = self.encoder1(inc)
         enc2 = self.encoder2(enc1)
         enc3 = self.encoder3(enc2)
-        enc4 = self.encoder4(enc3)
-        dec4 = self.encoder5(enc4, enc3)
 
-        dec3 = self.decoder4(dec4, enc2)
+        dec3 = self.decoder4(enc3, enc2)
         dec2 = self.decoder3(dec3, enc1)
         dec1 = self.decoder2(dec2, inc)
         dec0 = self.decoder1(dec1, enc0)
         out = self.out(dec0)
+
         return out
 
     def encode(self, x):
