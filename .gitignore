@@ -11,6 +11,7 @@ TransUNet/BTCV/logs
 SwinUNETR/BTCV/research-contributions/SwinUNETR/BTCV/runs
 UNETR/BTCV/research-contributions/UNETR/BTCV/runs
 tune_results/
+!networks/UXNET/lib
 
 # IntelliJ project files
 .idea
