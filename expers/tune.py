@@ -208,7 +208,9 @@ def main_worker(args):
 if __name__ == "__main__":
     args = get_parser(sys.argv[1:])
     
-    if args.tune_mode == 'train':
+    if args.tune_mode == 'test':
+        print('test mode')
+    elif args.tune_mode == 'train':
         search_space = {
             "exp": tune.grid_search([
               {
@@ -281,6 +283,20 @@ if __name__ == "__main__":
         print(f'resume tuner form {args.root_exp_dir}')
         restored_tuner = tune.Tuner.restore(os.path.join(args.root_exp_dir, args.exp_name))
         result = restored_tuner.fit()
+        
+        # for manual test
+        if args.tune_mode == 'test':
+            print('run test mode ...')
+            # get best model path
+            result_grid = restored_tuner.get_results()
+            best_result = result_grid.get_best_result(metric="tt_dice", mode="max")
+            model_pth = os.path.join( best_result.log_dir, 'models', 'best_model.pth')
+            # test
+            # for LinearWarmupCosineAnnealingLR
+            args.max_epochs = args.max_epoch
+            args.test_mode = True
+            args.checkpoint = os.path.join(model_pth)
+            main_worker(args)
     else:
         tuner = tune.Tuner(
             trainable_with_cpu_gpu,

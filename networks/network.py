@@ -14,6 +14,7 @@ from networks.unetcnx_x0 import UNETCNX_X0
 from networks.networkx.unetcnx_x2 import UNETCNX_X2 
 from networks.networkx.unetcnx_x2_1 import UNETCNX_X2_1
 from networks.networkx.unetcnx_x2_2 import UNETCNX_X2_2
+from networks.networkx.unetcnx_x3 import UNETCNX_X3
 from networks.unetsnx import UNETSNX
 from networks.EfficientSegNet.networks.network_x0 import EfficientSegNet_X0
 from networks.EfficientSegNet.networks.network_x1 import EfficientSegNet_X1
@@ -151,6 +152,12 @@ def network(model_name, args):
           ).to(args.device)
     elif model_name == 'unetcnx_x2_2':
         return UNETCNX_X2_2(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              feature_size=24,
+          ).to(args.device)
+    elif model_name == 'unetcnx_x3':
+        return UNETCNX_X3(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               feature_size=24,
