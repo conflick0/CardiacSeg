@@ -3,6 +3,20 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+class GRN(nn.Module):
+    """ GRN (Global Response Normalization) layer
+    """
+    def __init__(self, dim):
+        super().__init__()
+        self.gamma = nn.Parameter(torch.zeros(1, 1, 1, 1, dim))
+        self.beta = nn.Parameter(torch.zeros(1, 1, 1, 1, dim))
+
+    def forward(self, x):
+        Gx = torch.norm(x, p=2, dim=(1, 2, 3), keepdim=True)
+        Nx = Gx / (Gx.mean(dim=-1, keepdim=True) + 1e-6)
+        return self.gamma * (x * Nx) + self.beta + x
+
+
 class LayerNorm(nn.Module):
     """ LayerNorm that supports two data formats: channels_last (default) or channels_first.
     The ordering of the dimensions in the inputs. channels_last corresponds to inputs with
@@ -59,3 +73,32 @@ class BlockConfig:
         s += ")"
         return s.format(**self.__dict__)
 
+    
+class DilBlockConfig:
+    # Stores information listed at Section 3 of the ConvNeXt paper
+    def __init__(
+        self,
+        input_channels,
+        out_channels,
+        num_layers,
+        dilations,
+        kernel_sizes=None
+    ) -> None:
+        self.input_channels = input_channels
+        self.out_channels = out_channels
+        self.num_layers = num_layers
+        self.dilations = dilations
+        if kernel_sizes is None:
+            self.kernel_sizes = [7 for _ in dilations]
+        else:
+            self.kernel_sizes = kernel_sizes
+
+    def __repr__(self):
+        s = self.__class__.__name__ + "("
+        s += "input_channels={input_channels}"
+        s += ", out_channels={out_channels}"
+        s += ", num_layers={num_layers}"
+        s += ", dilations={dilations}"
+        s += ", kernel_sizes={kernel_sizes}"
+        s += ")"
+        return s.format(**self.__dict__)
