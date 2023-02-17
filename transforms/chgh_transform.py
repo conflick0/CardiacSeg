@@ -92,10 +92,15 @@ def get_val_transform(args):
 
 def get_inf_transform(keys, args):
     if len(keys) == 2:
-      mode = ("bilinear", "nearest")
+        # image and label
+        mode = ("bilinear", "nearest")
+    elif len(keys) == 3:
+        # image and mutiple label
+        mode = ("bilinear", "nearest", "nearest")
     else:
-      mode = ("bilinear")
-
+        # image
+        mode = ("bilinear")
+        
     return Compose(
         [
             LoadImaged(keys=keys),
@@ -107,12 +112,13 @@ def get_inf_transform(keys, args):
                 mode=mode,
             ),
             ScaleIntensityRanged(
-                keys=keys,
+                keys=['image'],
                 a_min=args.a_min, 
                 a_max=args.a_max,
                 b_min=args.b_min, 
                 b_max=args.b_max,
                 clip=True,
+                allow_missing_keys=True
             ),
             AddChanneld(keys=keys),
             ToTensord(keys=keys)

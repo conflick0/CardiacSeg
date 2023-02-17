@@ -16,9 +16,13 @@ def get_parser(argv):
     parser.add_argument("--model_dir", default="./models", type=str, help="directory to save the models")
     parser.add_argument("--log_dir", default="./logs", type=str, help="directory to save the tensorboard logs")
     parser.add_argument("--eval_dir", default="./evals", type=str, help="directory to save the eval result")
+    parser.add_argument("--infer_dir", default="./infers", type=str, help="directory to save the eval result")
     parser.add_argument("--checkpoint", default=None, help="start training from saved checkpoint")
     parser.add_argument("--filename", default="best_model.pth", help="save model file name")
     parser.add_argument("--ssl_pretrained", default=None, type=str, help="use self-supervised pretrained weights")
+    parser.add_argument("--img_pth", default=None, help="target img for infer")
+    parser.add_argument("--lbl_pth", default=None, help="target lbl for infer")
+    parser.add_argument("--pred_pth", default=None, help="target lbl for infer")
 
     # train loop
     parser.add_argument("--start_epoch", default=0, type=int, help="start epoch")

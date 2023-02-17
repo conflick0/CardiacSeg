@@ -25,10 +25,10 @@ class UNETCNX_X5_2(nn.Module):
     ) -> None:
         super().__init__()
         block_setting = [
-            DilBlockConfig(feature_size * 2, feature_size * 4, 4, [1, 2], [7, 3]),
-            DilBlockConfig(feature_size * 4, feature_size * 8, 4, [1, 2], [7, 3]),
-            DilBlockConfig(feature_size * 8, feature_size * 16, 8, [1, 2], [7, 3]),
-            DilBlockConfig(feature_size * 16, feature_size * 32, 4, [1, 2], [7, 3])
+            DilBlockConfig(feature_size * 2, feature_size * 4, 6, [1, 4], [7, 3]),
+            DilBlockConfig(feature_size * 4, feature_size * 8, 6, [1, 4], [7, 3]),
+            DilBlockConfig(feature_size * 8, feature_size * 16, 12, [1, 4], [7, 3]),
+            DilBlockConfig(feature_size * 16, feature_size * 32, 6, [1, 4], [7, 3])
         ]
 
         self.features = Net(
