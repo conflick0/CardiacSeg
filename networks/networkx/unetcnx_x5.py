@@ -7,7 +7,7 @@ from torchvision.ops.stochastic_depth import StochasticDepth
 from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetOutBlock
 
 
-from .blocks.convnext import LargeDiConvNeXtV2
+from .blocks.convnext import DiConvNeXtV2
 from .blocks.utils import LayerNorm, DilBlockConfig
 
 
@@ -25,10 +25,10 @@ class UNETCNX_X5(nn.Module):
     ) -> None:
         super().__init__()
         block_setting = [
-            DilBlockConfig(feature_size * 2, feature_size * 4, 4, [1, 16]),
-            DilBlockConfig(feature_size * 4, feature_size * 8, 4, [1, 8]),
-            DilBlockConfig(feature_size * 8, feature_size * 16, 8, [1, 4]),
-            DilBlockConfig(feature_size * 16, feature_size * 32, 4, [1, 2])
+            DilBlockConfig(feature_size * 2, feature_size * 4, 4, [1, 3], [7, 3]),
+            DilBlockConfig(feature_size * 4, feature_size * 8, 4, [1, 3], [7, 3]),
+            DilBlockConfig(feature_size * 8, feature_size * 16, 8, [1, 3,], [7, 3]),
+            DilBlockConfig(feature_size * 16, feature_size * 32, 4, [1, 3], [7, 3])
         ]
 
         self.features = Net(
@@ -161,13 +161,13 @@ class Net(nn.Module):
     ):
         super().__init__()
 
-        block = LargeDiConvNeXtV2
+        block = DiConvNeXtV2
         if block_setting is None:
             block_setting = [
-                DilBlockConfig(feature_size * 2, feature_size * 4, 2, [1, 16]),
-                DilBlockConfig(feature_size * 4, feature_size * 8, 2, [1, 8]),
-                DilBlockConfig(feature_size * 8, feature_size * 16, 4, [1, 4]),
-                DilBlockConfig(feature_size * 16, feature_size * 32, 2, [1, 2])
+                DilBlockConfig(feature_size * 2, feature_size * 4, 4, [1, 4], [7, 3]),
+                DilBlockConfig(feature_size * 4, feature_size * 8, 4, [1, 4], [7, 3]),
+                DilBlockConfig(feature_size * 8, feature_size * 16, 8, [1, 4], [7, 3]),
+                DilBlockConfig(feature_size * 16, feature_size * 32, 4, [1, 4], [7, 3])
             ]
 
         # stem
@@ -193,8 +193,8 @@ class Net(nn.Module):
             stage = []
             for _ in range(cnf.num_layers):
                 # adjust stochastic depth probability based on the depth of the stage block
-                sd_prob = stochastic_depth_prob * stage_block_id / (total_stage_blocks - 1.0)
                 for d in cnf.dilations:
+                    sd_prob = stochastic_depth_prob * stage_block_id / (total_stage_blocks - 1.0)
                     stage.append(block(cnf.input_channels, sd_prob, dilation=d))
                     stage_block_id += 1
 

@@ -17,12 +17,13 @@ from networks.networkx.unetcnx_x2_2 import UNETCNX_X2_2
 from networks.networkx.unetcnx_x3 import UNETCNX_X3
 from networks.networkx.unetcnx_x3_1 import UNETCNX_X3_1
 from networks.networkx.unetcnx_x3_2 import UNETCNX_X3_2
+from networks.networkx.unetcnx_x3_2_2 import UNETCNX_X3_2_2
 from networks.networkx.unetcnx_x4 import UNETCNX_X4
 from networks.networkx.unetcnx_x4_1 import UNETCNX_X4_1
 from networks.networkx.unetcnx_x4_2 import UNETCNX_X4_2
 from networks.networkx.unetcnx_x5 import UNETCNX_X5
-from networks.networkx.unetcnx_x5_1 import UNETCNX_X5_1
-from networks.networkx.unetcnx_x5_2 import UNETCNX_X5_2
+from networks.networkx.unetcnx_x6 import UNETCNX_X6
+from networks.networkx.unetcnx_x6_1 import UNETCNX_X6_1
 from networks.unetsnx import UNETSNX
 from networks.EfficientSegNet.networks.network_x0 import EfficientSegNet_X0
 from networks.EfficientSegNet.networks.network_x1 import EfficientSegNet_X1
@@ -182,6 +183,12 @@ def network(model_name, args):
               out_channels=args.out_channels,
               feature_size=24,
           ).to(args.device)
+    elif model_name == 'unetcnx_x3_2_2':
+        return UNETCNX_X3_2_2(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              feature_size=24,
+          ).to(args.device)
     elif model_name == 'unetcnx_x4':
         return UNETCNX_X4(
               in_channels=args.in_channels,
@@ -206,14 +213,14 @@ def network(model_name, args):
               out_channels=args.out_channels,
               feature_size=24,
           ).to(args.device)
-    elif model_name == 'unetcnx_x5_1':
-        return UNETCNX_X5_1(
+    elif model_name == 'unetcnx_x6':
+        return UNETCNX_X6(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               feature_size=24,
           ).to(args.device)
-    elif model_name == 'unetcnx_x5_2':
-        return UNETCNX_X5_2(
+    elif model_name == 'unetcnx_x6_1':
+        return UNETCNX_X6_1(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               feature_size=24,

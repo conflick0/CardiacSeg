@@ -24,7 +24,12 @@ def _get_cls(base_cls, cls_name, param, args):
 
 def Optimizer(optim_name, model_params, args):
     import torch.optim as opt
-    return _get_cls(opt, optim_name, model_params, args)
+    import lion_pytorch
+
+    if optim_name == 'Lion':
+        return _get_cls(lion_pytorch, optim_name, model_params, args)
+    else:
+        return _get_cls(opt, optim_name, model_params, args)
 
 
 def LR_Scheduler(lr_schd_name, optim, args):
