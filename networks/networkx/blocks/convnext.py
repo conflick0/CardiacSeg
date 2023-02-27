@@ -156,3 +156,31 @@ class DiConvNeXtCBAM(nn.Module):
         
         return result
     
+    
+
+class DDiConvNeXt(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_probs=[0.0, 0.0],
+        kernel_sizes=[7, 3],
+        dilations=[1, 3]
+    ):
+        super().__init__()
+        
+        block = DiConvNeXt
+        self.cbam = CBAM(dim, reduction=16, kernel_size=7)
+        
+        blocks = []
+        for s, k, d in zip(stochastic_depth_probs, kernel_sizes, dilations):
+            blocks.append(block(dim, s, k, d))
+            
+        self.blocks = nn.Sequential(*blocks)
+
+    def forward(self, input):
+        result = self.blocks[0](input)
+        result = self.blocks[1](result)
+        result = self.cbam(result)
+        
+        return result
+    

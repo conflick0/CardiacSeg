@@ -6,11 +6,12 @@ from torchvision.ops.stochastic_depth import StochasticDepth
 
 from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetOutBlock
 
-from .blocks.convnext import DiConvNeXtCBAM
+from .blocks.cbam import CBAM
+from .blocks.convnext import DDiConvNeXt
 from .blocks.utils import LayerNorm, DilBlockConfig
 
 
-class UNETCNX_X3_2_2(nn.Module):
+class UNETCNX_X3_2_2_1(nn.Module):
     def __init__(
             self,
             in_channels=1,
@@ -160,7 +161,8 @@ class Net(nn.Module):
     ):
         super().__init__()
 
-        block = DiConvNeXt
+        block = DDiConvNeXt
+        cbam = CBAM
         if block_setting is None:
             block_setting = [
                 DilBlockConfig(feature_size * 2, feature_size * 4, 4, [1, 3], [7, 3]),
@@ -198,6 +200,8 @@ class Net(nn.Module):
                     stage_block_id += 1
                     
                 stage.append(block(cnf.input_channels, sd_probs, kernel_sizes=cnf.kernel_sizes, dilations=cnf.dilations))
+            # last layer add cbam
+            stage.append(cbam(cnf.input_channels, reduction=16, kernel_size=7))
                 
 
             layers.append(nn.Sequential(*stage))

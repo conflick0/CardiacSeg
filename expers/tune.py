@@ -30,6 +30,9 @@ from optimizers.optimizer import Optimizer, LR_Scheduler
 def main(config, args=None):
     if args.tune_mode == 'transform':
         args = map_args_transform(config, args)
+    elif args.tune_mode == 'optim':
+        args = map_args_transform(config['transform'], args)
+        args = map_args_optim(config['optim'], args)
     elif args.tune_mode == 'lrschedule' or args.tune_mode == 'lrschedule_epoch':
         args = map_args_transform(config['transform'], args)
         args = map_args_optim(config['optim'], args)
@@ -232,6 +235,22 @@ if __name__ == "__main__":
             'roi': tune.grid_search([
                 [96,96,96],
                 [128,128,128],
+            ]),
+        }
+    elif args.tune_mode == 'optim':
+        search_space = {
+            'transform': tune.grid_search([
+                {
+                    'intensity': [-42,423],
+                    'space': [1.0,1.0,1.0],
+                    'roi':[128,128,128],
+                }
+            ]),
+            'optim': tune.grid_search([
+                {'lr':1e-5, 'weight_decay': 3e-3},
+                {'lr':1e-5, 'weight_decay': 1e-3},
+                {'lr':1e-5, 'weight_decay': 5e-2},
+                {'lr':1e-6, 'weight_decay': 1e-3},
             ]),
         }
     elif args.tune_mode == 'lrschedule':
