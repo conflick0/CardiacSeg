@@ -160,7 +160,7 @@ class Net(nn.Module):
     ):
         super().__init__()
 
-        block = DiConvNeXt
+        block = DiConvNeXtCBAM
         if block_setting is None:
             block_setting = [
                 DilBlockConfig(feature_size * 2, feature_size * 4, 4, [1, 3], [7, 3]),
