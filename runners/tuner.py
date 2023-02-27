@@ -172,6 +172,22 @@ def run_training(
                         optimizer,
                         scheduler
                     )
+                    # save final model
+                    save_checkpoint(
+                        'final_model.pth',
+                        model,
+                        epoch,
+                        val_acc_best,
+                        early_stop_count,
+                        args,
+                        optimizer,
+                        scheduler
+                    )
+                    print(
+                        "Final Model Was Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
+                            val_acc_best, val_avg_acc
+                        )
+                    )
                 else:
                   print(
                       "Model Was Not Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(

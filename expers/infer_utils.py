@@ -4,8 +4,8 @@ from pathlib import PurePath
 import pandas as pd
 from ray import tune
 
-from data_utils.chgh_dataset import get_data_dicts
-from data_utils.utils import get_pid_by_file, get_pids_by_data_dicts
+from datasets.chgh_dataset import get_data_dicts
+from data_utils.utils import get_pids_by_data_dicts
 
 
 def get_tune_model_dir(root_exp_dir, exp_name):

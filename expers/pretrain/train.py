@@ -23,9 +23,9 @@ import torch.distributed as dist
 import torch.optim as optim
 from torch.cuda.amp import GradScaler, autocast
 from torch.nn.parallel import DistributedDataParallel
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
-from data_utils.pretrain_dataset import get_loader
+from datasets.pretrain_dataset import get_loader
 from networks.network import network
 from networks.ssl_head import SSLHead
 from expers.pretrain.lr_scheduler import WarmupCosineSchedule

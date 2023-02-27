@@ -75,7 +75,7 @@ def main_worker(args):
         args.device = torch.device("cpu")
 
     # load train and test data
-    loader = DataLoader(args.data_name, args)
+    loader = DataLoader(args.data_name, args)()
 
     # model
     model = network(args.model_name, args)
@@ -108,11 +108,11 @@ def main_worker(args):
         if args.lrschedule is not None and 'scheduler' in checkpoint:
             scheduler.load_state_dict(checkpoint['scheduler'])
         # load check point epoch and best acc
-        if "epoch" in checkpoint and args.start_epoch == 0:
-            start_epoch = checkpoint["epoch"]
+        if "epoch" in checkpoint:
+            start_epoch = checkpoint["epoch"] + 1
         if "best_acc" in checkpoint:
             best_acc = checkpoint["best_acc"]
-        if "early_stop_count" in checkpoint and args.early_stop_count == 0:
+        if "early_stop_count" in checkpoint:
             early_stop_count = checkpoint["early_stop_count"]
         print(
           "=> loaded checkpoint '{}' (epoch {}) (bestacc {}) (early stop count {})"\

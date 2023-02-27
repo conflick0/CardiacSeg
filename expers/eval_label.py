@@ -3,32 +3,14 @@ import sys
 # set package path
 sys.path.append("/nfs/Workspace/CardiacSeg")
 
-import argparse
-import os
 from pathlib import PurePath
-from functools import partial
-
-import pandas as pd
 
 import torch
-from torch.utils.tensorboard import SummaryWriter
-
-from monai.metrics import DiceMetric, HausdorffDistanceMetric
-
-from monai.transforms import (
-    AsDiscrete,
-    Compose,
-    Orientationd,
-    ToNumpyd,
-    SqueezeDimd,
-    AddChanneld
-)
-from monailabel.transform.post import BoundingBoxd, Restored
 
 from expers.args import get_parser
-from data_utils.chgh_dataset import get_infer_data, get_multiple_label_data_dicts, multi_label_to_label_pred_data_dicts
+from data_utils.dataset import get_infer_data
+from datasets.label_dataset import get_multiple_label_data_dicts, multi_label_to_label_pred_data_dicts
 from data_utils.io import load_json
-from data_utils.utils import get_pid_by_data
 from runners.inferer import eval_label_pred
 
 
@@ -61,8 +43,8 @@ def main_worker(args):
         print('infer data:', data_dict)
         
       
-          # load infer data
-        data = get_infer_data(data_dict, args)
+        # load infer data
+        data = get_infer_data(args.data_name, data_dict, args)
 
         # eval
         dc_vals, hd95_vals = eval_label_pred(

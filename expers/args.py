@@ -9,10 +9,10 @@ def get_parser(argv):
     parser.add_argument("--resume_tuner", action="store_true", help="test mode")
 
     # dir and path
-    parser.add_argument("--exp_name", default="", type=str, help="exp name")
-    parser.add_argument("--data_name", default="", type=str, help="exp name")
-    parser.add_argument("--root_exp_dir", default="", type=str, help="root exp directory")
-    parser.add_argument("--data_dir", default="", type=str, help="dataset directory")
+    parser.add_argument("--exp_name", default=None, type=str, help="exp name")
+    parser.add_argument("--data_name", default=None, type=str, help="exp name")
+    parser.add_argument("--root_exp_dir", default=None, type=str, help="root exp directory")
+    parser.add_argument("--data_dir", default=None, type=str, help="dataset directory")
     parser.add_argument("--model_dir", default="./models", type=str, help="directory to save the models")
     parser.add_argument("--log_dir", default="./logs", type=str, help="directory to save the tensorboard logs")
     parser.add_argument("--eval_dir", default="./evals", type=str, help="directory to save the eval result")

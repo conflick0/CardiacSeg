@@ -4,12 +4,9 @@
 dataset
 *.pth
 *.pt
-infers
-SwinUNETR/BTCV/logs
-UNETR/BTCV/logs
-TransUNet/BTCV/logs
-SwinUNETR/BTCV/research-contributions/SwinUNETR/BTCV/runs
-UNETR/BTCV/research-contributions/UNETR/BTCV/runs
+*.csv
+*events.out.tfevents.*
+.nii.gz
 tune_results/
 
 # IntelliJ project files
