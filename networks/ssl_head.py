@@ -6,7 +6,7 @@ from monai.utils import ensure_tuple_rep
 
 
 class SSLHead(nn.Module):
-    def __init__(self, in_channels, net, upsample="vae", dim=768):
+    def __init__(self, in_channels, net, upsample="vae", dim=768, patch_size=4):
         super(SSLHead, self).__init__()
         spatial_dims = 3
         patch_size = ensure_tuple_rep(2, spatial_dims)
@@ -47,7 +47,7 @@ class SSLHead(nn.Module):
                 nn.Conv3d(dim // 16, dim // 16, kernel_size=3, stride=1, padding=1),
                 nn.InstanceNorm3d(dim // 16),
                 nn.LeakyReLU(),
-                nn.Upsample(scale_factor=2, mode="trilinear", align_corners=False),
+                nn.Upsample(scale_factor=patch_size, mode="trilinear", align_corners=False),
                 nn.Conv3d(dim // 16, in_channels, kernel_size=1, stride=1),
             )
 
@@ -63,4 +63,5 @@ class SSLHead(nn.Module):
         x_rec = x_out.flatten(start_dim=2, end_dim=4)
         x_rec = x_rec.view(-1, c, h, w, d)
         x_rec = self.conv(x_rec)
+        print(x_rec.shape)
         return x_rot, x_contrastive, x_rec

@@ -15,6 +15,7 @@ from monai.transforms import (
     ToTensord,
 )
 
+from data_utils.data_loader_utils import load_data_dict_json
 from data_utils.io import load_json
 
 
@@ -31,33 +32,16 @@ def load_data_dicts(json_pth, mode):
 
 
 def get_loader(args):
-    data_json_pth1 = "/content/drive/MyDrive/CardiacSeg/dataset/SegTHOR/dataset.json"
-    data_json_pth2 = "/content/drive/MyDrive/CardiacSeg/dataset/MM_WHS_2017/dataset.json"
-
-    num_workers = 2
-
-    data_names = []
-    if args.data_name == 'all':
-        data_names = ['segthor', 'mmwhs']
-        data_json_pths = [data_json_pth1, data_json_pth2]
-    elif args.data_name == 'segthor':
-        data_names = ['segthor']
-        data_json_pths = [data_json_pth1]
-    elif args.data_name == 'mmwhs':
-        data_names = ['mmwhs']
-        data_json_pths = [data_json_pth2]
-    else:
-        data_json_pths = [args.data_name]
-        data_names = ['data_dict']
-        print(data_json_pths)
+    data_dirs = args.data_dirs
+    data_dicts_jsons =args.data_dicts_jsons
+    print('load data dict jsons:', data_dicts_jsons)
 
     datalist = []
     val_files = []
-    for i, (data_name, data_json_pth) in enumerate(zip(data_names, data_json_pths), 1):
-        tr_list = load_data_dicts(data_json_pth, 'training')
-        val_list = load_data_dicts(data_json_pth, 'validation')
-        print(f"Dataset {i} {data_name}: number of tr data: {len(tr_list)}")
-        print(f"Dataset {i} {data_name}: number of val data: {len(val_list)}")
+    for i, (data_dir, data_dicts_jsons) in enumerate(zip(data_dirs, data_dicts_jsons), 1):
+        tr_list, val_list, tt_list = load_data_dict_json(data_dir, data_dicts_jsons)
+        print(f"Dataset {i} {data_dirs}: number of tr data: {len(tr_list)}")
+        print(f"Dataset {i} {data_dirs}: number of val data: {len(val_list)}")
         datalist += tr_list
         val_files += val_list
 
@@ -104,7 +88,8 @@ def get_loader(args):
             ToTensord(keys=["image"]),
         ]
     )
-
+    
+    num_workers = args.workers
     if args.cache_dataset:
         print("Using MONAI Cache Dataset")
         train_ds = CacheDataset(data=datalist, transform=train_transforms, cache_rate=0.5, num_workers=num_workers)

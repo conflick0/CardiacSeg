@@ -15,7 +15,7 @@ import sys
 from time import time
 
 # set package path
-sys.path.append("/content/drive/MyDrive/CardiacSeg")
+sys.path.append("/nfs/Workspace/CardiacSeg")
 
 import numpy as np
 import torch
@@ -174,52 +174,69 @@ def main():
         return np.mean(loss_val), np.mean(loss_val_recon), img_list
 
     parser = argparse.ArgumentParser(description="PyTorch Training")
+    
+    # dir
+    parser.add_argument("--data_dirs", default=None, nargs='+', type=str, help="dir of dataset for pretrain")
+    parser.add_argument("--data_dicts_jsons", default=None, nargs='+', type=str, help="dir of dataset for pretrain")
     parser.add_argument("--model_dir", default=None, type=str, help="model name")
     parser.add_argument("--model_name", default=None, type=str, help="model name")
-    parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
-    parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
-    parser.add_argument("--logdir", default="test", type=str, help="directory to save the tensorboard logs")
-    parser.add_argument("--epochs", default=100, type=int, help="number of training epochs")
-    parser.add_argument("--num_steps", default=100000, type=int, help="number of training iterations")
-    parser.add_argument("--eval_num", default=100, type=int, help="evaluation frequency")
-    parser.add_argument("--warmup_steps", default=500, type=int, help="warmup steps")
-    parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
-    parser.add_argument("--dropout_path_rate", default=0.0, type=float, help="drop path rate")
+    parser.add_argument("--resume", default=None, type=str, help="model ckp path")
     parser.add_argument("--use_checkpoint", action="store_true", help="use gradient checkpointing to save memory")
+    parser.add_argument("--logdir", default="test", type=str, help="directory to save the tensorboard logs")
+
+    # data loader
+    parser.add_argument("--smartcache_dataset", action="store_true", help="use monai smartcache Dataset")
+    parser.add_argument("--cache_dataset", action="store_true", help="use monai cache Dataset")
+    parser.add_argument("--workers", default=2, type=int, help="number of workers")
+    
+    # transform
     parser.add_argument("--spatial_dims", default=3, type=int, help="spatial dimension of input data")
     parser.add_argument("--a_min", default=-1000, type=float, help="a_min in ScaleIntensityRanged")
     parser.add_argument("--a_max", default=1000, type=float, help="a_max in ScaleIntensityRanged")
     parser.add_argument("--b_min", default=0.0, type=float, help="b_min in ScaleIntensityRanged")
     parser.add_argument("--b_max", default=1.0, type=float, help="b_max in ScaleIntensityRanged")
-    parser.add_argument("--space_x", default=1.5, type=float, help="spacing in x direction")
-    parser.add_argument("--space_y", default=1.5, type=float, help="spacing in y direction")
-    parser.add_argument("--space_z", default=2.0, type=float, help="spacing in z direction")
-    parser.add_argument("--roi_x", default=96, type=int, help="roi size in x direction")
-    parser.add_argument("--roi_y", default=96, type=int, help="roi size in y direction")
-    parser.add_argument("--roi_z", default=96, type=int, help="roi size in z direction")
+    parser.add_argument("--space_x", default=1.0, type=float, help="spacing in x direction")
+    parser.add_argument("--space_y", default=1.0, type=float, help="spacing in y direction")
+    parser.add_argument("--space_z", default=1.0, type=float, help="spacing in z direction")
+    parser.add_argument("--roi_x", default=128, type=int, help="roi size in x direction")
+    parser.add_argument("--roi_y", default=128, type=int, help="roi size in y direction")
+    parser.add_argument("--roi_z", default=128, type=int, help="roi size in z direction")
     parser.add_argument("--batch_size", default=2, type=int, help="number of batch size")
     parser.add_argument("--sw_batch_size", default=2, type=int, help="number of sliding window batch size")
+    
+    # train loop
+    parser.add_argument("--epochs", default=100, type=int, help="number of training epochs")
+    parser.add_argument("--num_steps", default=100000, type=int, help="number of training iterations")
+    parser.add_argument("--eval_num", default=100, type=int, help="evaluation frequency")
+    parser.add_argument("--early_stop_count", default=0, type=int, help="early stop count")
+    parser.add_argument("--max_early_stop_count", default=10, type=int, help="max early stop count")
+    parser.add_argument("--best_val", default=1e8, type=float, help="best val")
+    
+    # model
+    parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
+    parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
+    parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
+    parser.add_argument("--dropout_path_rate", default=0.0, type=float, help="drop path rate")
+    
+    # loss opt schedule
+    parser.add_argument("--loss_type", default="SSL", type=str)
+    parser.add_argument("--opt", default="adamw", type=str, help="optimization algorithm")
+    parser.add_argument("--lr_schedule", default="warmup_cosine", type=str)
+    parser.add_argument("--warmup_steps", default=500, type=int, help="warmup steps")
     parser.add_argument("--lr", default=4e-4, type=float, help="learning rate")
     parser.add_argument("--decay", default=0.1, type=float, help="decay rate")
     parser.add_argument("--momentum", default=0.9, type=float, help="momentum")
     parser.add_argument("--lrdecay", action="store_true", help="enable learning rate decay")
     parser.add_argument("--max_grad_norm", default=1.0, type=float, help="maximum gradient norm")
-    parser.add_argument("--loss_type", default="SSL", type=str)
-    parser.add_argument("--opt", default="adamw", type=str, help="optimization algorithm")
-    parser.add_argument("--lr_schedule", default="warmup_cosine", type=str)
-    parser.add_argument("--resume", default=None, type=str, help="resume training")
+    
+    # misc
     parser.add_argument("--local_rank", type=int, default=0, help="local rank")
     parser.add_argument("--grad_clip", action="store_true", help="gradient clip")
     parser.add_argument("--noamp", action="store_true", help="do NOT use amp for training")
     parser.add_argument("--dist-url", default="env://", help="url used to set up distributed training")
-    parser.add_argument("--smartcache_dataset", action="store_true", help="use monai smartcache Dataset")
-    parser.add_argument("--cache_dataset", action="store_true", help="use monai cache Dataset")
-    parser.add_argument("--data_name", default='all', type=str, help="name of dataset for pretrain")
-    parser.add_argument("--early_stop_count", default=0, type=int, help="early stop count")
-    parser.add_argument("--max_early_stop_count", default=10, type=int, help="max early stop count")
-    parser.add_argument("--best_val", default=1e8, type=float, help="best val")
 
     args = parser.parse_args()
+    
     model_dir = args.model_dir
     os.makedirs(model_dir, exist_ok=True)
     train_log = args.logdir
@@ -292,7 +309,7 @@ def main():
             scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambdas)
 
     global_step = 0
-    if args.resume:
+    if os.path.exists(args.resume):
         model_pth = args.resume
         model_dict = torch.load(model_pth)
         model.load_state_dict(model_dict["state_dict"])
