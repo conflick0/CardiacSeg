@@ -9,13 +9,14 @@ class SSLHead(nn.Module):
     def __init__(self, in_channels, net, upsample="vae", dim=768, patch_size=4):
         super(SSLHead, self).__init__()
         spatial_dims = 3
-        patch_size = ensure_tuple_rep(2, spatial_dims)
+        patch_size = ensure_tuple_rep(patch_size, spatial_dims)
         window_size = ensure_tuple_rep(7, spatial_dims)
         self.net = net
         self.rotation_pre = nn.Identity()
         self.rotation_head = nn.Linear(dim, 4)
         self.contrastive_pre = nn.Identity()
         self.contrastive_head = nn.Linear(dim, 512)
+        
         if upsample == "large_kernel_deconv":
             self.conv = nn.ConvTranspose3d(dim, in_channels, kernel_size=(32, 32, 32), stride=(32, 32, 32))
         elif upsample == "deconv":
@@ -63,5 +64,4 @@ class SSLHead(nn.Module):
         x_rec = x_out.flatten(start_dim=2, end_dim=4)
         x_rec = x_rec.view(-1, c, h, w, d)
         x_rec = self.conv(x_rec)
-        print(x_rec.shape)
         return x_rot, x_contrastive, x_rec

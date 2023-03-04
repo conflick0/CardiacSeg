@@ -57,6 +57,7 @@ def main(config, args=None):
     # test
     args.test_mode = True
     args.checkpoint = os.path.join(args.model_dir, 'best_model.pth')
+    args.ssl_checkpoint = None
     main_worker(args)
     
 
@@ -118,6 +119,12 @@ def main_worker(args):
           "=> loaded checkpoint '{}' (epoch {}) (bestacc {}) (early stop count {})"\
           .format(args.checkpoint, start_epoch, best_acc, early_stop_count)
         )
+        
+    if args.ssl_checkpoint is not None and os.path.exists(args.ssl_checkpoint):
+        pre_train_path = os.path.join(args.ssl_checkpoint)
+        weight = torch.load(pre_train_path)
+        model.load_from(weights=weight)
+        print("Using pretrained self-supervied Swin UNETR backbone weights !")
 
     # inferer
     post_label = AsDiscrete(to_onehot=args.out_channels)
@@ -269,9 +276,9 @@ if __name__ == "__main__":
                 {'lr':5e-3, 'weight_decay': 5e-3},
             ]),
             'lrschedule': tune.grid_search([
-                {'warmup_epochs':20,'max_epoch':1200},
+                {'warmup_epochs':40,'max_epoch':700},
+                {'warmup_epochs':40,'max_epoch':900},
                 {'warmup_epochs':40,'max_epoch':1200},
-                {'warmup_epochs':20,'max_epoch':1200},
             ])
         }
     elif args.tune_mode == 'lrschedule_epoch':

@@ -115,17 +115,27 @@ def main():
                     checkpoint['early_stop_count'] = args.early_stop_count
                     save_ckp(checkpoint, os.path.join(model_dir, 'model_bestValRMSE.pt'))
                     print(
-                        "Model was saved ! Best Recon. Val Loss: {:.4f}, Recon. Val Loss: {:.4f}".format(
+                        "Best model was saved ! Best Recon. Val Loss: {:.4f}, Recon. Val Loss: {:.4f}".format(
                             val_best, val_loss_recon
                         )
                     )
+                    
+                    checkpoint['val_best'] = val_best
+                    checkpoint['early_stop_count'] = args.early_stop_count
+                    print(
+                        "Final model was saved ! Best Recon. Val Loss: {:.4f} Recon. Val Loss: {:.4f}".format(
+                            val_best, val_loss_recon
+                        )
+                    )
+                    print('early stop count:', args.early_stop_count)
+                    save_ckp(checkpoint, os.path.join(model_dir, 'model_final.pt'))
                     
                 else:
                     args.early_stop_count += 1
                     checkpoint['val_best'] = val_best
                     checkpoint['early_stop_count'] = args.early_stop_count
                     print(
-                        "Model was not saved ! Best Recon. Val Loss: {:.4f} Recon. Val Loss: {:.4f}".format(
+                        "Final model was saved ! Best Recon. Val Loss: {:.4f} Recon. Val Loss: {:.4f}".format(
                             val_best, val_loss_recon
                         )
                     )
@@ -315,7 +325,7 @@ def main():
         model.load_state_dict(model_dict["state_dict"])
         model.optimizer = model_dict["optimizer"]
         if args.lr_schedule is not None and 'scheduler' in model_dict:
-          scheduler.load_state_dict(model_dict['scheduler'])
+            scheduler.load_state_dict(model_dict['scheduler'])
         if "global_step" in model_dict:
             global_step = model_dict["global_step"]
         if "early_stop_count" in model_dict and args.early_stop_count == 0:
