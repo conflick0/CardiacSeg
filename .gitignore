@@ -6,7 +6,8 @@ dataset
 *.pt
 *.csv
 *events.out.tfevents.*
-.nii.gz
+*.nii.gz
+*.zip
 tune_results/
 
 # IntelliJ project files

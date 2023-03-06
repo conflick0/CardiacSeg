@@ -1,33 +1,23 @@
 import sys
-
 # set package path
 sys.path.append("/nfs/Workspace/CardiacSeg")
 
-import argparse
 import os
 from functools import partial
 
-import pandas as pd
-
 import torch
-from torch.utils.tensorboard import SummaryWriter
 
 from monai.inferers import sliding_window_inference
-from monai.losses import DiceCELoss
-from monai.metrics import DiceMetric
 from monai.transforms import (
-    AsDiscrete,
     Compose,
     Orientationd,
     ToNumpyd,
-    SqueezeDimd,
-    AddChanneld
 )
-from monailabel.transform.post import BoundingBoxd, Restored
+from monailabel.transform.post import Restored
 
-from datasets.chgh_dataset import get_infer_data
+from data_utils.data_loader_utils import load_data_dict_json
+from data_utils.dataset import get_infer_data
 from data_utils.io import load_json
-from data_utils.utils import get_pid_by_data
 from runners.inferer import run_infering
 from networks.network import network
 
@@ -85,7 +75,7 @@ def main_worker(args):
 
     # prepare data_dict
     if args.data_dicts_json:
-        data_dicts = load_json(args.data_dicts_json)
+        data_dicts = load_data_dict_json(args.data_dir, args.data_dicts_json)
     else:
         data_dicts = [{
             'image': args.img_pth,

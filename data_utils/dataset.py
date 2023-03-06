@@ -28,8 +28,9 @@ class DataLoader:
         return self.dl.get_loader()
 
 
-def get_infer_data(data_name, data_dict, args):
+def get_infer_data(data_dict, args):
     keys = data_dict.keys()
+    data_name = args.data_name
     transform = importlib.import_module(f'transforms.{data_name}_transform')
     get_inf_transform = getattr(transform, 'get_inf_transform', None)
     inf_transform = get_inf_transform(keys, args)

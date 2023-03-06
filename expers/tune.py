@@ -119,12 +119,35 @@ def main_worker(args):
           "=> loaded checkpoint '{}' (epoch {}) (bestacc {}) (early stop count {})"\
           .format(args.checkpoint, start_epoch, best_acc, early_stop_count)
         )
-        
-    if args.ssl_checkpoint is not None and os.path.exists(args.ssl_checkpoint):
-        pre_train_path = os.path.join(args.ssl_checkpoint)
-        weight = torch.load(pre_train_path)
-        model.load_from(weights=weight)
-        print("Using pretrained self-supervied Swin UNETR backbone weights !")
+    else:
+        # ssl pretrain
+        if args.model_name =='swinunetr' and args.ssl_checkpoint and os.path.exists(args.ssl_checkpoint):
+            pre_train_path = os.path.join(args.ssl_checkpoint)
+            weight = torch.load(pre_train_path)
+            model.load_from(weights=weight)
+            print("Using pretrained self-supervied Swin UNETR backbone weights !")
+        elif args.ssl_checkpoint and os.path.exists(args.ssl_checkpoint):
+            model_dict = torch.load(args.ssl_checkpoint)
+            state_dict = model_dict["state_dict"]
+            # fix potential differences in state dict keys from pre-training to
+            # fine-tuning
+            if "module." in list(state_dict.keys())[0]:
+                print("Tag 'module.' found in state dict - fixing!")
+                for key in list(state_dict.keys()):
+                    state_dict[key.replace("module.", "")] = state_dict.pop(key)
+            if "swin_vit" in list(state_dict.keys())[0]:
+                print("Tag 'swin_vit' found in state dict - fixing!")
+                for key in list(state_dict.keys()):
+                    state_dict[key.replace("swin_vit", "swinViT")] = state_dict.pop(key)
+            if "net" in list(state_dict.keys())[0]:
+                print("Tag 'net' found in state dict - fixing!")
+                for key in list(state_dict.keys()):
+                    state_dict[key.replace("net.", "")] = state_dict.pop(key)
+            # We now load model weights, setting param `strict` to False, i.e.:
+            # this load the encoder weights (Swin-ViT, SSL pre-trained), but leaves
+            # the decoder weights untouched (CNN UNet decoder).
+            model.load_state_dict(state_dict, strict=False)
+            print(f"Using pretrained self-supervied {args.model_name} backbone weights !")
 
     # inferer
     post_label = AsDiscrete(to_onehot=args.out_channels)
