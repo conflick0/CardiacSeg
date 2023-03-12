@@ -188,12 +188,7 @@ def network(model_name, args):
         return UNETCNX_X3_2_2(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
-              feature_size=24,
-          ).to(args.device)
-    elif model_name == 'unetcnx_x3_2_2_1':
-        return UNETCNX_X3_2_2_1(
-              in_channels=args.in_channels,
-              out_channels=args.out_channels,
+              patch_size=args.patch_size,
               feature_size=24,
           ).to(args.device)
     elif model_name == 'unetcnx_x4':

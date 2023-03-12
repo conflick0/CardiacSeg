@@ -65,7 +65,9 @@ def get_parser(argv):
     parser.add_argument("--model_name", default=None, type=str, help="model name")
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
     parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
-
+    parser.add_argument("--patch_size", default=None, type=int, help="number of output channels")
+    
+    
     # optimizer
     parser.add_argument("--optim", default=None, type=str, help="type of optimizer")
     parser.add_argument("--lr", default=1e-4, type=float, help="optimization learning rate")

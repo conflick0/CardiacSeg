@@ -88,16 +88,19 @@ def run_infering(
         post_transform,
         args
     ):
+    ret_dict = {}
     
     # test
     data['pred'] = infer(model, data, model_inferer, args.device)
     
     # eval infer tta
     if 'label' in data.keys():
-        dc_vals, hd95_vals = eval_label_pred(data, args.out_channels, args.device)
+        tta_dc_vals, tta_hd95_vals = eval_label_pred(data, args.out_channels, args.device)
         print('infer test time aug:')
-        print('dice:', dc_vals)
-        print('hd95:', hd95_vals)
+        print('dice:', tta_dc_vals)
+        print('hd95:', tta_hd95_vals)
+        ret_dict['tta_dc'] = tta_dc_vals
+        ret_dict['tta_hd'] = tta_hd95_vals
         
         # post label transform 
         sqz_transform = SqueezeDimd(keys=['label'])
@@ -114,17 +117,23 @@ def run_infering(
         data['label'] = lbl_data['label']
         data['label_meta_dict'] = lbl_data['label']
         
-        dc_vals, hd95_vals = eval_label_pred(data, args.out_channels, args.device)
+        ori_dc_vals, ori_hd95_vals = eval_label_pred(data, args.out_channels, args.device)
         print('infer test original:')
-        print('dice:', dc_vals)
-        print('hd95:', hd95_vals)
+        print('dice:', ori_dc_vals)
+        print('hd95:', ori_hd95_vals)
+        ret_dict['ori_dc'] = ori_dc_vals
+        ret_dict['ori_hd'] = ori_hd95_vals
     
-    # save pred result
-    filename = get_filename(data)
-    infer_img_pth = os.path.join(args.infer_dir, filename)
+    
+    if not args.test_mode:
+        # save pred result
+        filename = get_filename(data)
+        infer_img_pth = os.path.join(args.infer_dir, filename)
+
+        save_img(
+          data['pred'], 
+          data['pred_meta_dict'], 
+          infer_img_pth
+        )
         
-    save_img(
-      data['pred'], 
-      data['pred_meta_dict'], 
-      infer_img_pth
-    )
+    return ret_dict

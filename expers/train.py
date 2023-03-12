@@ -11,11 +11,21 @@ from torch.utils.tensorboard import SummaryWriter
 from monai.inferers import sliding_window_inference
 from monai.losses import DiceCELoss
 from monai.metrics import DiceMetric
-from monai.transforms import AsDiscrete
+from monai.transforms import (
+    AsDiscrete,
+    Compose,
+    Orientationd,
+    ToNumpyd,
+)
+from monailabel.transform.post import Restored
 
 from expers.args import get_parser
-from data_utils.dataset import DataLoader, get_label_names
-from data_utils.utils import get_pids_by_loader
+
+from data_utils.data_loader_utils import load_data_dict_json
+from runners.inferer import run_infering
+
+from data_utils.dataset import DataLoader, get_label_names, get_infer_data
+from data_utils.utils import get_pids_by_loader, get_pids_by_data_dicts
 from runners.trainer import run_training
 from runners.tester import run_testing
 from networks.network import network
@@ -119,46 +129,129 @@ def main_worker(args):
 
     else:
         os.makedirs(args.eval_dir, exist_ok=True)
-
-        tt_loader = loader[0]
-
-        # test
-        dc_vals, hd95_vals = run_testing(
-            model,
-            tt_loader,
-            model_inferer,
-            post_label,
-            post_pred
-        )
-
-        pids = get_pids_by_loader(tt_loader)
-
+        
+        
         label_names = get_label_names(args.data_name)
-
+        
+        # prepare data_dict
+        _, _, test_dicts = load_data_dict_json(args.data_dir, args.data_dicts_json)
+        
+        # infer post transform
+        keys = ['pred']
+        post_transform = Compose([
+            Orientationd(keys=keys, axcodes="LPS"),
+            ToNumpyd(keys=keys),
+            Restored(keys=keys, ref_image="image")
+        ])
+       
+        # run infer
+        pids = get_pids_by_data_dicts(test_dicts)
+        inf_dc_vals = []
+        inf_hd95_vals = []
+        tt_dc_vals = []
+        tt_hd95_vals = []
+        for data_dict in test_dicts:
+            print('infer data:', data_dict)
+            # load infer data
+            data = get_infer_data(data_dict, args)
+            # infer
+            ret_dict = run_infering(
+                model,
+                data,
+                model_inferer,
+                post_transform,
+                args
+            )
+            tt_dc_vals.append(ret_dict['tta_dc'])
+            tt_hd95_vals.append(ret_dict['tta_hd'])
+            inf_dc_vals.append(ret_dict['ori_dc'])
+            inf_hd95_vals.append(ret_dict['ori_hd'])
+            
+        
+        # make df
         eval_tt_dice_val_df = pd.DataFrame(
-            dc_vals,
-            columns=[f'dice{n}' for n in label_names]
+            tt_dc_vals,
+            columns=[f'tt_dice{n}' for n in label_names]
         )
         eval_tt_hd95_val_df = pd.DataFrame(
-            hd95_vals,
-            columns=[f'hd95{n}' for n in label_names]
+            tt_hd95_vals,
+            columns=[f'tt_hd95{n}' for n in label_names]
         )
-        eval_tt_df = pd.DataFrame({
+        
+        
+        eval_inf_dice_val_df = pd.DataFrame(
+            inf_dc_vals,
+            columns=[f'inf_dice{n}' for n in label_names]
+        )
+        eval_inf_hd95_val_df = pd.DataFrame(
+            inf_hd95_vals,
+            columns=[f'inf_hd95{n}' for n in label_names]
+        )
+        
+        pid_df = pd.DataFrame({
             'patientId': pids,
-            'type': 'test',
         })
+        
+        avg_tt_dice = eval_tt_dice_val_df.T.mean().mean()
+        avg_tt_hd95 =  eval_tt_hd95_val_df.T.mean().mean()
+        avg_inf_dice = eval_inf_dice_val_df.T.mean().mean()
+        avg_inf_hd95 =  eval_inf_hd95_val_df.T.mean().mean()
 
-        eval_tt_df = pd.concat([eval_tt_df, eval_tt_dice_val_df, eval_tt_hd95_val_df], axis=1, join='inner') \
-            .reset_index(drop=True)
-        eval_tt_df.to_csv(os.path.join(args.eval_dir, f'best_model_eval.csv'), index=False)
-
-        avg_dice = eval_tt_dice_val_df.T.mean().mean()
-        avg_hd95 = eval_tt_hd95_val_df.T.mean().mean()
-
+        eval_df = pd.concat([
+            pid_df, eval_tt_dice_val_df, eval_tt_hd95_val_df,
+            eval_inf_dice_val_df, eval_inf_hd95_val_df,
+        ], axis=1, join='inner').reset_index(drop=True)
+        eval_df.to_csv(os.path.join(args.eval_dir, f'best_model.csv'), index=False)
+        
         print("\neval result:")
-        print('avg dice:', avg_dice)
-        print('avg hd95:', avg_hd95)
-        print(eval_tt_df.to_string())
+        print('avg tt dice:', avg_tt_dice)
+        print('avg tt hd95:', avg_tt_hd95)
+        print('avg inf dice:', avg_inf_dice)
+        print('avg inf hd95:', avg_inf_hd95)
+        print(eval_df.to_string())
+        
+#         os.makedirs(args.eval_dir, exist_ok=True)
+
+#         tt_loader = loader[0]
+
+#         # test
+#         dc_vals, hd95_vals = run_testing(
+#             model,
+#             tt_loader,
+#             model_inferer,
+#             post_label,
+#             post_pred,
+#             args.device
+#         )
+
+#         pids = get_pids_by_loader(tt_loader)
+
+#         label_names = get_label_names(args.data_name)
+
+#         eval_tt_dice_val_df = pd.DataFrame(
+#             dc_vals,
+#             columns=[f'dice{n}' for n in label_names]
+#         )
+#         eval_tt_hd95_val_df = pd.DataFrame(
+#             hd95_vals,
+#             columns=[f'hd95{n}' for n in label_names]
+#         )
+#         eval_tt_df = pd.DataFrame({
+#             'patientId': pids,
+#             'type': 'test',
+#         })
+
+#         eval_tt_df = pd.concat([eval_tt_df, eval_tt_dice_val_df, eval_tt_hd95_val_df], axis=1, join='inner') \
+#             .reset_index(drop=True)
+#         eval_tt_df.to_csv(os.path.join(args.eval_dir, f'best_model_eval.csv'), index=False)
+
+#         avg_dice = eval_tt_dice_val_df.T.mean().mean()
+#         avg_hd95 = eval_tt_hd95_val_df.T.mean().mean()
+
+#         print("\neval result:")
+#         print('avg dice:', avg_dice)
+#         print('avg hd95:', avg_hd95)
+#         print(eval_tt_df.to_string())
 
 
 if __name__ == "__main__":
