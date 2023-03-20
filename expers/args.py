@@ -66,7 +66,8 @@ def get_parser(argv):
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
     parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
     parser.add_argument("--patch_size", default=None, type=int, help="number of output channels")
-    
+    parser.add_argument("--drop_rate", default=0.4, type=float, help="drop out rate")
+    parser.add_argument('--depths', type=int, nargs='+', help="depths of layer")
     
     # optimizer
     parser.add_argument("--optim", default=None, type=str, help="type of optimizer")

@@ -16,13 +16,21 @@ from ray.tune import CLIReporter
 from monai.inferers import sliding_window_inference
 from monai.losses import DiceCELoss
 from monai.metrics import DiceMetric
-from monai.transforms import AsDiscrete
+from monai.transforms import (
+    AsDiscrete,
+    Compose,
+    Orientationd,
+    ToNumpyd,
+)
+from monailabel.transform.post import Restored
 
 from expers.args import get_parser, map_args_transform, map_args_optim, map_args_lrschedule
-from data_utils.dataset import DataLoader, get_label_names
-from data_utils.utils import get_pids_by_loader
+from data_utils.dataset import DataLoader, get_label_names, get_infer_data
+from data_utils.data_loader_utils import load_data_dict_json
+from data_utils.utils import get_pids_by_loader, get_pids_by_data_dicts
 from runners.tuner import run_training
 from runners.tester import run_testing
+from runners.inferer import run_infering
 from networks.network import network
 from optimizers.optimizer import Optimizer, LR_Scheduler
 
@@ -189,51 +197,94 @@ def main_worker(args):
     else:
         os.makedirs(args.eval_dir, exist_ok=True)
         
-        tt_loader = loader[0]
-
-        # test
-        dc_vals, hd95_vals = run_testing(
-            model,
-            tt_loader,
-            model_inferer,
-            post_label,
-            post_pred
-        )
-
-        pids = get_pids_by_loader(tt_loader)
         
         label_names = get_label_names(args.data_name)
         
+        # prepare data_dict
+        _, _, test_dicts = load_data_dict_json(args.data_dir, args.data_dicts_json)
+        
+        # infer post transform
+        keys = ['pred']
+        post_transform = Compose([
+            Orientationd(keys=keys, axcodes="LPS"),
+            ToNumpyd(keys=keys),
+            Restored(keys=keys, ref_image="image")
+        ])
+       
+        # run infer
+        pids = get_pids_by_data_dicts(test_dicts)
+        inf_dc_vals = []
+        inf_hd95_vals = []
+        tt_dc_vals = []
+        tt_hd95_vals = []
+        for data_dict in test_dicts:
+            print('infer data:', data_dict)
+            # load infer data
+            data = get_infer_data(data_dict, args)
+            # infer
+            ret_dict = run_infering(
+                model,
+                data,
+                model_inferer,
+                post_transform,
+                args
+            )
+            tt_dc_vals.append(ret_dict['tta_dc'])
+            tt_hd95_vals.append(ret_dict['tta_hd'])
+            inf_dc_vals.append(ret_dict['ori_dc'])
+            inf_hd95_vals.append(ret_dict['ori_hd'])
+            
+        
+        # make df
         eval_tt_dice_val_df = pd.DataFrame(
-            dc_vals,
-            columns=[f'dice{n}' for n in label_names]
+            tt_dc_vals,
+            columns=[f'tt_dice{n}' for n in label_names]
         )
         eval_tt_hd95_val_df = pd.DataFrame(
-            hd95_vals,
-            columns=[f'hd95{n}' for n in label_names]
+            tt_hd95_vals,
+            columns=[f'tt_hd95{n}' for n in label_names]
         )
-        eval_tt_df = pd.DataFrame({
-            'patientId': pids,
-            'type': 'test',
-        })
-
-        eval_tt_df = pd.concat([eval_tt_df, eval_tt_dice_val_df, eval_tt_hd95_val_df], axis=1, join='inner')\
-            .reset_index(drop=True)
-        eval_tt_df.to_csv(os.path.join(args.eval_dir, f'best_model_eval.csv'), index=False)
         
-        avg_dice = eval_tt_dice_val_df.T.mean().mean()
-        avg_hd95 =  eval_tt_hd95_val_df.T.mean().mean()
+        
+        eval_inf_dice_val_df = pd.DataFrame(
+            inf_dc_vals,
+            columns=[f'inf_dice{n}' for n in label_names]
+        )
+        eval_inf_hd95_val_df = pd.DataFrame(
+            inf_hd95_vals,
+            columns=[f'inf_hd95{n}' for n in label_names]
+        )
+        
+        pid_df = pd.DataFrame({
+            'patientId': pids,
+        })
+        
+        avg_tt_dice = eval_tt_dice_val_df.T.mean().mean()
+        avg_tt_hd95 =  eval_tt_hd95_val_df.T.mean().mean()
+        avg_inf_dice = eval_inf_dice_val_df.T.mean().mean()
+        avg_inf_hd95 =  eval_inf_hd95_val_df.T.mean().mean()
 
+        eval_df = pd.concat([
+            pid_df, eval_tt_dice_val_df, eval_tt_hd95_val_df,
+            eval_inf_dice_val_df, eval_inf_hd95_val_df,
+        ], axis=1, join='inner').reset_index(drop=True)
+        
+        if args.tune_mode != 'test':
+            eval_df.to_csv(os.path.join(args.eval_dir, f'best_model.csv'), index=False)
+        
         print("\neval result:")
-        print('avg dice:', avg_dice)
-        print('avg hd95:', avg_hd95)
-        print(eval_tt_df.to_string())
+        print('avg tt dice:', avg_tt_dice)
+        print('avg tt hd95:', avg_tt_hd95)
+        print('avg inf dice:', avg_inf_dice)
+        print('avg inf hd95:', avg_inf_hd95)
+        print(eval_df.to_string())
         
         tune.report(
-            tt_dice=avg_dice,
-            tt_hd95=avg_hd95,
-            val_bst_acc=best_acc, 
-            esc=early_stop_count,
+            tt_dice=avg_tt_dice,
+            tt_hd95=avg_tt_hd95,
+            inf_dice=avg_inf_dice,
+            inf_hd95=avg_inf_hd95,
+            val_bst_acc=best_acc
         )
 
 
@@ -254,16 +305,16 @@ if __name__ == "__main__":
     elif args.tune_mode == 'transform':
         search_space = {
             'intensity': tune.grid_search([
+                [-175, 250], 
                 [-42, 423], 
                 [13, 320], 
                 [32, 294]
             ]),
             'space': tune.grid_search([
-                [0.76,0.76,1.0],
+                [0.7,0.7,1.0],
                 [1.0,1.0,1.0]
             ]),
             'roi': tune.grid_search([
-                [96,96,96],
                 [128,128,128],
             ]),
         }
@@ -287,19 +338,20 @@ if __name__ == "__main__":
         search_space = {
             'transform': tune.grid_search([
                 {
-                    'intensity': [-42,423],
-                    'space': [1.0,1.0,1.0],
+                    'intensity': [32,294],
+                    'space': [0.7,0.7,1.0],
                     'roi':[128,128,128],
                 }
             ]),
             'optim': tune.grid_search([
+                {'lr':1e-4, 'weight_decay': 1e-5},
+                {'lr':5e-4, 'weight_decay': 5e-5},
                 {'lr':1e-4, 'weight_decay': 5e-4},
                 {'lr':5e-4, 'weight_decay': 5e-4},
-                {'lr':1e-3, 'weight_decay': 5e-3},
-                {'lr':5e-3, 'weight_decay': 5e-3},
             ]),
             'lrschedule': tune.grid_search([
-                {'warmup_epochs':40,'max_epoch':700},
+                {'warmup_epochs':20,'max_epoch':900},
+                {'warmup_epochs':20,'max_epoch':1200},
                 {'warmup_epochs':40,'max_epoch':900},
                 {'warmup_epochs':40,'max_epoch':1200},
             ])
@@ -327,7 +379,16 @@ if __name__ == "__main__":
         raise ValueError(f"Invalid args tune mode:{args.tune_mode}")
 
     trainable_with_cpu_gpu = tune.with_resources(partial(main, args=args), {"cpu": 2, "gpu": 1})
-    
+    reporter = CLIReporter(metric_columns=[
+        'tt_dice',
+        'tt_hd95',
+        'inf_dice',
+        'inf_hd95',
+        'val_bst_acc',
+        'esc'
+    ])
+
+
     if args.resume_tuner:
         print(f'resume tuner form {args.root_exp_dir}')
         restored_tuner = tune.Tuner.restore(os.path.join(args.root_exp_dir, args.exp_name))
@@ -338,7 +399,7 @@ if __name__ == "__main__":
             print('run test mode ...')
             # get best model path
             result_grid = restored_tuner.get_results()
-            best_result = result_grid.get_best_result(metric="tt_dice", mode="max")
+            best_result = result_grid.get_best_result(metric="inf_dice", mode="max")
             model_pth = os.path.join( best_result.log_dir, 'models', 'best_model.pth')
             # test
             # for LinearWarmupCosineAnnealingLR
@@ -352,7 +413,8 @@ if __name__ == "__main__":
             param_space=search_space,
             run_config=air.RunConfig(
                 name=args.exp_name,
-                local_dir=args.root_exp_dir
+                local_dir=args.root_exp_dir,
+                progress_reporter=reporter
             )
         )
         tuner.fit()

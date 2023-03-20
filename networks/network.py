@@ -1,4 +1,4 @@
-from monai.networks.nets import SwinUNETR, UNETR, UNet, AttentionUnet
+from monai.networks.nets import SwinUNETR, UNETR, UNet, AttentionUnet, VNet
 
 from networks.TransUNet.networks.vit_seg_modeling import VisionTransformer as ViT_seg
 from networks.TransUNet.networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
@@ -136,7 +136,11 @@ def network(model_name, args):
               feature_size=48,
               patch_size=4
         ).to(args.device)
-
+    elif model_name == 'vnet':
+        return VNet(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+        ).to(args.device)
     elif model_name == 'unetcnx_x0':
         return UNETCNX_X0(
             in_channels=args.in_channels,
@@ -189,6 +193,8 @@ def network(model_name, args):
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
               feature_size=24,
           ).to(args.device)
     elif model_name == 'unetcnx_x4':
