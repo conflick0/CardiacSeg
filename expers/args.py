@@ -65,7 +65,7 @@ def get_parser(argv):
     parser.add_argument("--model_name", default=None, type=str, help="model name")
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
     parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
-    parser.add_argument("--patch_size", default=None, type=int, help="number of output channels")
+    parser.add_argument("--patch_size", default=4, type=int, help="number of output channels")
     parser.add_argument("--drop_rate", default=0.4, type=float, help="drop out rate")
     parser.add_argument('--depths', type=int, nargs='+', help="depths of layer")
     
@@ -121,4 +121,9 @@ def map_args_lrschedule(config, args):
     args.warmup_epochs = config['warmup_epochs']
     args.max_epochs = config['max_epoch'] # for LinearWarmupCosineAnnealingLR
     args.max_epoch = config['max_epoch']
+    return args
+
+
+def map_args_network(config, args):
+    args.depths = config['depths']
     return args

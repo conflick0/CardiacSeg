@@ -121,11 +121,9 @@ class DiConvNeXtSkipCBAM(nn.Module):
         self.blocks = nn.Sequential(*blocks)
 
     def forward(self, input):
-        skip = self.cbam(input)
-        
         result = self.blocks[0](input)
         result = self.blocks[1](result)
-        result += skip
+        result = input + self.cbam(result)
         
         return result
     
@@ -156,9 +154,9 @@ class DiConvNeXtCBAM(nn.Module):
         
         return result
     
-    
 
 class DDiConvNeXt(nn.Module):
+    '''double Di ConvNeXt'''
     def __init__(
         self,
         dim=48,
@@ -169,7 +167,6 @@ class DDiConvNeXt(nn.Module):
         super().__init__()
         
         block = DiConvNeXt
-        self.cbam = CBAM(dim, reduction=16, kernel_size=7)
         
         blocks = []
         for s, k, d in zip(stochastic_depth_probs, kernel_sizes, dilations):
@@ -180,7 +177,5 @@ class DDiConvNeXt(nn.Module):
     def forward(self, input):
         result = self.blocks[0](input)
         result = self.blocks[1](result)
-        result = self.cbam(result)
         
         return result
-    

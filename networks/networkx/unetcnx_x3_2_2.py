@@ -24,6 +24,7 @@ class UNETCNX_X3_2_2(nn.Module):
             **kwargs
     ) -> None:
         super().__init__()
+        print(depths)
         block_setting = [
             DilBlockConfig(feature_size * 2, feature_size * 4, depths[0], [1, 3], [7, 3]),
             DilBlockConfig(feature_size * 4, feature_size * 8, depths[1], [1, 3], [7, 3]),
