@@ -46,7 +46,7 @@ def main(config, args=None):
         args = map_args_optim(config['optim'], args)
         args = map_args_lrschedule(config['lrschedule'], args)
     elif args.tune_mode == 'network':
-        args = map_args_network(config['network'], args)
+        args = map_args_network(config, args)
     else:
         # for LinearWarmupCosineAnnealingLR
         args.max_epochs = args.max_epoch
@@ -349,20 +349,16 @@ if __name__ == "__main__":
         search_space = {
             'transform': tune.grid_search([
                 {
-                    'intensity': [32,294],
+                    'intensity': [-42,423],
                     'space': [0.7,0.7,1.0],
                     'roi':[128,128,128],
                 }
             ]),
             'optim': tune.grid_search([
                 {'lr':1e-4, 'weight_decay': 1e-5},
-                {'lr':5e-4, 'weight_decay': 5e-5},
                 {'lr':1e-4, 'weight_decay': 5e-4},
-                {'lr':5e-4, 'weight_decay': 5e-4},
             ]),
             'lrschedule': tune.grid_search([
-                {'warmup_epochs':20,'max_epoch':900},
-                {'warmup_epochs':20,'max_epoch':1200},
                 {'warmup_epochs':40,'max_epoch':900},
                 {'warmup_epochs':40,'max_epoch':1200},
             ])

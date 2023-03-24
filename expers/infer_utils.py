@@ -21,7 +21,8 @@ def get_tune_model_dir(root_exp_dir, exp_name):
     print('config:', best_result.metrics['config'])
     print('tt_dice:', best_result.metrics['tt_dice'])
     print('tt_hd95:', best_result.metrics['tt_hd95'])
-    print('esc:', best_result.metrics['esc'])
+    if 'esc' in best_result.metrics: 
+        print('esc:', best_result.metrics['esc'])
     print(f'best log dir:', best_result.log_dir)
     model_dir = os.path.join( best_result.log_dir, 'models')
     return model_dir

@@ -1,0 +1,42 @@
+[
+    {
+        "image": "dataset_2/pid_05/pid_05.nii.gz",
+        "label": "dataset_2/pid_05/pid_05_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_06/pid_06.nii.gz",
+        "label": "dataset_2/pid_06/pid_06_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_07/pid_07.nii.gz",
+        "label": "dataset_2/pid_07/pid_07_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_08/pid_08.nii.gz",
+        "label": "dataset_2/pid_08/pid_08_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_21/pid_21.nii.gz",
+        "label": "dataset_2/pid_21/pid_21_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_23/pid_23.nii.gz",
+        "label": "dataset_2/pid_23/pid_23_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_24/pid_24.nii.gz",
+        "label": "dataset_2/pid_24/pid_24_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_34/pid_34.nii.gz",
+        "label": "dataset_2/pid_34/pid_34_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_106/pid_106.nii.gz",
+        "label": "dataset_2/pid_106/pid_106_gt.nii.gz"
+    },
+    {
+        "image": "dataset_2/pid_1000/pid_1000.nii.gz",
+        "label": "dataset_2/pid_1000/pid_1000_gt.nii.gz"
+    }
+]

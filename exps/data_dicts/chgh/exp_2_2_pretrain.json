@@ -1,0 +1,84 @@
+{
+    "test": [
+        {
+            "image": "pid_107/pid_107.nii.gz",
+            "label": "pid_107/pid_107_gt.nii.gz"
+        },
+        {
+            "image": "pid_108/pid_108.nii.gz",
+            "label": "pid_108/pid_108_gt.nii.gz"
+        },
+        {
+            "image": "pid_110/pid_110.nii.gz",
+            "label": "pid_110/pid_110_gt.nii.gz"
+        }
+    ],
+    "train": [
+        {
+            "image": "pid_05/pid_05.nii.gz",
+            "label": "pid_05/pid_05_gt.nii.gz"
+        },
+        {
+            "image": "pid_06/pid_06.nii.gz",
+            "label": "pid_06/pid_06_gt.nii.gz"
+        },
+        {
+            "image": "pid_07/pid_07.nii.gz",
+            "label": "pid_07/pid_07_gt.nii.gz"
+        },
+        {
+            "image": "pid_08/pid_08.nii.gz",
+            "label": "pid_08/pid_08_gt.nii.gz"
+        },
+        {
+            "image": "pid_21/pid_21.nii.gz",
+            "label": "pid_21/pid_21_gt.nii.gz"
+        },
+        {
+            "image": "pid_23/pid_23.nii.gz",
+            "label": "pid_23/pid_23_gt.nii.gz"
+        },
+        {
+            "image": "pid_24/pid_24.nii.gz",
+            "label": "pid_24/pid_24_gt.nii.gz"
+        },
+        {
+            "image": "pid_27/pid_27.nii.gz",
+            "label": "pid_27/pid_27_gt.nii.gz"
+        },
+        {
+            "image": "pid_30/pid_30.nii.gz",
+            "label": "pid_30/pid_30_gt.nii.gz"
+        },
+        {
+            "image": "pid_34/pid_34.nii.gz",
+            "label": "pid_34/pid_34_gt.nii.gz"
+        },
+        {
+            "image": "pid_57/pid_57.nii.gz",
+            "label": "pid_57/pid_57_gt.nii.gz"
+        },
+        {
+            "image": "pid_1002/pid_1002.nii.gz",
+            "label": "pid_1002/pid_1002_gt.nii.gz"
+        },
+        {
+            "image": "pid_1003/pid_1003.nii.gz",
+            "label": "pid_1003/pid_1003_gt.nii.gz"
+        }
+    ],
+    "val": [
+        {
+            "image": "pid_107/pid_107.nii.gz",
+            "label": "pid_107/pid_107_gt.nii.gz"
+        },
+        {
+            "image": "pid_108/pid_108.nii.gz",
+            "label": "pid_108/pid_108_gt.nii.gz"
+        },
+        {
+            "image": "pid_110/pid_110.nii.gz",
+            "label": "pid_110/pid_110_gt.nii.gz"
+        }
+    ]
+}
