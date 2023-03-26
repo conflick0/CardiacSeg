@@ -1,0 +1,68 @@
+{
+    "test": [
+        {
+            "image": "pid_02/pid_02.nii.gz",
+            "label": "pid_02/pid_02_gt.nii.gz"
+        },
+        {
+            "image": "pid_27/pid_27.nii.gz",
+            "label": "pid_27/pid_27_gt.nii.gz"
+        },
+        {
+            "image": "pid_106/pid_106.nii.gz",
+            "label": "pid_106/pid_106_gt.nii.gz"
+        },
+        {
+            "image": "pid_1000/pid_1000.nii.gz",
+            "label": "pid_1000/pid_1000_gt.nii.gz"
+        }
+    ],
+    "train": [
+        {
+            "image": "pid_08/pid_08.nii.gz",
+            "label": "pid_08/pid_08_gt.nii.gz"
+        },
+        {
+            "image": "pid_30/pid_30.nii.gz",
+            "label": "pid_30/pid_30_gt.nii.gz"
+        },
+        {
+            "image": "pid_52/pid_52.nii.gz",
+            "label": "pid_52/pid_52_gt.nii.gz"
+        },
+        {
+            "image": "pid_56/pid_56.nii.gz",
+            "label": "pid_56/pid_56_gt.nii.gz"
+        },
+        {
+            "image": "pid_57/pid_57.nii.gz",
+            "label": "pid_57/pid_57_gt.nii.gz"
+        },
+        {
+            "image": "pid_110/pid_110.nii.gz",
+            "label": "pid_110/pid_110_gt.nii.gz"
+        },
+        {
+            "image": "pid_1002/pid_1002.nii.gz",
+            "label": "pid_1002/pid_1002_gt.nii.gz"
+        },
+        {
+            "image": "pid_1003/pid_1003.nii.gz",
+            "label": "pid_1003/pid_1003_gt.nii.gz"
+        }
+    ],
+    "val": [
+        {
+            "image": "pid_08_1/pid_08_1.nii.gz",
+            "label": "pid_08_1/pid_08_1_gt.nii.gz"
+        },
+        {
+            "image": "pid_107/pid_107.nii.gz",
+            "label": "pid_107/pid_107_gt.nii.gz"
+        },
+        {
+            "image": "pid_108/pid_108.nii.gz",
+            "label": "pid_108/pid_108_gt.nii.gz"
+        }
+    ]
+}

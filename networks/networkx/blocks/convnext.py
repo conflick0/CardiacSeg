@@ -179,3 +179,23 @@ class DDiConvNeXt(nn.Module):
         result = self.blocks[1](result)
         
         return result
+    
+    
+class ConvNeXtCBAM(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=7,
+        dilation=1
+    ):
+        super().__init__()
+        
+        self.block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
+        self.cbam = CBAM(dim, reduction=16, kernel_size=7)
+
+    def forward(self, input):
+        result = self.block(input)
+        result = self.cbam(result)
+        
+        return result

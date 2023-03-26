@@ -18,6 +18,10 @@ from networks.networkx.unetcnx_x3 import UNETCNX_X3
 from networks.networkx.unetcnx_x3_1 import UNETCNX_X3_1
 from networks.networkx.unetcnx_x3_2 import UNETCNX_X3_2
 from networks.networkx.unetcnx_x3_2_2 import UNETCNX_X3_2_2
+from networks.networkx.unetcnx_x3_2_2_a1 import UNETCNX_X3_2_2_A1
+from networks.networkx.unetcnx_x3_2_2_a2 import UNETCNX_X3_2_2_A2
+from networks.networkx.unetcnx_x3_2_2_a3 import UNETCNX_X3_2_2_A3
+from networks.networkx.unetcnx_x3_2_2_a4 import UNETCNX_X3_2_2_A4
 from networks.networkx.unetcnx_x3_2_2_1 import UNETCNX_X3_2_2_1
 from networks.networkx.unetcnx_x4 import UNETCNX_X4
 from networks.networkx.unetcnx_x4_1 import UNETCNX_X4_1
@@ -190,6 +194,42 @@ def network(model_name, args):
           ).to(args.device)
     elif model_name == 'unetcnx_x3_2_2':
         return UNETCNX_X3_2_2(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
+    elif model_name == 'unetcnx_x3_2_2_a1':
+        return UNETCNX_X3_2_2_A1(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
+    elif model_name == 'unetcnx_x3_2_2_a2':
+        return UNETCNX_X3_2_2_A2(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
+    elif model_name == 'unetcnx_x3_2_2_a3':
+        return UNETCNX_X3_2_2_A3(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
+    elif model_name == 'unetcnx_x3_2_2_a4':
+        return UNETCNX_X3_2_2_A4(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               patch_size=args.patch_size,
