@@ -55,14 +55,17 @@ def get_eval_csv_path(root_dir):
     return os.path.join(
         root_dir, 
         'evals',
-        'best_model_eval.csv'
+        'best_model.csv'
     )
 
 
-def get_dice_val(csv_pth, pid):
+def get_eval_val(csv_pth, pid):
     df = pd.read_csv(csv_pth)
     idx = df['patientId'] == pid
-    return df[idx]['diceC'].tolist()[0]
+    return {
+        'dice': df[idx]['inf_diceC'].tolist()[0], 
+        'hd95': df[idx]['inf_hd95C'].tolist()[0]
+    }
     
 
 def get_slice(img, slice_idx, mode, is_trans):
