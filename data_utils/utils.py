@@ -36,57 +36,57 @@ def get_pid_by_data(data):
 
 
 def get_label_classes(label):
-  return label.flatten().unique().numpy()
+    return label.flatten().unique().numpy()
 
 
 def get_data_info(data_dicts, base_transforms=None):
     '''show data info for eda'''
     if base_transforms is None:
-      base_transforms = Compose(
+        base_transforms = Compose(
           [
               LoadImaged(keys=["image", "label"])
           ]
       )
     df = pd.DataFrame()
     for data_dict in data_dicts:
-      d = base_transforms(data_dict)
-      pid = d['image_meta_dict']['filename_or_obj'].split('/')[-1].split('.')[0]
-      file_pth = d['image_meta_dict']['filename_or_obj']
-      img_shape = list(d['image_meta_dict']['spatial_shape'])
-      img_space = list(d['image_meta_dict']['pixdim'])[1:4]
-      lbl_shape = list(d['label_meta_dict']['spatial_shape'])
-      lbl_space = list(d['label_meta_dict']['pixdim'])[1:4]
-      lbl_ids = get_label_classes(d['label'])
+        d = base_transforms(data_dict)
+        pid = d['image_meta_dict']['filename_or_obj'].split('/')[-1].split('.')[0]
+        file_pth = d['image_meta_dict']['filename_or_obj']
+        img_shape = list(d['image_meta_dict']['spatial_shape'])
+        img_space = list(d['image_meta_dict']['pixdim'])[1:4]
+        lbl_shape = list(d['label_meta_dict']['spatial_shape'])
+        lbl_space = list(d['label_meta_dict']['pixdim'])[1:4]
+        lbl_ids = get_label_classes(d['label'])
 
-      print('pid:', pid)
-      print('file_pth:', file_pth)
-      print('img shape:', img_shape)
-      print('img spacing:', img_space) 
-      print('lbl shape:', lbl_shape)
-      print('lbl spacing:', lbl_space)
-      print('lbl ids:', lbl_ids)
+        print('pid:', pid)
+        print('file_pth:', file_pth)
+        print('img shape:', img_shape)
+        print('img spacing:', img_space) 
+        print('lbl shape:', lbl_shape)
+        print('lbl spacing:', lbl_space)
+        print('lbl ids:', lbl_ids)
 
-      slice_idx=int(d['image'].shape[-1]/2)
-      show_img_lbl(
-          d['image'][:,:,slice_idx],
-          d['label'][:,:,slice_idx],
-          slice_idx=slice_idx,
-          num_classes=len(lbl_ids),
-          axis_off=False,
-          fig_size=(10, 5)
-      )
-      df = df.append(
-          {    
-              'pid': pid,
-              'img_shape':img_shape,
-              'img_space':img_space,
-              'lbl_shape':lbl_shape,
-              'lbl_space':lbl_space,
-              'lbl_ids': lbl_ids
-          },
-          ignore_index=True
-      )
-      print()
+        slice_idx=int(d['image'].shape[-1]/2)
+        show_img_lbl(
+            d['image'][:,:,slice_idx],
+            d['label'][:,:,slice_idx],
+            slice_idx=slice_idx,
+            num_classes=len(lbl_ids),
+            axis_off=False,
+            fig_size=(10, 5)
+        )
+        df = df.append(
+            {    
+                'pid': pid,
+                'img_shape':img_shape,
+                'img_space':img_space,
+                'lbl_shape':lbl_shape,
+                'lbl_space':lbl_space,
+                'lbl_ids': lbl_ids
+            },
+            ignore_index=True
+        )
+        print()
     return df
 
 

@@ -1,5 +1,7 @@
 import os
+import importlib
 from pathlib import PurePath
+import argparse
 
 import numpy as np
 from PIL import Image
@@ -83,16 +85,28 @@ def build_data_dicts_json(
 
 
 if __name__ == '__main__':
-    from datasets.chgh_dataset import get_data_dicts
-    data_dir = r'/nfs/Workspace/dataset'
-    dst_data_json = os.path.join(data_dir, 'data.json')
+    parser = argparse.ArgumentParser(description="preprocess")
+    
+    parser.add_argument("--data_name", default=None, type=str, help="data dicts json")
+    parser.add_argument("--data_dir", default=None, type=str, help="data dicts json")
+    parser.add_argument("--dst_data_json", default=None, type=str, help="data dicts json")
+    
+    parser.add_argument("--split_train_ratio", default=0.9, type=float, help="split train ratio")
+    parser.add_argument("--num_fold", default=5, type=int, help="num fold")
+    parser.add_argument("--fold", default=4, type=int, help="index of fold")
+    
+    args = parser.parse_args()
+    
+    # equal to from datasets.xxx_dataset import get_data_dicts
+    dataset = importlib.import_module(f'datasets.{args.data_name}_dataset')
+    get_data_dicts = getattr(dataset, 'get_data_dicts', None)
 
     build_data_dicts_json(
         get_data_dicts,
-        src_data_dir=data_dir,
-        dst_data_json=dst_data_json,
-        split_train_ratio=0.7,
-        num_fold=3,
-        fold=2,
+        src_data_dir=args.data_dir,
+        dst_data_json=args.dst_data_json,
+        split_train_ratio=args.split_train_ratio,
+        num_fold=args.num_fold,
+        fold=args.fold,
     )
 

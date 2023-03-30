@@ -1,16 +1,16 @@
 from monai.networks.nets import SwinUNETR, UNETR, UNet, AttentionUnet, VNet
-
-from networks.TransUNet.networks.vit_seg_modeling import VisionTransformer as ViT_seg
-from networks.TransUNet.networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
-
-from networks.CoTr.network_architecture.ResTranUnet import ResTranUnet as CoTr
+from networks.cotr.network_architecture.ResTranUnet import ResTranUnet as CoTr
 from networks.unetr_pp.network_architecture.synapse.unetr_pp_synapse import UNETR_PP
+from networks.uxnet.networks.UXNet_3D.network_backbone import UXNET
+from networks.unest.scripts.networks.unest import UNesT
 
-from networks.UXNET.networks.UXNet_3D.network_backbone import UXNET
+from networks.densevoxnet.DenseVoxelNet import DenseVoxelNet
+from networks.transunet.networks.vit_seg_modeling import VisionTransformer as ViT_seg
+from networks.transunet.networks.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
 
-from networks.unetcnx import UNETCNX
-from networks.unetcnx_x1 import UNETCNX_X1
-from networks.unetcnx_x0 import UNETCNX_X0
+from networks.networkx.unetcnx import UNETCNX
+from networks.networkx.unetcnx_x1 import UNETCNX_X1
+from networks.networkx.unetcnx_x0 import UNETCNX_X0
 from networks.networkx.unetcnx_x2 import UNETCNX_X2 
 from networks.networkx.unetcnx_x2_1 import UNETCNX_X2_1
 from networks.networkx.unetcnx_x2_2 import UNETCNX_X2_2
@@ -22,6 +22,8 @@ from networks.networkx.unetcnx_x3_2_2_a1 import UNETCNX_X3_2_2_A1
 from networks.networkx.unetcnx_x3_2_2_a2 import UNETCNX_X3_2_2_A2
 from networks.networkx.unetcnx_x3_2_2_a3 import UNETCNX_X3_2_2_A3
 from networks.networkx.unetcnx_x3_2_2_a4 import UNETCNX_X3_2_2_A4
+from networks.networkx.unetcnx_x3_2_2_a5 import UNETCNX_X3_2_2_A5
+from networks.networkx.unetcnx_x3_2_2_a6 import UNETCNX_X3_2_2_A6
 from networks.networkx.unetcnx_x3_2_2_1 import UNETCNX_X3_2_2_1
 from networks.networkx.unetcnx_x4 import UNETCNX_X4
 from networks.networkx.unetcnx_x4_1 import UNETCNX_X4_1
@@ -29,49 +31,11 @@ from networks.networkx.unetcnx_x4_2 import UNETCNX_X4_2
 from networks.networkx.unetcnx_x5 import UNETCNX_X5
 from networks.networkx.unetcnx_x6 import UNETCNX_X6
 from networks.networkx.unetcnx_x6_1 import UNETCNX_X6_1
-from networks.unetsnx import UNETSNX
-from networks.EfficientSegNet.networks.network_x0 import EfficientSegNet_X0
-from networks.EfficientSegNet.networks.network_x1 import EfficientSegNet_X1
-
-from networks.MedicalZooPytorch.DenseVoxelNet import DenseVoxelNet
 
 
 def network(model_name, args):
     print(f'model: {model_name}')
-
-    if model_name == 'unetcnx':
-        return UNETCNX(
-            in_channels=args.in_channels,
-            out_channels=args.out_channels,
-            feature_size=48,
-            patch_size=4
-        ).to(args.device)
-
-    elif model_name == 'swinunetr':
-        return SwinUNETR(
-            img_size=(args.roi_x, args.roi_y, args.roi_z),
-            in_channels=args.in_channels,
-            out_channels=args.out_channels,
-            feature_size=48,
-            use_checkpoint=True,
-        ).to(args.device)
-
-    elif model_name == 'unetr':
-        return UNETR(
-            in_channels=args.in_channels,
-            out_channels=args.out_channels,
-            img_size=(args.roi_x, args.roi_y, args.roi_z),
-            feature_size=16,
-            hidden_size=768,
-            mlp_dim=3072,
-            num_heads=12,
-            pos_embed="perceptron",
-            norm_name="instance",
-            res_block=True,
-            dropout_rate=0.0,
-        ).to(args.device)
-
-    elif model_name == 'unet3d':
+    if model_name == 'unet3d':
         return UNet(
             spatial_dims=3,
             in_channels=args.in_channels,
@@ -91,7 +55,13 @@ def network(model_name, args):
           channels=(32, 64, 128, 256),
           strides=(2, 2, 2),
         ).to(args.device)
-
+    
+    elif model_name == 'vnet':
+        return VNet(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+        ).to(args.device)
+    
     elif model_name == 'cotr':
         '''
         CAUTION: if deep_supervision is True mean network output will be 
@@ -108,6 +78,43 @@ def network(model_name, args):
             deep_supervision=False
         ).to(args.device)
 
+    elif model_name == 'unetr':
+        return UNETR(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            img_size=(args.roi_x, args.roi_y, args.roi_z),
+            feature_size=16,
+            hidden_size=768,
+            mlp_dim=3072,
+            num_heads=12,
+            pos_embed="perceptron",
+            norm_name="instance",
+            res_block=True,
+            dropout_rate=0.0,
+        ).to(args.device)
+
+    elif model_name == 'swinunetr':
+        return SwinUNETR(
+            img_size=(args.roi_x, args.roi_y, args.roi_z),
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            feature_size=48,
+            use_checkpoint=True,
+        ).to(args.device)
+    
+    
+    elif model_name == 'unetr_pp':
+        return UNETR_PP(
+          in_channels=args.in_channels,
+          out_channels=args.out_channels,
+          img_size=[args.roi_x, args.roi_y, args.roi_z],
+          feature_size=12,
+          num_heads=4,
+          depths=[3, 3, 3, 3],
+          dims=[24, 48, 96, 192],
+          do_ds=False,
+        ).to(args.device)
+
     elif model_name == 'uxnet':
         return UXNET(
             in_chans=args.in_channels,
@@ -118,7 +125,25 @@ def network(model_name, args):
             layer_scale_init_value=1e-6,
             spatial_dims=3,
         ).to(args.device)
-
+    
+    elif model_name == 'unest':
+        return UNesT(
+            img_size=(args.roi_x, args.roi_y, args.roi_z),
+            in_channels=args.in_channels,
+            out_channels=args.out_channels
+        ).to(args.device)
+    # -----------------------------------------------------------------------------------------------------
+    # cardiac segment netowrks
+    # -----------------------------------------------------------------------------------------------------
+    elif model_name == 'dense_vox_net':
+        return DenseVoxelNet(
+            in_channels=args.in_channels, 
+            classes=args.out_channels
+        ).to(args.device)
+    
+    # -----------------------------------------------------------------------------------------------------
+    # 2d medical image segment netowrks
+    # -----------------------------------------------------------------------------------------------------
     elif model_name == 'transunet':
         vit_name = 'R50-ViT-B_16'
         img_size = args.roi_x
@@ -132,19 +157,18 @@ def network(model_name, args):
           img_size=img_size, 
           num_classes=config_vit.n_classes
         ).to(args.device)
-
-    elif model_name == 'unetsnx':
-        return UNETSNX(
-              in_channels=args.in_channels,
-              out_channels=args.out_channels,
-              feature_size=48,
-              patch_size=4
-        ).to(args.device)
-    elif model_name == 'vnet':
-        return VNet(
+    
+    # -----------------------------------------------------------------------------------------------------
+    # unetcnx exp netowrks
+    # -----------------------------------------------------------------------------------------------------
+    elif model_name == 'unetcnx':
+        return UNETCNX(
             in_channels=args.in_channels,
             out_channels=args.out_channels,
+            feature_size=48,
+            patch_size=4
         ).to(args.device)
+    
     elif model_name == 'unetcnx_x0':
         return UNETCNX_X0(
             in_channels=args.in_channels,
@@ -168,12 +192,14 @@ def network(model_name, args):
               out_channels=args.out_channels,
               feature_size=24,
           ).to(args.device)
+    
     elif model_name == 'unetcnx_x2_2':
         return UNETCNX_X2_2(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               feature_size=24,
           ).to(args.device)
+    
     elif model_name == 'unetcnx_x3':
         return UNETCNX_X3(
               in_channels=args.in_channels,
@@ -237,6 +263,24 @@ def network(model_name, args):
               depths=args.depths,
               feature_size=24,
           ).to(args.device)
+    elif model_name == 'unetcnx_x3_2_2_a5':
+        return UNETCNX_X3_2_2_A5(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
+    elif model_name == 'unetcnx_x3_2_2_a6':
+        return UNETCNX_X3_2_2_A6(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
     elif model_name == 'unetcnx_x4':
         return UNETCNX_X4(
               in_channels=args.in_channels,
@@ -280,51 +324,6 @@ def network(model_name, args):
               feature_size=24,
               patch_size=2
         ).to(args.device)
-
-    elif model_name == 'efficient_segnet_x0':
-        return EfficientSegNet_X0(
-          in_channels=args.in_channels,
-          out_channels=args.out_channels,
-        ).to(args.device)
-    elif model_name == 'efficient_segnet_x0':
-        return EfficientSegNet_X0(
-          in_channels=args.in_channels,
-          out_channels=args.out_channels,
-        ).to(args.device)
-    elif model_name == 'efficient_segnet_x0_1':
-        return EfficientSegNet_X0(
-          in_channels=args.in_channels,
-          out_channels=args.out_channels,
-          feature_size=16
-        ).to(args.device)
-    elif model_name == 'efficient_segnet_x0_2':
-        return EfficientSegNet_X0(
-          in_channels=args.in_channels,
-          out_channels=args.out_channels,
-          feature_size=24
-        ).to(args.device)
-    elif model_name == 'efficient_segnet_x1':
-        return EfficientSegNet_X1(
-          in_channels=args.in_channels,
-          out_channels=args.out_channels,
-        ).to(args.device)
-
-    elif model_name == 'unetr_pp':
-        return UNETR_PP(
-          in_channels=args.in_channels,
-          out_channels=args.out_channels,
-          img_size=[args.roi_x, args.roi_y, args.roi_z],
-          feature_size=12,
-          num_heads=4,
-          depths=[3, 3, 3, 3],
-          dims=[24, 48, 96, 192],
-          do_ds=False,
-        ).to(args.device)
-    elif model_name == 'dense_vox_net':
-        return DenseVoxelNet(
-            in_channels=args.in_channels, 
-            classes=args.out_channels
-        ).to(args.device)
     else:
-      raise ValueError(f'not found model name: {model_name}')
+        raise ValueError(f'not found model name: {model_name}')
 

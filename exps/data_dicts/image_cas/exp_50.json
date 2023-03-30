@@ -1,0 +1,248 @@
+{
+    "test": [
+        {
+            "image": "10182667/img.nii.gz",
+            "label": "10182667/label.nii.gz"
+        },
+        {
+            "image": "10184594/img.nii.gz",
+            "label": "10184594/label.nii.gz"
+        },
+        {
+            "image": "10185400/img.nii.gz",
+            "label": "10185400/label.nii.gz"
+        },
+        {
+            "image": "10198741/img.nii.gz",
+            "label": "10198741/label.nii.gz"
+        },
+        {
+            "image": "10200737/img.nii.gz",
+            "label": "10200737/label.nii.gz"
+        },
+        {
+            "image": "10203555/img.nii.gz",
+            "label": "10203555/label.nii.gz"
+        },
+        {
+            "image": "10210713/img.nii.gz",
+            "label": "10210713/label.nii.gz"
+        },
+        {
+            "image": "10211117/img.nii.gz",
+            "label": "10211117/label.nii.gz"
+        },
+        {
+            "image": "10224460/img.nii.gz",
+            "label": "10224460/label.nii.gz"
+        },
+        {
+            "image": "10234511/img.nii.gz",
+            "label": "10234511/label.nii.gz"
+        }
+    ],
+    "train": [
+        {
+            "image": "10016975/img.nii.gz",
+            "label": "10016975/label.nii.gz"
+        },
+        {
+            "image": "10017784/img.nii.gz",
+            "label": "10017784/label.nii.gz"
+        },
+        {
+            "image": "10018985/img.nii.gz",
+            "label": "10018985/label.nii.gz"
+        },
+        {
+            "image": "10027729/img.nii.gz",
+            "label": "10027729/label.nii.gz"
+        },
+        {
+            "image": "10029129/img.nii.gz",
+            "label": "10029129/label.nii.gz"
+        },
+        {
+            "image": "10032743/img.nii.gz",
+            "label": "10032743/label.nii.gz"
+        },
+        {
+            "image": "10033946/img.nii.gz",
+            "label": "10033946/label.nii.gz"
+        },
+        {
+            "image": "10039455/img.nii.gz",
+            "label": "10039455/label.nii.gz"
+        },
+        {
+            "image": "10043087/img.nii.gz",
+            "label": "10043087/label.nii.gz"
+        },
+        {
+            "image": "10048510/img.nii.gz",
+            "label": "10048510/label.nii.gz"
+        },
+        {
+            "image": "10050634/img.nii.gz",
+            "label": "10050634/label.nii.gz"
+        },
+        {
+            "image": "10054193/img.nii.gz",
+            "label": "10054193/label.nii.gz"
+        },
+        {
+            "image": "10054710/img.nii.gz",
+            "label": "10054710/label.nii.gz"
+        },
+        {
+            "image": "10055172/img.nii.gz",
+            "label": "10055172/label.nii.gz"
+        },
+        {
+            "image": "10060298/img.nii.gz",
+            "label": "10060298/label.nii.gz"
+        },
+        {
+            "image": "10062792/img.nii.gz",
+            "label": "10062792/label.nii.gz"
+        },
+        {
+            "image": "10064059/img.nii.gz",
+            "label": "10064059/label.nii.gz"
+        },
+        {
+            "image": "10064282/img.nii.gz",
+            "label": "10064282/label.nii.gz"
+        },
+        {
+            "image": "10064966/img.nii.gz",
+            "label": "10064966/label.nii.gz"
+        },
+        {
+            "image": "10090344/img.nii.gz",
+            "label": "10090344/label.nii.gz"
+        },
+        {
+            "image": "10095371/img.nii.gz",
+            "label": "10095371/label.nii.gz"
+        },
+        {
+            "image": "10100390/img.nii.gz",
+            "label": "10100390/label.nii.gz"
+        },
+        {
+            "image": "10101006/img.nii.gz",
+            "label": "10101006/label.nii.gz"
+        },
+        {
+            "image": "10106129/img.nii.gz",
+            "label": "10106129/label.nii.gz"
+        },
+        {
+            "image": "10115848/img.nii.gz",
+            "label": "10115848/label.nii.gz"
+        },
+        {
+            "image": "10116102/img.nii.gz",
+            "label": "10116102/label.nii.gz"
+        },
+        {
+            "image": "10122003/img.nii.gz",
+            "label": "10122003/label.nii.gz"
+        },
+        {
+            "image": "10129396/img.nii.gz",
+            "label": "10129396/label.nii.gz"
+        },
+        {
+            "image": "10129913/img.nii.gz",
+            "label": "10129913/label.nii.gz"
+        },
+        {
+            "image": "10133032/img.nii.gz",
+            "label": "10133032/label.nii.gz"
+        },
+        {
+            "image": "10138731/img.nii.gz",
+            "label": "10138731/label.nii.gz"
+        },
+        {
+            "image": "10142530/img.nii.gz",
+            "label": "10142530/label.nii.gz"
+        },
+        {
+            "image": "10144166/img.nii.gz",
+            "label": "10144166/label.nii.gz"
+        },
+        {
+            "image": "10147188/img.nii.gz",
+            "label": "10147188/label.nii.gz"
+        },
+        {
+            "image": "10151662/img.nii.gz",
+            "label": "10151662/label.nii.gz"
+        },
+        {
+            "image": "10174451/img.nii.gz",
+            "label": "10174451/label.nii.gz"
+        },
+        {
+            "image": "10175464/img.nii.gz",
+            "label": "10175464/label.nii.gz"
+        },
+        {
+            "image": "10175956/img.nii.gz",
+            "label": "10175956/label.nii.gz"
+        },
+        {
+            "image": "10176460/img.nii.gz",
+            "label": "10176460/label.nii.gz"
+        },
+        {
+            "image": "10181338/img.nii.gz",
+            "label": "10181338/label.nii.gz"
+        }
+    ],
+    "val": [
+        {
+            "image": "10182667/img.nii.gz",
+            "label": "10182667/label.nii.gz"
+        },
+        {
+            "image": "10184594/img.nii.gz",
+            "label": "10184594/label.nii.gz"
+        },
+        {
+            "image": "10185400/img.nii.gz",
+            "label": "10185400/label.nii.gz"
+        },
+        {
+            "image": "10198741/img.nii.gz",
+            "label": "10198741/label.nii.gz"
+        },
+        {
+            "image": "10200737/img.nii.gz",
+            "label": "10200737/label.nii.gz"
+        },
+        {
+            "image": "10203555/img.nii.gz",
+            "label": "10203555/label.nii.gz"
+        },
+        {
+            "image": "10210713/img.nii.gz",
+            "label": "10210713/label.nii.gz"
+        },
+        {
+            "image": "10211117/img.nii.gz",
+            "label": "10211117/label.nii.gz"
+        },
+        {
+            "image": "10224460/img.nii.gz",
+            "label": "10224460/label.nii.gz"
+        },
+        {
+            "image": "10234511/img.nii.gz",
+            "label": "10234511/label.nii.gz"
+        }
+    ]
+}

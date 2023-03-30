@@ -205,8 +205,8 @@ def main():
     parser.add_argument("--a_max", default=1000, type=float, help="a_max in ScaleIntensityRanged")
     parser.add_argument("--b_min", default=0.0, type=float, help="b_min in ScaleIntensityRanged")
     parser.add_argument("--b_max", default=1.0, type=float, help="b_max in ScaleIntensityRanged")
-    parser.add_argument("--space_x", default=1.0, type=float, help="spacing in x direction")
-    parser.add_argument("--space_y", default=1.0, type=float, help="spacing in y direction")
+    parser.add_argument("--space_x", default=0.7, type=float, help="spacing in x direction")
+    parser.add_argument("--space_y", default=0.7, type=float, help="spacing in y direction")
     parser.add_argument("--space_z", default=1.0, type=float, help="spacing in z direction")
     parser.add_argument("--roi_x", default=128, type=int, help="roi size in x direction")
     parser.add_argument("--roi_y", default=128, type=int, help="roi size in y direction")
@@ -226,6 +226,7 @@ def main():
     parser.add_argument("--in_channels", default=1, type=int, help="number of input channels")
     parser.add_argument("--out_channels", default=2, type=int, help="number of output channels")
     parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
+    parser.add_argument("--patch_size", default=2, type=int, help="embedding size")
     parser.add_argument("--dropout_path_rate", default=0.0, type=float, help="drop path rate")
     
     # loss opt schedule
@@ -292,9 +293,10 @@ def main():
     # ssl head network
     net = network(args.model_name, args)
     model = SSLHead(
-      args.in_channels,
-      net, 
-      dim=768
+        args.in_channels,
+        net, 
+        dim=768,
+        patch_size=args.patch_size
     ).to(args.device)
 
     if args.opt == "adam":
@@ -319,7 +321,7 @@ def main():
             scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambdas)
 
     global_step = 0
-    if os.path.exists(args.resume):
+    if args.resume and os.path.exists(args.resume):
         model_pth = args.resume
         model_dict = torch.load(model_pth)
         model.load_state_dict(model_dict["state_dict"])
