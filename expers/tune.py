@@ -134,6 +134,20 @@ def main_worker(args):
         if args.model_name =='swinunetr' and args.ssl_checkpoint and os.path.exists(args.ssl_checkpoint):
             pre_train_path = os.path.join(args.ssl_checkpoint)
             weight = torch.load(pre_train_path)
+           
+            if "net" in list(weight["state_dict"].keys())[0]:
+                print("Tag 'net' found in state dict - fixing!")
+                for key in list(weight["state_dict"].keys()):
+                    if 'swinViT' in key:
+                        new_key = key.replace("net.swinViT", "module")
+                        weight["state_dict"][new_key] = weight["state_dict"].pop(key) 
+                    else:
+                        new_key = key.replace("net", "module")
+                        weight["state_dict"][new_key] = weight["state_dict"].pop(key)
+
+                    if 'linear' in  new_key:
+                        weight["state_dict"][new_key.replace("linear", "fc")] = weight["state_dict"].pop(new_key)
+            
             model.load_from(weights=weight)
             print("Using pretrained self-supervied Swin UNETR backbone weights !")
         elif args.ssl_checkpoint and os.path.exists(args.ssl_checkpoint):

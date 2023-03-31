@@ -228,6 +228,8 @@ def main():
     parser.add_argument("--feature_size", default=48, type=int, help="embedding size")
     parser.add_argument("--patch_size", default=2, type=int, help="embedding size")
     parser.add_argument("--dropout_path_rate", default=0.0, type=float, help="drop path rate")
+    parser.add_argument("--drop_rate", default=0.4, type=float, help="drop out rate")
+    parser.add_argument('--depths', type=int, nargs='+', help="depths of layer")
     
     # loss opt schedule
     parser.add_argument("--loss_type", default="SSL", type=str)
