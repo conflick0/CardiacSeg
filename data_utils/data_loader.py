@@ -1,17 +1,27 @@
 from monai.data import (
     DataLoader,
-    CacheDataset
+    CacheDataset,
+    Dataset
 )
 
 from data_utils.data_loader_utils import split_data_dicts, load_data_dict_json
 
 
 def get_dl(files, transform, shuffle, batch_size, args):
-    ds = CacheDataset(
-        data=files,
-        transform=transform,
-        num_workers=args.workers
-    )
+    if args.data_loader == 'cache':
+        print("Using MONAI Cache Dataset")
+        ds = CacheDataset(
+            data=files,
+            transform=transform,
+            num_workers=args.workers
+        )
+    else:
+        print("Using generic dataset")
+        ds = Dataset(
+            data=files,
+            transform=transform,
+        )
+    
     loader = DataLoader(
         ds,
         batch_size=batch_size,

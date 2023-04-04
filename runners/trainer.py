@@ -8,6 +8,7 @@ import torch
 
 from tqdm import tqdm
 
+from runners.utils import get_lr
 
 # set deterministic training for reproducibility
 set_determinism(seed=0)
@@ -57,6 +58,8 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
             "[Epoch %d] Training (%d Steps) (loss=%2.5f)"
             % (epoch, global_step, loss)
         )
+        
+        writer.add_scalar("lr", get_lr(optimizer), global_step=global_step)
         writer.add_scalar("tr_loss", loss, global_step=global_step)
         global_step += 1
     return global_step
@@ -65,10 +68,10 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
 def save_checkpoint(filename, model, epoch, best_acc, early_stop_count, args, optimizer=None, scheduler=None):
     state_dict = model.state_dict()
     save_dict = {
-      "epoch": epoch,
-      "best_acc": best_acc,
-      "early_stop_count": early_stop_count,
-      "state_dict": state_dict,
+        "epoch": epoch,
+        "best_acc": best_acc,
+        "early_stop_count": early_stop_count,
+        "state_dict": state_dict,
     }
     if optimizer is not None:
         save_dict["optimizer"] = optimizer.state_dict()
@@ -95,12 +98,11 @@ def run_training(
         post_pred,
         writer,
         args,
-    ):
-
+):
     global_step = start_epoch * len(train_loader)
     val_acc_best = best_acc
 
-    for epoch in range(start_epoch, args.max_epoch+1):
+    for epoch in range(start_epoch, args.max_epoch + 1):
         if early_stop_count == args.max_early_stop_count:
             break
 
@@ -116,7 +118,7 @@ def run_training(
         )
 
         if (
-            epoch % args.val_every == 0 and epoch != 0
+                epoch % args.val_every == 0 and epoch != 0
         ) or epoch == args.max_epoch:
             epoch_iterator_val = tqdm(
                 val_loader, desc="Validate (X / X Steps) (dice=X.X)", dynamic_ncols=True
@@ -187,11 +189,11 @@ def run_training(
                         scheduler
                     )
                 else:
-                  print(
-                      "Model Was Not Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
-                          val_acc_best, val_avg_acc
-                      )
-                  )
+                    print(
+                        "Model Was Not Saved ! Current Best Avg. Dice: {} Current Avg. Dice: {}".format(
+                            val_acc_best, val_avg_acc
+                        )
+                    )
 
         if scheduler is not None:
             scheduler.step()

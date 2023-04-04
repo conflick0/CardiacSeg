@@ -399,7 +399,7 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Invalid args tune mode:{args.tune_mode}")
 
-    trainable_with_cpu_gpu = tune.with_resources(partial(main, args=args), {"cpu": 2, "gpu": 1})
+    trainable_with_cpu_gpu = tune.with_resources(partial(main, args=args), {"cpu": 1, "gpu": 1})
     reporter = CLIReporter(metric_columns=[
         'tt_dice',
         'tt_hd95',

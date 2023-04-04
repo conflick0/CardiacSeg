@@ -332,11 +332,15 @@ def main():
             scheduler.load_state_dict(model_dict['scheduler'])
         if "global_step" in model_dict:
             global_step = model_dict["global_step"]
-        if "early_stop_count" in model_dict and args.early_stop_count == 0:
+        if "early_stop_count" in model_dict:
             args.early_stop_count = model_dict["early_stop_count"]
-        if "best_val" in model_dict and args.best_val == 0:
-            args.best_val = model_dict["best_val"]
+        if "val_best" in model_dict:
+            args.best_val = model_dict["val_best"]
+
         print('load model:', model_pth)
+        print('early stop count:', args.early_stop_count)
+        print('best val', args.best_val)
+        
 
     
     loss_function = Loss(args.batch_size * args.sw_batch_size, args)

@@ -155,4 +155,4 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-!networks/UXNET/lib/
+!networks/uxnet/lib/

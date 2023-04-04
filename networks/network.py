@@ -32,6 +32,8 @@ from networks.networkx.unetcnx_x5 import UNETCNX_X5
 from networks.networkx.unetcnx_x6 import UNETCNX_X6
 from networks.networkx.unetcnx_x6_1 import UNETCNX_X6_1
 
+from networks.networkx.unetmnx import UNETMNX
+
 
 def network(model_name, args):
     print(f'model: {model_name}')
@@ -324,6 +326,18 @@ def network(model_name, args):
               feature_size=24,
               patch_size=2
         ).to(args.device)
+    
+        
+    # -----------------------------------------------------------------------------------------------------
+    # unetmnx exp netowrks
+    # -----------------------------------------------------------------------------------------------------
+    elif model_name == 'unetmnx':
+        return UNETMNX(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            feature_size=24
+        ).to(args.device)
+    
     else:
         raise ValueError(f'not found model name: {model_name}')
 
