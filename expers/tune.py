@@ -150,6 +150,10 @@ def main_worker(args):
             
             model.load_from(weights=weight)
             print("Using pretrained self-supervied Swin UNETR backbone weights !")
+            print(
+              "=> loaded pretrain checkpoint '{}'"\
+              .format(args.ssl_checkpoint)
+            )
         elif args.ssl_checkpoint and os.path.exists(args.ssl_checkpoint):
             model_dict = torch.load(args.ssl_checkpoint)
             state_dict = model_dict["state_dict"]
@@ -172,7 +176,11 @@ def main_worker(args):
             # the decoder weights untouched (CNN UNet decoder).
             model.load_state_dict(state_dict, strict=False)
             print(f"Using pretrained self-supervied {args.model_name} backbone weights !")
-
+            print(
+              "=> loaded pretrain checkpoint '{}'"\
+              .format(args.ssl_checkpoint)
+            )
+            
     # inferer
     post_label = AsDiscrete(to_onehot=args.out_channels)
     post_pred = AsDiscrete(argmax=True, to_onehot=args.out_channels)

@@ -33,7 +33,8 @@ from networks.networkx.unetcnx_x6 import UNETCNX_X6
 from networks.networkx.unetcnx_x6_1 import UNETCNX_X6_1
 
 from networks.networkx.unetmnx import UNETMNX
-
+from networks.networkx.unetmnx_a1 import UNETMNX_A1
+from networks.networkx.unetmnx_a2 import UNETMNX_A2
 
 def network(model_name, args):
     print(f'model: {model_name}')
@@ -333,6 +334,18 @@ def network(model_name, args):
     # -----------------------------------------------------------------------------------------------------
     elif model_name == 'unetmnx':
         return UNETMNX(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            feature_size=24
+        ).to(args.device)
+    elif model_name == 'unetmnx_a1':
+        return UNETMNX_A1(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            feature_size=24
+        ).to(args.device)
+    elif model_name == 'unetmnx_a2':
+        return UNETMNX_A2(
             in_channels=args.in_channels,
             out_channels=args.out_channels,
             feature_size=24
