@@ -21,16 +21,16 @@ class UNETCNX_X3_2_2_A5(nn.Module):
             spatial_dims=3,
             norm_name='instance',
             stochastic_depth_prob=0.4,
-            depths=[4, 4, 8, 4],
+            depths=[3, 3, 9, 3],
             **kwargs
     ) -> None:
         super().__init__()
         print(depths)
         block_setting = [
-                DilBlockConfig(feature_size * 2, feature_size * 4, 4, [1], [7]),
-                DilBlockConfig(feature_size * 4, feature_size * 8, 4, [1], [7]),
-                DilBlockConfig(feature_size * 8, feature_size * 16, 8, [1], [7]),
-                DilBlockConfig(feature_size * 16, feature_size * 32, 4, [1], [7])
+                DilBlockConfig(feature_size * 2, feature_size * 4, depths[0], [1], [7]),
+                DilBlockConfig(feature_size * 4, feature_size * 8, depths[1], [1], [7]),
+                DilBlockConfig(feature_size * 8, feature_size * 16, depths[2], [1], [7]),
+                DilBlockConfig(feature_size * 16, feature_size * 32, depths[3], [1], [7])
         ]
 
         self.features = Net(

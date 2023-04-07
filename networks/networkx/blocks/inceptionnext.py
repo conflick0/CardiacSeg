@@ -14,7 +14,7 @@ from timm.models.layers import trunc_normal_, DropPath
 from timm.models.registry import register_model
 from timm.models.layers.helpers import to_2tuple
 
-from .blocks.utils import LayerNorm
+from .utils import LayerNorm
 
 
 class InceptionDWConv3d(nn.Module):
@@ -109,9 +109,7 @@ class MetaNeXtBlock(nn.Module):
     ):
         super().__init__()
         self.token_mixer = token_mixer(dim)
-        print('[owo]',norm_layer.__name__)
         if norm_layer.__name__ == 'LayerNorm':
-            print('meow')
             self.norm = LayerNorm(dim, data_format="channels_first")
         else:
             self.norm = norm_layer(dim)

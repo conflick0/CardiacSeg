@@ -143,7 +143,7 @@ class MetaNeXtStage(nn.Module):
             mlp_ratio=4,
     ):
         super().__init__()
-        
+
         if ds_stride > 1:
             self.downsample = nn.Sequential(
                 norm_layer(in_chs, data_format="channels_first"),
