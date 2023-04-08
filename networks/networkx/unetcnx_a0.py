@@ -26,7 +26,9 @@ class UNETCNX_A0(nn.Module):
             **kwargs
     ) -> None:
         super().__init__()
-        print(depths)
+        print('patch size:', patch_size)
+        print('drop rate:',stochastic_depth_prob)
+        print('depths:', depths)
         block_setting = [
                 DilBlockConfig(feature_size * 2, feature_size * 4, depths[0], [1], [7]),
                 DilBlockConfig(feature_size * 4, feature_size * 8, depths[1], [1], [7]),
