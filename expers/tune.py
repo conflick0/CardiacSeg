@@ -241,6 +241,7 @@ def main_worker(args):
         inf_hd95_vals = []
         tt_dc_vals = []
         tt_hd95_vals = []
+        inf_times = []
         for data_dict in test_dicts:
             print('infer data:', data_dict)
             # load infer data
@@ -257,6 +258,7 @@ def main_worker(args):
             tt_hd95_vals.append(ret_dict['tta_hd'])
             inf_dc_vals.append(ret_dict['ori_dc'])
             inf_hd95_vals.append(ret_dict['ori_hd'])
+            inf_times.append(ret_dict['inf_time'])
             
         
         # make df
@@ -279,6 +281,11 @@ def main_worker(args):
             columns=[f'inf_hd95{n}' for n in label_names]
         )
         
+        eval_inf_time_df = pd.DataFrame(
+            inf_times,
+            columns=[f'inf_time']
+        )
+        
         pid_df = pd.DataFrame({
             'patientId': pids,
         })
@@ -287,10 +294,11 @@ def main_worker(args):
         avg_tt_hd95 =  eval_tt_hd95_val_df.T.mean().mean()
         avg_inf_dice = eval_inf_dice_val_df.T.mean().mean()
         avg_inf_hd95 =  eval_inf_hd95_val_df.T.mean().mean()
+        avg_inf_time = eval_inf_time_df.T.mean().mean()
 
         eval_df = pd.concat([
             pid_df, eval_tt_dice_val_df, eval_tt_hd95_val_df,
-            eval_inf_dice_val_df, eval_inf_hd95_val_df,
+            eval_inf_dice_val_df, eval_inf_hd95_val_df, eval_inf_time_df
         ], axis=1, join='inner').reset_index(drop=True)
         
         if args.tune_mode != 'test':
@@ -301,6 +309,8 @@ def main_worker(args):
         print('avg tt hd95:', avg_tt_hd95)
         print('avg inf dice:', avg_inf_dice)
         print('avg inf hd95:', avg_inf_hd95)
+        print('avg inf time:', avg_inf_time)
+        
         print(eval_df.to_string())
         
         tune.report(
@@ -308,7 +318,8 @@ def main_worker(args):
             tt_hd95=avg_tt_hd95,
             inf_dice=avg_inf_dice,
             inf_hd95=avg_inf_hd95,
-            val_bst_acc=best_acc
+            val_bst_acc=best_acc,
+            inf_time=avg_inf_time
         )
 
 
@@ -413,7 +424,8 @@ if __name__ == "__main__":
         'inf_dice',
         'inf_hd95',
         'val_bst_acc',
-        'esc'
+        'esc',
+        'inf_time',
     ])
 
 

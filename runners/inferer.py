@@ -1,4 +1,5 @@
 import os
+import time
 import importlib
 from pathlib import PurePath
 
@@ -97,8 +98,13 @@ def run_infering(
     ):
     ret_dict = {}
     
+    
     # test
+    start_time = time.time()
     data['pred'] = infer(model, data, model_inferer, args.device)
+    end_time  = time.time()
+    ret_dict['inf_time'] = end_time-start_time
+    print(f'infer time: {ret_dict["inf_time"]} sec')
     
     # eval infer tta
     if 'label' in data.keys():

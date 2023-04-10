@@ -203,7 +203,7 @@ def main_worker(args):
         ], axis=1, join='inner').reset_index(drop=True)
         
 
-        # eval_df.to_csv(os.path.join(args.eval_dir, f'best_model.csv'), index=False)
+        eval_df.to_csv(os.path.join(args.eval_dir, f'best_model.csv'), index=False)
         
         print("\neval result:")
         print('avg tt dice:', avg_tt_dice)
