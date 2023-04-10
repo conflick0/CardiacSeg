@@ -338,14 +338,13 @@ if __name__ == "__main__":
     elif args.tune_mode == 'transform':
         search_space = {
             'intensity': tune.grid_search([
-                [-175, 250], 
                 [-42, 423], 
-                [13, 320], 
-                [32, 294]
             ]),
             'space': tune.grid_search([
-                [0.7,0.7,1.0],
-                [1.0,1.0,1.0]
+                [0.4,0.4,0.5],
+                [0.8,0.8,0.8],
+                [0.8,0.8,1.0],
+                [1.0,1.0,1.0],
             ]),
             'roi': tune.grid_search([
                 [128,128,128],

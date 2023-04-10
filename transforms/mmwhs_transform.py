@@ -13,7 +13,8 @@ from monai.transforms import (
     RandRotate90d,
     ToTensord,
     LabelFilterd,
-    MapLabelValued
+    MapLabelValued,
+    SqueezeDimd,
 )
 
 
@@ -103,5 +104,55 @@ def get_val_transform(args):
             ),
             CropForegroundd(keys=['image', 'label'], source_key='image'),
             ToTensord(keys=["image", "label"]),
+        ]
+    )
+
+
+def get_inf_transform(keys, args):
+    if len(keys) == 2:
+        # image and label
+        mode = ("bilinear", "nearest")
+    elif len(keys) == 3:
+        # image and mutiple label
+        mode = ("bilinear", "nearest", "nearest")
+    else:
+        # image
+        mode = ("bilinear")
+        
+    return Compose(
+        [
+            LoadImaged(keys=keys),
+            AddChanneld(keys=keys),
+            Orientationd(keys=keys, axcodes="RAS"),
+            Spacingd(
+                keys=keys,
+                pixdim=(args.space_x, args.space_y, args.space_z),
+                mode=mode,
+            ),
+            ScaleIntensityRanged(
+                keys=['image'],
+                a_min=args.a_min, 
+                a_max=args.a_max,
+                b_min=args.b_min, 
+                b_max=args.b_max,
+                clip=True,
+                allow_missing_keys=True
+            ),
+            LabelFilterd(keys=["label"], applied_labels=[500, 600, 420, 550, 205, 820, 850]),
+            MapLabelValued(keys=["label"], orig_labels=[0, 500, 600, 420, 550, 205, 820, 850],
+                            target_labels=[0, 1, 2, 3, 4, 5, 6, 7]),
+            AddChanneld(keys=keys),
+            ToTensord(keys=keys)
+        ]
+    )
+
+
+def get_label_transform(keys=["label"]):
+    return Compose(
+        [
+            LoadImaged(keys=keys),
+            LabelFilterd(keys=keys, applied_labels=[500, 600, 420, 550, 205, 820, 850]),
+            MapLabelValued(keys=keys, orig_labels=[0, 500, 600, 420, 550, 205, 820, 850],
+                            target_labels=[0, 1, 2, 3, 4, 5, 6, 7]),
         ]
     )

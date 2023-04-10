@@ -1,4 +1,5 @@
 import os
+import importlib
 from pathlib import PurePath
 
 import torch
@@ -81,6 +82,12 @@ def get_filename(data):
     return PurePath(data['image_meta_dict']['filename_or_obj']).parts[-1]
 
 
+def get_label_transform(data_name, keys=['label']):
+    transform = importlib.import_module(f'transforms.{data_name}_transform')
+    get_lbl_transform = getattr(transform, 'get_label_transform', None)
+    return get_lbl_transform(keys)
+
+
 def run_infering(
         model,
         data,
@@ -113,7 +120,9 @@ def run_infering(
     if 'label' in data.keys():
         # get orginal label
         lbl_dict = {'label': data['label_meta_dict']['filename_or_obj']}
-        lbl_data = LoadImaged(keys='label')(lbl_dict)
+        label_loader = get_label_transform(args.data_name, keys=['label'])
+        lbl_data = label_loader(lbl_dict)
+        
         data['label'] = lbl_data['label']
         data['label_meta_dict'] = lbl_data['label']
         

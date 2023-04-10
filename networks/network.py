@@ -35,7 +35,7 @@ from networks.networkx.unetcnx_x6_1 import UNETCNX_X6_1
 
 from networks.networkx.unetcnx_a0 import UNETCNX_A0
 
-from networks.networkx.unetcst import UNETCST
+from networks.networkx.unetcst_a0 import UNETCST_A0
 
 
 from networks.networkx.unetmnx import UNETMNX
@@ -170,8 +170,8 @@ def network(model_name, args):
     # -----------------------------------------------------------------------------------------------------
     # unetcnx exp netowrks
     # -----------------------------------------------------------------------------------------------------
-    elif model_name == 'unetcst':
-        return UNETCST(
+    elif model_name == 'unetcst_a0':
+        return UNETCST_A0(
               in_channels=args.in_channels,
               out_channels=args.out_channels,
               patch_size=args.patch_size,

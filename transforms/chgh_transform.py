@@ -124,3 +124,9 @@ def get_inf_transform(keys, args):
             ToTensord(keys=keys)
         ]
     )
+
+
+def get_label_transform(keys=["label"]):
+    return Compose(
+        LoadImaged(keys=keys)
+    )
