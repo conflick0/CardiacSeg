@@ -42,6 +42,10 @@ from networks.networkx.unetmnx import UNETMNX
 from networks.networkx.unetmnx_a1 import UNETMNX_A1
 from networks.networkx.unetmnx_a2 import UNETMNX_A2
 
+from networks.networkx.unetc2f import UNETC2F
+from networks.networkx.unetfct import UNETFCT
+
+
 def network(model_name, args):
     print(f'model: {model_name}')
     if model_name == 'unet3d':
@@ -170,6 +174,26 @@ def network(model_name, args):
     # -----------------------------------------------------------------------------------------------------
     # unetcnx exp netowrks
     # -----------------------------------------------------------------------------------------------------
+    elif model_name == 'unetfct':
+        return UNETFCT(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
+    
+    elif model_name == 'unetc2f':
+        return UNETC2F(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=24,
+          ).to(args.device)
+    
     elif model_name == 'unetcst_a0':
         return UNETCST_A0(
               in_channels=args.in_channels,

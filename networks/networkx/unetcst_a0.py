@@ -8,7 +8,7 @@ from timm.models.layers import trunc_normal_
 
 from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetOutBlock
 
-from .blocks.convnext import ConvSwinTransformerBlock
+from .blocks.cst import ConvSwinTransformerBlock_A0
 from .blocks.utils import LayerNorm, DilBlockConfig
 
 
@@ -171,7 +171,7 @@ class Backbone(nn.Module):
     ):
         super().__init__()
         
-        block = ConvSwinTransformerBlock
+        block = ConvSwinTransformerBlock_A0
 
         # stem
         firstconv_output_channels = block_setting[0].input_channels
