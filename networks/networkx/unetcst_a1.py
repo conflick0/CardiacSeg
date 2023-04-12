@@ -8,11 +8,11 @@ from timm.models.layers import trunc_normal_
 
 from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetOutBlock
 
-from .blocks.convnext import ConvSwinTransformerBlock
+from .blocks.cst import ConvBlock_A1
 from .blocks.utils import LayerNorm, DilBlockConfig
 
 
-class UNETCST_A0(nn.Module):
+class UNETCST_A1(nn.Module):
     def __init__(
             self,
             in_channels=1,
@@ -23,7 +23,6 @@ class UNETCST_A0(nn.Module):
             norm_name='instance',
             stochastic_depth_prob=0.1,
             depths=[3, 3, 9, 3],
-            num_heads=[3, 6, 12, 24],
             **kwargs
     ) -> None:
         super().__init__()
@@ -42,7 +41,6 @@ class UNETCST_A0(nn.Module):
             feature_size=feature_size,
             patch_size=patch_size,
             stochastic_depth_prob=stochastic_depth_prob,
-            num_heads=num_heads,
             block_setting=block_setting,
         ).features
 
@@ -166,12 +164,11 @@ class Backbone(nn.Module):
             feature_size=24,
             patch_size=2,
             stochastic_depth_prob=0.4,
-            num_heads=[3, 6, 12, 24],
             block_setting=None,
     ):
         super().__init__()
         
-        block = ConvSwinTransformerBlock
+        block = ConvBlock_A1
 
         # stem
         firstconv_output_channels = block_setting[0].input_channels
@@ -191,7 +188,7 @@ class Backbone(nn.Module):
 
         total_stage_blocks = sum(cnf.num_layers * len(cnf.dilations) for cnf in block_setting)
         stage_block_id = 0
-        for i, cnf in enumerate(block_setting):
+        for cnf in block_setting:
             # stage
             stage = []
             for _ in range(cnf.num_layers):
@@ -202,8 +199,7 @@ class Backbone(nn.Module):
                     cnf.input_channels, 
                     sd_prob, 
                     cnf.kernel_sizes[0], 
-                    cnf.dilations[0],
-                    num_heads[i]
+                    cnf.dilations[0]
                 ))
             layers.append(nn.Sequential(*stage))
             

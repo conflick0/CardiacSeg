@@ -12,6 +12,8 @@ from monai.utils import ensure_tuple_rep, optional_import
 rearrange, _ = optional_import("einops", name="rearrange")
 
 from .convnext import DiConvNeXt
+from .conv2former import Conv2FormerBlock
+from .utils import LayerNorm
 
 
 class ConvSwinTransformerBlock_A0(nn.Module):
@@ -67,3 +69,24 @@ class ConvSwinTransformerBlock_A0(nn.Module):
         result = result1 + result2
         
         return result
+    
+    
+class ConvBlock_A1(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=7,
+        dilation=1
+    ):
+        super().__init__()
+        self.conv2former_block = Conv2FormerBlock(dim, drop_path=stochastic_depth_prob)
+        self.convnext_block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
+    
+    def forward(self, x):
+        x1 = self.conv2former_block(x)
+        x2 = self.convnext_block(x)
+        
+        y = x + x1 + x2
+        
+        return y

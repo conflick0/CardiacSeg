@@ -43,7 +43,6 @@ class ConvMod(nn.Module):
         self.proj = nn.Conv3d(dim, dim, 1)
 
     def forward(self, x):
-        print(x.shape)
         x = self.norm(x)   
         a = self.a(x)
         x = a * self.v(x)
