@@ -13,7 +13,7 @@ rearrange, _ = optional_import("einops", name="rearrange")
 
 from .convnext import DiConvNeXt
 from .conv2former import Conv2FormerBlock
-from .utils import LayerNorm
+from .utils import LayerNorm, Permute
 
 
 class ConvSwinTransformerBlock_A0(nn.Module):
@@ -71,6 +71,34 @@ class ConvSwinTransformerBlock_A0(nn.Module):
         return result
     
     
+class MLP_Block(nn.Module):
+    def __init__(
+        self,
+        in_features=48,
+        out_features=None,
+        stochastic_depth_prob=0.0,
+        layer_scale=1e-6
+    ):
+        super().__init__()
+        out_features = out_features if out_features else in_features
+        
+        self.block = nn.Sequential(
+            Permute([0, 2, 3, 4, 1]),
+            LayerNorm(in_features, eps=1e-6),
+            nn.Linear(in_features=in_features, out_features=4 * out_features, bias=True),
+            nn.GELU(),
+            nn.Linear(in_features=4 * out_features, out_features=out_features, bias=True),
+            Permute([0, 4, 1, 2, 3]),
+        )
+        self.layer_scale = nn.Parameter(torch.ones(out_features, 1, 1, 1) * layer_scale)
+        self.stochastic_depth = StochasticDepth(stochastic_depth_prob, "row")
+
+    def forward(self, input):
+        result = self.layer_scale * self.block(input)
+        result = self.stochastic_depth(result)
+        return result
+    
+    
 class ConvBlock_A1(nn.Module):
     def __init__(
         self,
@@ -89,4 +117,48 @@ class ConvBlock_A1(nn.Module):
         
         y = x + x1 + x2
         
+        return y
+    
+    
+class ConvBlock_A2(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=7,
+        dilation=1
+    ):
+        super().__init__()
+        self.conv2former_block = Conv2FormerBlock(dim, drop_path=stochastic_depth_prob)
+        self.convnext_block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
+        self.mlp_block = MLP_Block(dim*2, dim, stochastic_depth_prob=stochastic_depth_prob)
+    
+    def forward(self, x):
+        x1 = self.conv2former_block(x)
+        x2 = self.convnext_block(x)
+        
+        y = x + self.mlp_block(torch.cat((x1, x2), dim=1))
+        return y
+    
+    
+class ConvBlock_A3(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=7,
+        dilation=1
+    ):
+        super().__init__()
+        self.conv2former_block = Conv2FormerBlock(dim, drop_path=stochastic_depth_prob)
+        self.convnext_block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
+        self.mlp_block = MLP_Block(dim, stochastic_depth_prob=stochastic_depth_prob)
+        
+        
+    
+    def forward(self, x):
+        x1 = self.conv2former_block(x)
+        x2 = self.convnext_block(x)
+        
+        y = x + self.mlp_block(x1 + x2)
         return y
