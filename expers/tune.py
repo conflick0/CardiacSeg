@@ -366,15 +366,17 @@ if __name__ == "__main__":
             'transform': tune.grid_search([
                 {
                     'intensity': [-42,423],
-                    'space': [1.0,1.0,1.0],
+                    'space': [0.7,0.7,1.0],
                     'roi':[128,128,128],
                 }
             ]),
             'optim': tune.grid_search([
-                {'lr':1e-5, 'weight_decay': 3e-3},
-                {'lr':1e-5, 'weight_decay': 1e-3},
-                {'lr':1e-5, 'weight_decay': 5e-2},
-                {'lr':1e-6, 'weight_decay': 1e-3},
+                {'lr':5e-5, 'weight_decay': 5e-5},
+                {'lr':5e-5, 'weight_decay': 5e-4},
+                {'lr':5e-5, 'weight_decay': 5e-3},
+                {'lr':5e-4, 'weight_decay': 5e-5},
+                {'lr':5e-4, 'weight_decay': 5e-4},
+                {'lr':5e-4, 'weight_decay': 5e-3},
             ]),
         }
     elif args.tune_mode == 'lrschedule':
