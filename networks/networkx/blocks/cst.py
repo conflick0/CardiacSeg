@@ -98,8 +98,48 @@ class MLPBlock(nn.Module):
         result = self.layer_scale * self.block(input)
         result = self.stochastic_depth(result)
         return result
-    
-    
+
+
+class WideFocusBlock(nn.Module): 
+    """
+    Wide-Focus module.
+    https://arxiv.org/ftp/arxiv/papers/2206/2206.00566.pdf
+    https://github.com/kingo233/FCT-Pytorch/blob/main/utils/model.py
+    """
+    def __init__(self, dim):
+        super().__init__()
+        
+        self.conv1 = nn.Sequential(
+            nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same"),
+            nn.GELU(),
+            nn.Dropout(0.1)
+        )
+        self.dil_conv2 = nn.Sequential(
+            nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same", dilation=2),
+            nn.GELU(),
+            nn.Dropout(0.1)
+        )
+        self.dil_conv3 = nn.Sequential(
+            nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same", dilation=3),
+            nn.GELU(),
+            nn.Dropout(0.1)
+        )
+        self.conv4 = nn.Sequential(
+            nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same"),
+            nn.GELU(),
+            nn.Dropout(0.1)
+        )
+
+
+    def forward(self, x):
+        x1 = self.conv1(x)
+        x2 = self.dil_conv2(x)
+        x3 = self.dil_conv3(x)
+        added = x1 + x2 + x3
+        x_out = self.conv4(added)
+        return x_out
+
+
 class ConvBlock_A1(nn.Module):
     def __init__(
         self,
@@ -154,8 +194,6 @@ class ConvBlock_A3(nn.Module):
         self.conv2former_block = Conv2FormerBlock(dim, drop_path=stochastic_depth_prob)
         self.convnext_block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
         self.mlp_block = MLPBlock(dim, stochastic_depth_prob=stochastic_depth_prob)
-        
-        
     
     def forward(self, x):
         x1 = self.conv2former_block(x)
@@ -184,15 +222,13 @@ class ConvBlock_A4(nn.Module):
             stride=1, 
             norm_name="instance"
         )
-        
-        
     
     def forward(self, x):
         x1 = self.conv2former_block(x)
         x2 = self.convnext_block(x)
         
         y = x + self.res_block(torch.cat((x1, x2), dim=1))
-        return y
+        return y 
     
     
 class ConvBlock_A5(nn.Module):
@@ -216,3 +252,79 @@ class ConvBlock_A5(nn.Module):
         
         y = x + self.conv_block(torch.cat((x1, x2), dim=1))
         return y
+    
+
+class ConvBlock_A6(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=7,
+        dilation=1
+    ):
+        super().__init__()
+        self.conv2former_block = Conv2FormerBlock(dim, drop_path=stochastic_depth_prob)
+        self.convnext_block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
+    
+    def forward(self, x):
+        x = self.conv2former_block(x)
+        y = self.convnext_block(x)
+        
+        return y
+
+
+class ConvBlock_A7(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=7,
+        dilation=1
+    ):
+        super().__init__()
+        self.conv2former_block = Conv2FormerBlock(dim, drop_path=stochastic_depth_prob)
+        self.convnext_block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
+    
+    def forward(self, x):
+        x = self.convnext_block(x)
+        y = self.conv2former_block(x)
+        
+        return y    
+    
+    
+class ConvBlock_A8(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=7,
+        dilation=1
+    ):
+        super().__init__()
+        self.convnext_block = DiConvNeXt(dim, stochastic_depth_prob, kernel_size, dilation)
+        self.wf_block = WideFocusBlock(dim)
+    
+    def forward(self, x):
+        x1 = self.convnext_block(x)
+        y = x1 + self.wf_block(x1)
+        return y
+    
+
+class ConvBlock_A9(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        stochastic_depth_prob=0.0,
+        kernel_size=[7, 3],
+        dilation=[1, 3]
+    ):
+        super().__init__()
+        
+        blocks = [DiConvNeXt(dim, stochastic_depth_prob, k, d) for k, d in zip(kernel_size, dilation)]
+        self.blocks  = nn.Sequential(*blocks)
+        
+    
+    def forward(self, x):
+        y = self.blocks(x)
+        return y
+    
