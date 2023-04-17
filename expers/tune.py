@@ -389,12 +389,12 @@ if __name__ == "__main__":
                 }
             ]),
             'optim': tune.grid_search([
-                {'lr':1e-4, 'weight_decay': 1e-5},
-                {'lr':1e-4, 'weight_decay': 5e-4},
+                {'lr':5e-5, 'weight_decay': 5e-4},
+                {'lr':5e-4, 'weight_decay': 5e-5},
+                {'lr':5e-4, 'weight_decay': 5e-3},
             ]),
             'lrschedule': tune.grid_search([
-                {'warmup_epochs':40,'max_epoch':900},
-                {'warmup_epochs':40,'max_epoch':1200},
+                {'warmup_epochs':60,'max_epoch':1200},
             ])
         }
     elif args.tune_mode == 'lrschedule_epoch':
