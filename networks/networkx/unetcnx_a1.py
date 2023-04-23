@@ -8,11 +8,11 @@ from timm.models.layers import trunc_normal_
 
 from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetOutBlock
 
-from .blocks.convnext import DiConvNeXt
+from .blocks.convnext import DiConvNeXtV2
 from .blocks.utils import LayerNorm, DilBlockConfig
 
 
-class UNETCNX_A0(nn.Module):
+class UNETCNX_A1(nn.Module):
     def __init__(
             self,
             in_channels=1,
@@ -23,7 +23,6 @@ class UNETCNX_A0(nn.Module):
             norm_name='instance',
             stochastic_depth_prob=0.1,
             depths=[3, 3, 9, 3],
-            use_init_weights=True,
             **kwargs
     ) -> None:
         super().__init__()
@@ -43,7 +42,6 @@ class UNETCNX_A0(nn.Module):
             patch_size=patch_size,
             stochastic_depth_prob=stochastic_depth_prob,
             block_setting=block_setting,
-            use_init_weights=use_init_weights
         ).features
 
         self.encoder0 = UnetrBasicBlock(
@@ -167,11 +165,10 @@ class Backbone(nn.Module):
             patch_size=2,
             stochastic_depth_prob=0.4,
             block_setting=None,
-            use_init_weights=True,
     ):
         super().__init__()
         
-        block = DiConvNeXt
+        block = DiConvNeXtV2
 
         # stem
         firstconv_output_channels = block_setting[0].input_channels
@@ -213,10 +210,8 @@ class Backbone(nn.Module):
         # make features
         self.features = nn.Sequential(*layers)
         
-        if use_init_weights:
-            # init weight
-            print('use init weights')
-            self.apply(self._init_weights)
+        # init weight
+        self.apply(self._init_weights)
 
     def forward(self, input):
         return self.features(input)
