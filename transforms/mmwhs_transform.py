@@ -19,6 +19,7 @@ from monai.transforms import (
 
 
 def get_train_transform(args):
+    # CropForegroundd(keys=['image', 'label'], source_key='image'),
     return Compose(
         [
             LoadImaged(keys=["image", "label"]),
@@ -40,7 +41,6 @@ def get_train_transform(args):
                 b_max=args.b_max,
                 clip=True,
             ),
-            CropForegroundd(keys=['image', 'label'], source_key='image'),
             RandCropByPosNegLabeld(
                 keys=["image", "label"],
                 label_key="label",
@@ -86,6 +86,7 @@ def get_train_transform(args):
     )
 
 def get_val_transform(args):
+    # CropForegroundd(keys=['image', 'label'], source_key='image'),
     return Compose(
         [
             LoadImaged(keys=["image", "label"]),
@@ -102,7 +103,6 @@ def get_val_transform(args):
             ScaleIntensityRanged(
                 keys=["image"], a_min=args.a_min, a_max=args.a_max, b_min=args.b_min, b_max=args.b_max, clip=True
             ),
-            CropForegroundd(keys=['image', 'label'], source_key='image'),
             ToTensord(keys=["image", "label"]),
         ]
     )

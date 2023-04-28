@@ -371,12 +371,13 @@ if __name__ == "__main__":
                 }
             ]),
             'optim': tune.grid_search([
-                {'lr':5e-5, 'weight_decay': 5e-5},
-                {'lr':5e-5, 'weight_decay': 5e-4},
-                {'lr':5e-5, 'weight_decay': 5e-3},
-                {'lr':5e-4, 'weight_decay': 5e-5},
-                {'lr':5e-4, 'weight_decay': 5e-4},
-                {'lr':5e-4, 'weight_decay': 5e-3},
+                {'lr': 3e-04, 'weight_decay': 5e-04},
+                {'lr': 1e-04, 'weight_decay': 5e-03},
+                {'lr': 1e-04, 'weight_decay': 5e-05},
+                {'lr': 5e-04, 'weight_decay': 5e-03},
+                {'lr': 5e-04, 'weight_decay': 5e-04},
+                {'lr': 5e-04, 'weight_decay': 5e-05},
+                {'lr': 5e-05, 'weight_decay': 5e-04},
             ]),
         }
     elif args.tune_mode == 'lrschedule':
