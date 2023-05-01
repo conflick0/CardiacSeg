@@ -327,4 +327,46 @@ class ConvBlock_A9(nn.Module):
     def forward(self, x):
         y = self.blocks(x)
         return y
-    
+
+
+class ConvNeXtBlock_V1(nn.Module):
+    def __init__(
+        self,
+        dim=48,
+        kernel_size=7,
+        dilation=1,
+        exp_rate=4,
+        stochastic_depth_prob=0.0,
+        layer_scale=1e-6,
+        norm_name='layer'
+    ):
+        super().__init__()
+        
+        padding = (kernel_size + (kernel_size-1) * (dilation-1) - 1) // 2
+        
+        if norm_name == 'layer':
+            norm = LayerNorm(dim, eps=1e-6)
+        elif norm_name == 'group':
+            num_group = 4
+            norm = nn.GroupNorm(num_group, dim)
+        else:
+            raise ValueError(f'invalid norm name: {norm_name}')
+            
+
+        self.block = nn.Sequential(
+            nn.Conv3d(dim, dim, kernel_size=kernel_size, padding=padding, groups=dim, bias=True, dilation=dilation),
+            Permute([0, 2, 3, 4, 1]),
+            norm,
+            nn.Linear(in_features=dim, out_features=exp_rate * dim, bias=True),
+            nn.GELU(),
+            nn.Linear(in_features=exp_rate * dim, out_features=dim, bias=True),
+            Permute([0, 4, 1, 2, 3]),
+        )
+        self.layer_scale = nn.Parameter(torch.ones(dim, 1, 1, 1) * layer_scale)
+        self.stochastic_depth = StochasticDepth(stochastic_depth_prob, "row")
+
+    def forward(self, input):
+        result = self.layer_scale * self.block(input)
+        result = self.stochastic_depth(result)
+        result += input
+        return result

@@ -39,6 +39,8 @@ from networks.networkx.unetcnx_a0_s1 import UNETCNX_A0_S1
 from networks.networkx.unetcnx_a0_s2 import UNETCNX_A0_S2
 from networks.networkx.unetcnx_a1 import UNETCNX_A1
 from networks.networkx.unetcnx_a2 import UNETCNX_A2
+from networks.networkx.unetcnx_a3 import UNETCNX_A3
+from networks.networkx.unetcnx_a4 import UNETCNX_A4
 
 from networks.networkx.unetmnx import UNETMNX
 from networks.networkx.unetmnx_a1 import UNETMNX_A1
@@ -206,6 +208,28 @@ def network(model_name, args):
               depths=args.depths,
               feature_size=args.feature_size,
               use_init_weights=args.use_init_weights 
+          ).to(args.device)
+    elif model_name == 'unetcnx_a3':
+        return UNETCNX_A3(
+              in_channels=args.in_channels,
+              out_channels=args.out_channels,
+              patch_size=args.patch_size,
+              stochastic_depth_prob=args.drop_rate,
+              depths=args.depths,
+              feature_size=args.feature_size,
+              use_init_weights=args.use_init_weights 
+          ).to(args.device)
+    elif model_name == 'unetcnx_a4':
+        return UNETCNX_A4(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            stochastic_depth_prob=args.drop_rate,
+            depths=args.depths,
+            feature_size=args.feature_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            norm_name=args.norm_name,
+            use_init_weights=args.use_init_weights 
           ).to(args.device)
     elif model_name == 'unetcst_a9_1':
         return UNETCST_A9_1(
