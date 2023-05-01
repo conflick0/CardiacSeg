@@ -41,6 +41,9 @@ from networks.networkx.unetcnx_a1 import UNETCNX_A1
 from networks.networkx.unetcnx_a2 import UNETCNX_A2
 from networks.networkx.unetcnx_a3 import UNETCNX_A3
 from networks.networkx.unetcnx_a4 import UNETCNX_A4
+from networks.networkx.unetcnx_a4_s0 import UNETCNX_A4_S0
+from networks.networkx.unetcnx_a4_s1 import UNETCNX_A4_S1
+from networks.networkx.unetcnx_a4_s0_b0 import UNETCNX_A4_S0_B0
 
 from networks.networkx.unetmnx import UNETMNX
 from networks.networkx.unetmnx_a1 import UNETMNX_A1
@@ -230,7 +233,43 @@ def network(model_name, args):
             exp_rate=args.exp_rate,
             norm_name=args.norm_name,
             use_init_weights=args.use_init_weights 
-          ).to(args.device)
+        ).to(args.device)
+    elif model_name == 'unetcnx_a4_s0':
+        return UNETCNX_A4_S0(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            stochastic_depth_prob=args.drop_rate,
+            depths=args.depths,
+            feature_size=args.feature_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            norm_name=args.norm_name,
+            use_init_weights=args.use_init_weights 
+        ).to(args.device)
+    elif model_name == 'unetcnx_a4_s1':
+        return UNETCNX_A4_S1(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            stochastic_depth_prob=args.drop_rate,
+            depths=args.depths,
+            feature_size=args.feature_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            norm_name=args.norm_name,
+            use_init_weights=args.use_init_weights 
+        ).to(args.device)
+    elif model_name == 'unetcnx_a4_s0_b0':
+        return UNETCNX_A4_S0_B0(
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            stochastic_depth_prob=args.drop_rate,
+            depths=args.depths,
+            feature_size=args.feature_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            norm_name=args.norm_name,
+            use_init_weights=args.use_init_weights 
+        ).to(args.device)
     elif model_name == 'unetcst_a9_1':
         return UNETCST_A9_1(
               in_channels=args.in_channels,
