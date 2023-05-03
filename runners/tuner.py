@@ -49,8 +49,23 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
     for step, batch in enumerate(epoch_iterator):
         step += 1
         x, y = (batch["image"].to(args.device), batch["label"].to(args.device))
-        logit_map = model(x)
-        loss = loss_func(logit_map, y)
+        
+        if args.deep_sup:
+            # ref: https://github.com/kingo233/FCT-Pytorch/blob/main/utils/model.py#L390
+            logit_maps = model(x)
+            # down sample
+            y1 = F.interpolate(y, scale_factor=(1 / args.patch_size))
+            y2 = F.interpolate(y, scale_factor=(1 / (args.patch_size * 2)))
+            # cal ds loss
+            loss0 = loss_func(logit_maps[0], y)
+            loss1 =loss_func(logit_maps[1], y1)
+            loss2 = loss_func(logit_maps[2], y2)
+            # cal final loss
+            loss = 0.57*loss0 + 0.29*loss1 + 0.14*loss2
+        else:
+            logit_map = model(x)
+            loss = loss_func(logit_map, y)
+        
         loss.backward()
         epoch_loss += loss.item()
         optimizer.step()

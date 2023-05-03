@@ -129,7 +129,12 @@ class UNETCNX_A0(nn.Module):
         )
 
         self.out = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size, out_channels=out_channels)
-
+        
+        # deeply supervised
+        if args.deep_sup:
+            self.ds_block1 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size, out_channels=out_channels)
+            self.ds_block2 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size*2, out_channels=out_channels)
+            
     def forward(self, x):
         enc0 = self.encoder0(x)
 
@@ -147,7 +152,13 @@ class UNETCNX_A0(nn.Module):
         dec1 = self.decoder2(dec2, stm)
         dec0 = self.decoder1(dec1, enc0)
         out = self.out(dec0)
-        return out
+        
+        if args.deep_sup:
+            out2 = self.ds_block2(dec0)
+            out1 = self.ds_block1(dec1)
+            return [out, out1, out2]
+        else:
+            return out
 
     def encode(self, x):
         stm = self.stem(x)

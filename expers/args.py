@@ -74,6 +74,7 @@ def get_parser(argv):
     parser.add_argument("--drop_rate", default=0.4, type=float, help="drop out rate")
     parser.add_argument('--depths', type=int, nargs='+', help="depths of layer")
     parser.add_argument('--use_init_weights',  action="store_true", help="use init weights")
+    parser.add_argument('--deep_sup',  action="store_true", help="use deeply supervised")
     
     # loss
     parser.add_argument("--loss", default=None, type=str, help="type of loss")
