@@ -90,9 +90,20 @@ def main_worker(args):
 
     # model
     model = network(args.model_name, args)
-
+    
     # loss
-    dice_loss = DiceCELoss(to_onehot_y=True, softmax=True)
+    if args.loss == 'dice_focal_loss':
+        print('loss: dice focal loss')
+        dice_focal_loss = DiceFocalLoss(
+            to_onehot_y=True, 
+            softmax=True,
+            gamma=2.0,
+            lambda_dice=args.lambda_dice,
+            lambda_focal=args.lambda_focal
+        )
+    else:
+        print('loss: dice ce loss')
+        dice_loss = DiceCELoss(to_onehot_y=True, softmax=True)
     
     # optimizer
     print(f'optimzer: {args.optim}')

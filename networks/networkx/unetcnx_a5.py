@@ -12,7 +12,7 @@ from .blocks.cst import ConvNeXtBlock_V1
 from .blocks.utils import LayerNorm
 
 
-class UNETCNX_A4(nn.Module):
+class UNETCNX_A5(nn.Module):
     def __init__(
             self,
             in_channels=1,
@@ -31,6 +31,8 @@ class UNETCNX_A4(nn.Module):
         
         feature_sizes = [feature_size*(2**i) for i in range(len(depths))]
         
+        first_feature_size = feature_sizes[0]//2
+        
         decoder_norm_name = 'instance' 
         res_block = True
         spatial_dims = 3
@@ -38,7 +40,7 @@ class UNETCNX_A4(nn.Module):
         self.encoder0 = UnetrBasicBlock(
             spatial_dims=spatial_dims,
             in_channels=in_channels,
-            out_channels=feature_sizes[0],
+            out_channels=first_feature_size,
             kernel_size=3,
             stride=1,
             norm_name=decoder_norm_name,
@@ -59,8 +61,8 @@ class UNETCNX_A4(nn.Module):
         
         self.decoder4 = UnetrUpBlock(
             spatial_dims=spatial_dims,
-            in_channels=feature_sizes[3]*2,
-            out_channels=feature_sizes[3],
+            in_channels=feature_sizes[3],
+            out_channels=feature_sizes[2],
             kernel_size=3,
             upsample_kernel_size=2,
             norm_name=decoder_norm_name,
@@ -68,16 +70,6 @@ class UNETCNX_A4(nn.Module):
         )
 
         self.decoder3 = UnetrUpBlock(
-            spatial_dims=spatial_dims,
-            in_channels=feature_sizes[3],
-            out_channels=feature_sizes[2],
-            kernel_size=3,
-            upsample_kernel_size=2,
-            norm_name=decoder_norm_name,
-            res_block=res_block,
-        )
-
-        self.decoder2 = UnetrUpBlock(
             spatial_dims=spatial_dims,
             in_channels=feature_sizes[2],
             out_channels=feature_sizes[1],
@@ -87,7 +79,7 @@ class UNETCNX_A4(nn.Module):
             res_block=res_block,
         )
 
-        self.decoder1 = UnetrUpBlock(
+        self.decoder2 = UnetrUpBlock(
             spatial_dims=spatial_dims,
             in_channels=feature_sizes[1],
             out_channels=feature_sizes[0],
@@ -96,11 +88,11 @@ class UNETCNX_A4(nn.Module):
             norm_name=decoder_norm_name,
             res_block=res_block,
         )
-        
-        self.decoder0 = UnetrUpBlock(
+
+        self.decoder1 = UnetrUpBlock(
             spatial_dims=spatial_dims,
             in_channels=feature_sizes[0],
-            out_channels=feature_sizes[0],
+            out_channels=first_feature_size,
             kernel_size=3,
             upsample_kernel_size=patch_size,
             norm_name=decoder_norm_name,
@@ -108,7 +100,7 @@ class UNETCNX_A4(nn.Module):
         )
 
 
-        self.out_block = UnetOutBlock(spatial_dims=3, in_channels=feature_sizes[0], out_channels=out_channels)
+        self.out_block = UnetOutBlock(spatial_dims=3, in_channels=first_feature_size, out_channels=out_channels)
 
     def forward(self, x):
         enc0 = self.encoder0(x)
@@ -119,15 +111,14 @@ class UNETCNX_A4(nn.Module):
         enc2 = hidden_states_out[1]
         enc3 = hidden_states_out[2]
         enc4 = hidden_states_out[3]
-        enc5 = hidden_states_out[4]
         
-        dec4 = self.decoder4(enc5, enc4)
-        dec3 = self.decoder3(dec4, enc3)
-        dec2 = self.decoder2(dec3, enc2)
-        dec1 = self.decoder1(dec2, enc1)
-        dec0 = self.decoder0(dec1, enc0)
-
-        out = self.out_block(dec0)
+        dec4 = self.decoder4(enc4, enc3)
+        dec3 = self.decoder3(dec4, enc2)
+        dec2 = self.decoder2(dec3, enc1)
+        
+        dec1 = self.decoder1(dec2, enc0)
+        
+        out = self.out_block(dec1)
         return out
 
     def encode(self, x):

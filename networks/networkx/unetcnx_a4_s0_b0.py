@@ -19,6 +19,7 @@ class UNETCNX_A4_S0_B0(nn.Module):
             self,
             in_channels=1,
             out_channels=2,
+            patch_size=4,
             stochastic_depth_prob=0.0,
             feature_size=48,
             kernel_size=7,
@@ -49,6 +50,7 @@ class UNETCNX_A4_S0_B0(nn.Module):
         self.backbone = Backbone(
             in_channels=in_channels,
             feature_sizes=feature_sizes,
+            patch_size=patch_size,
             depths=depths,
             kernel_size=kernel_size,
             exp_rate=exp_rate,
@@ -60,7 +62,8 @@ class UNETCNX_A4_S0_B0(nn.Module):
         self.bottleneck = SimpleASPP(
             spatial_dims=3, 
             in_channels=feature_sizes[4], 
-            conv_out_channels=feature_sizes[4]//4
+            conv_out_channels=feature_sizes[4]//4,
+            norm_type='instance'
         )
         
         self.skip_encoder1 = CBAM(feature_sizes[0], reduction=16, kernel_size=7)
@@ -114,7 +117,7 @@ class UNETCNX_A4_S0_B0(nn.Module):
             in_channels=feature_sizes[0],
             out_channels=feature_sizes[0],
             kernel_size=3,
-            upsample_kernel_size=2,
+            upsample_kernel_size=patch_size,
             norm_name=decoder_norm_name,
             res_block=res_block,
         )
@@ -153,6 +156,7 @@ class Backbone(nn.Module):
         self,
         in_channels=1,
         feature_sizes=[48, 96, 192, 384],
+        patch_size=4,
         depths=[2, 2, 2, 2],
         kernel_size=7,
         dilation=1,
@@ -182,7 +186,7 @@ class Backbone(nn.Module):
                 # stem
                 stage.append(
                     nn.Sequential(
-                        nn.Conv3d(in_channels, feature_size, kernel_size=2, stride=2),
+                        nn.Conv3d(in_channels, feature_size, kernel_size=patch_size, stride=patch_size),
                         _get_norm(norm_name, feature_size),
                     )
                 )

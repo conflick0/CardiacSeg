@@ -106,30 +106,29 @@ class WideFocusBlock(nn.Module):
     https://arxiv.org/ftp/arxiv/papers/2206/2206.00566.pdf
     https://github.com/kingo233/FCT-Pytorch/blob/main/utils/model.py
     """
-    def __init__(self, dim):
+    def __init__(self, dim, drop_rate=0.1):
         super().__init__()
         
         self.conv1 = nn.Sequential(
             nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same"),
             nn.GELU(),
-            nn.Dropout(0.1)
+            nn.Dropout(drop_rate)
         )
         self.dil_conv2 = nn.Sequential(
             nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same", dilation=2),
             nn.GELU(),
-            nn.Dropout(0.1)
+            nn.Dropout(drop_rate)
         )
         self.dil_conv3 = nn.Sequential(
             nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same", dilation=3),
             nn.GELU(),
-            nn.Dropout(0.1)
+            nn.Dropout(drop_rate)
         )
         self.conv4 = nn.Sequential(
             nn.Conv3d(dim, dim, kernel_size=3, stride=1, padding="same"),
             nn.GELU(),
-            nn.Dropout(0.1)
+            nn.Dropout(drop_rate)
         )
-
 
     def forward(self, x):
         x1 = self.conv1(x)

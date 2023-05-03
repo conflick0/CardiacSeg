@@ -50,7 +50,7 @@ if 'inf_dice' in best_result.metrics:
 print(f'best log dir:', best_result.log_dir)
 
 
-model_pth = os.path.join( best_result.log_dir,'models', 'final_model.pth')
+model_pth = os.path.join( best_result.log_dir, 'models', 'final_model.pth')
 ckp = torch.load(model_pth)
 print('final early stop count:', ckp['early_stop_count'])
 print('final epoch:', ckp['epoch'])

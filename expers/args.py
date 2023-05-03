@@ -75,6 +75,11 @@ def get_parser(argv):
     parser.add_argument('--depths', type=int, nargs='+', help="depths of layer")
     parser.add_argument('--use_init_weights',  action="store_true", help="use init weights")
     
+    # loss
+    parser.add_argument("--loss", default=None, type=str, help="type of loss")
+    parser.add_argument("--lambda_dice", default=0.5, type=float, help="lambda of dice")
+    parser.add_argument("--lambda_focal", default=0.5, type=float, help="lambda of focal")
+    
     # optimizer
     parser.add_argument("--optim", default=None, type=str, help="type of optimizer")
     parser.add_argument("--lr", default=1e-4, type=float, help="optimization learning rate")
