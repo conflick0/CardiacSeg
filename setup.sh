@@ -9,7 +9,7 @@ pip install timm && \
 pip install tensorboard && \
 pip install ml-collections && \
 pip install scikit-learn && \
-pip install pandas && \
+pip install pandas==1.5.3 && \
 pip install matplotlib && \
 pip install ray && \
 pip install lion-pytorch && \

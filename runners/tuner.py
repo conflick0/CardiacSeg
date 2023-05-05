@@ -62,7 +62,7 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
             loss1 =loss_func(logit_maps[1], y1)
             loss2 = loss_func(logit_maps[2], y2)
             # cal final loss
-            loss = 0.7*loss0 + 0.2*loss1 + 0.1*loss2
+            loss = 0.6*loss0 + 0.25*loss1 + 0.15*loss2
         else:
             logit_map = model(x)
             loss = loss_func(logit_map, y)

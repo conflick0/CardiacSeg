@@ -458,6 +458,8 @@ def network(model_name, args):
               stochastic_depth_prob=args.drop_rate,
               depths=args.depths,
               feature_size=24,
+              kernel_size=args.kernel_size,
+              exp_rate=args.exp_rate,
               use_init_weights=args.use_init_weights,
               deep_sup=args.deep_sup
           ).to(args.device)

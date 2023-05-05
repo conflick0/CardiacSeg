@@ -23,25 +23,25 @@ class UNETCNX_A0(nn.Module):
             norm_name='instance',
             stochastic_depth_prob=0.1,
             depths=[3, 3, 9, 3],
+            kernel_size=7,
+            exp_rate=4,
             use_init_weights=True,
             deep_sup=False,
             **kwargs
     ) -> None:
         super().__init__()
-        print('patch size:', patch_size)
-        print('drop rate:',stochastic_depth_prob)
-        print('depths:', depths)
         block_setting = [
-                DilBlockConfig(feature_size * 2, feature_size * 4, depths[0], [1], [7]),
-                DilBlockConfig(feature_size * 4, feature_size * 8, depths[1], [1], [7]),
-                DilBlockConfig(feature_size * 8, feature_size * 16, depths[2], [1], [7]),
-                DilBlockConfig(feature_size * 16, feature_size * 32, depths[3], [1], [7])
+                DilBlockConfig(feature_size * 2, feature_size * 4, depths[0], [1], [kernel_size]),
+                DilBlockConfig(feature_size * 4, feature_size * 8, depths[1], [1], [kernel_size]),
+                DilBlockConfig(feature_size * 8, feature_size * 16, depths[2], [1], [kernel_size]),
+                DilBlockConfig(feature_size * 16, feature_size * 32, depths[3], [1], [kernel_size])
         ]
 
         self.features = Backbone(
             in_channels=in_channels,
             feature_size=feature_size,
             patch_size=patch_size,
+            exp_rate=exp_rate,
             stochastic_depth_prob=stochastic_depth_prob,
             block_setting=block_setting,
             use_init_weights=use_init_weights
@@ -179,11 +179,17 @@ class Backbone(nn.Module):
             in_channels=1,
             feature_size=24,
             patch_size=2,
+            exp_rate=4,
             stochastic_depth_prob=0.4,
             block_setting=None,
             use_init_weights=True,
     ):
         super().__init__()
+        print('patch size:', patch_size)
+        print('kernel size:', block_setting[0].kernel_sizes)
+        print('exp rate:', exp_rate)
+        print('drop rate:',stochastic_depth_prob)
+        print('depths:', [b.num_layers for b in block_setting])
         
         block = DiConvNeXt
 
@@ -212,7 +218,7 @@ class Backbone(nn.Module):
                 # cal stochastic depth probability based on the depth of the stage block
                 sd_prob = stochastic_depth_prob * stage_block_id / (total_stage_blocks - 1.0)
                 stage_block_id += 1
-                stage.append(block(cnf.input_channels, sd_prob, cnf.kernel_sizes[0], cnf.dilations[0]))
+                stage.append(block(cnf.input_channels, sd_prob, cnf.kernel_sizes[0], cnf.dilations[0], exp_rate))
             layers.append(nn.Sequential(*stage))
             
             # Downsampling

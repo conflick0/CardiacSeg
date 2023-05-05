@@ -1,4 +1,5 @@
 import os
+import importlib
 from pathlib import PurePath
 
 import pandas as pd
@@ -35,8 +36,10 @@ def get_tune_dir(exp_dir):
     return best_result.log_dir
 
 
-def get_data_path(data_dir, pid):
-    data_dicts = get_data_dicts(data_dir)
+def get_data_path(data_dir, data_name, pid):
+    dataset = importlib.import_module(f'datasets.{data_name}_dataset')
+    _get_data_dicts = getattr(dataset, 'get_data_dicts', None)
+    data_dicts = _get_data_dicts(data_dir)
     pids = get_pids_by_data_dicts(data_dicts)
     idx = pids.index(pid)
     return data_dicts[idx]

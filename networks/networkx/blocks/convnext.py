@@ -22,19 +22,19 @@ class DiConvNeXt(nn.Module):
         stochastic_depth_prob=0.0,
         kernel_size=7,
         dilation=1,
+        exp_rate=4,
         layer_scale=1e-6
     ):
         super().__init__()
-        
         padding = (kernel_size + (kernel_size-1) * (dilation-1) - 1) // 2
 
         self.block = nn.Sequential(
             nn.Conv3d(dim, dim, kernel_size=kernel_size, padding=padding, groups=dim, bias=True, dilation=dilation),
             Permute([0, 2, 3, 4, 1]),
             LayerNorm(dim, eps=1e-6),
-            nn.Linear(in_features=dim, out_features=4 * dim, bias=True),
+            nn.Linear(in_features=dim, out_features=exp_rate * dim, bias=True),
             nn.GELU(),
-            nn.Linear(in_features=4 * dim, out_features=dim, bias=True),
+            nn.Linear(in_features=exp_rate * dim, out_features=dim, bias=True),
             Permute([0, 4, 1, 2, 3]),
         )
         self.layer_scale = nn.Parameter(torch.ones(dim, 1, 1, 1) * layer_scale)

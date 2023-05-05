@@ -71,8 +71,12 @@ def main_worker(args):
 
     # inferer
     keys = ['pred']
+    if args.data_name == 'mmwhs':
+        axcodes = 'LAS'
+    else:
+        axcodes = 'LPS'
     post_transform = Compose([
-        Orientationd(keys=keys, axcodes="LPS"),
+        Orientationd(keys=keys, axcodes=axcodes),
         ToNumpyd(keys=keys),
         Restored(keys=keys, ref_image="image")
     ])
