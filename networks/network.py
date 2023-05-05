@@ -458,7 +458,8 @@ def network(model_name, args):
               stochastic_depth_prob=args.drop_rate,
               depths=args.depths,
               feature_size=24,
-              use_init_weights=args.use_init_weights
+              use_init_weights=args.use_init_weights,
+              deep_sup=args.deep_sup
           ).to(args.device)
     
     elif model_name == 'unetcnx':

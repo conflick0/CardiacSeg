@@ -28,6 +28,12 @@ def main():
     args = get_parser(sys.argv[1:])
     main_worker(args)
     
+    
+def is_deep_sup(checkpoint):
+    for key in list(checkpoint["state_dict"].keys()):
+        if 'ds' in key:
+            return True
+    return False
 
 def main_worker(args):
     # make dir
@@ -47,10 +53,17 @@ def main_worker(args):
     # check point
     if args.checkpoint is not None:
         checkpoint = torch.load(args.checkpoint, map_location="cpu")
+        
+        if is_deep_sup(checkpoint):
+            # load check point epoch and best acc
+            print("Tag 'ds (deeply supervised)' found in state dict - fixing!")
+            for key in list(checkpoint["state_dict"].keys()):
+                if 'ds' in key:
+                    checkpoint["state_dict"].pop(key) 
+        
         # load model
         model.load_state_dict(checkpoint["state_dict"])
-        # load check point epoch and best acc
-                
+        
         print(
           "=> loaded checkpoint '{}')"\
           .format(args.checkpoint)

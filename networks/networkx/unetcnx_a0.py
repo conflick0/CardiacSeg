@@ -24,6 +24,7 @@ class UNETCNX_A0(nn.Module):
             stochastic_depth_prob=0.1,
             depths=[3, 3, 9, 3],
             use_init_weights=True,
+            deep_sup=False,
             **kwargs
     ) -> None:
         super().__init__()
@@ -131,9 +132,11 @@ class UNETCNX_A0(nn.Module):
         self.out = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size, out_channels=out_channels)
         
         # deeply supervised
-        if args.deep_sup:
-            self.ds_block1 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size, out_channels=out_channels)
-            self.ds_block2 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size*2, out_channels=out_channels)
+        self.deep_sup = deep_sup
+        if deep_sup:
+            print('use deep sup')
+            self.ds_block1 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size*2, out_channels=out_channels)
+            self.ds_block2 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_size*4, out_channels=out_channels)
             
     def forward(self, x):
         enc0 = self.encoder0(x)
@@ -153,9 +156,9 @@ class UNETCNX_A0(nn.Module):
         dec0 = self.decoder1(dec1, enc0)
         out = self.out(dec0)
         
-        if args.deep_sup:
-            out2 = self.ds_block2(dec0)
+        if self.deep_sup and self.training:
             out1 = self.ds_block1(dec1)
+            out2 = self.ds_block2(dec2)
             return [out, out1, out2]
         else:
             return out

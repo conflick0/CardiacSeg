@@ -5,6 +5,7 @@ from monai.data import decollate_batch
 from monai.inferers import sliding_window_inference
 
 import torch
+import torch.nn.functional as F
 from ray import tune
 
 from tqdm import tqdm
@@ -61,7 +62,7 @@ def train_epoch(loader, model, optimizer, loss_func, writer, global_step, epoch,
             loss1 =loss_func(logit_maps[1], y1)
             loss2 = loss_func(logit_maps[2], y2)
             # cal final loss
-            loss = 0.57*loss0 + 0.29*loss1 + 0.14*loss2
+            loss = 0.7*loss0 + 0.2*loss1 + 0.1*loss2
         else:
             logit_map = model(x)
             loss = loss_func(logit_map, y)

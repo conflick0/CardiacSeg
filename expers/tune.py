@@ -14,7 +14,7 @@ from ray import air, tune
 from ray.tune import CLIReporter
 
 from monai.inferers import sliding_window_inference
-from monai.losses import DiceCELoss
+from monai.losses import DiceCELoss, DiceFocalLoss
 from monai.metrics import DiceMetric
 from monai.transforms import (
     AsDiscrete,
@@ -94,7 +94,7 @@ def main_worker(args):
     # loss
     if args.loss == 'dice_focal_loss':
         print('loss: dice focal loss')
-        dice_focal_loss = DiceFocalLoss(
+        dice_loss = DiceFocalLoss(
             to_onehot_y=True, 
             softmax=True,
             gamma=2.0,
