@@ -197,12 +197,16 @@ def network(model_name, args):
     # -----------------------------------------------------------------------------------------------------
     elif model_name == 'unetcnx_a1':
         return UNETCNX_A1(
-              in_channels=args.in_channels,
-              out_channels=args.out_channels,
-              patch_size=args.patch_size,
-              stochastic_depth_prob=args.drop_rate,
-              depths=args.depths,
-              feature_size=24
+            in_channels=args.in_channels,
+            out_channels=args.out_channels,
+            patch_size=args.patch_size,
+            kernel_size=args.kernel_size,
+            exp_rate=args.exp_rate,
+            feature_size=args.feature_size,
+            depths=args.depths,
+            drop_path_rate=args.drop_rate,
+            use_init_weights=args.use_init_weights,
+            is_conv_stem=args.is_conv_stem
           ).to(args.device)
     elif model_name == 'unetcnx_a2':
         return UNETCNX_A2(
