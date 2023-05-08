@@ -39,7 +39,6 @@ def main(config, args=None):
     if args.tune_mode == 'transform':
         args = map_args_transform(config, args)
     elif args.tune_mode == 'optim':
-        args = map_args_transform(config['transform'], args)
         args = map_args_optim(config['optim'], args)
     elif args.tune_mode == 'lrschedule' or args.tune_mode == 'lrschedule_epoch':
         args = map_args_transform(config['transform'], args)
@@ -355,10 +354,9 @@ if __name__ == "__main__":
     elif args.tune_mode == 'network':
         search_space = {
             'depths': tune.grid_search([
-                [2, 2, 4, 2],
-                [3, 3, 6, 3],
-                [5, 5, 10, 5],
-                [3, 3, 9, 3],
+                [4, 4, 4, 4],
+                [4, 4, 8, 4],
+                [4, 4, 12, 4],
             ])
         }
     elif args.tune_mode == 'transform':
@@ -378,18 +376,14 @@ if __name__ == "__main__":
         }
     elif args.tune_mode == 'optim':
         search_space = {
-            'transform': tune.grid_search([
-                {
-                    'intensity': [-42,423],
-                    'space': [0.7,0.7,1.0],
-                    'roi':[128,128,128],
-                }
-            ]),
             'optim': tune.grid_search([
-                {'lr': 1e-04, 'weight_decay': 5e-04},
-                {'lr': 3e-04, 'weight_decay': 5e-04},
-                {'lr': 5e-04, 'weight_decay': 5e-04},
-            ]),
+                {'lr': 9e-04, 'weight_decay': 3e-04},
+                {'lr': 9e-04, 'weight_decay': 7e-04},
+                {'lr': 9e-04, 'weight_decay': 9e-04},
+                {'lr': 3e-03, 'weight_decay': 5e-04},
+                {'lr': 5e-03, 'weight_decay': 5e-04},
+                {'lr': 7e-03, 'weight_decay': 5e-04},
+            ])
         }
     elif args.tune_mode == 'lrschedule':
         search_space = {

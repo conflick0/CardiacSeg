@@ -164,7 +164,7 @@ class Backbone(nn.Module):
         
         if is_conv_stem:
             stem = nn.Sequential(
-                nn.Conv3d(in_channels, feature_sizes[0], kernel_size=7, stride=2, padding=3),
+                nn.Conv3d(in_channels, feature_sizes[0], kernel_size=7, stride=patch_size, padding=3),
                 LayerNorm(feature_sizes[0], eps=1e-6, data_format="channels_first")
             )
         else:
