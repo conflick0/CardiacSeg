@@ -75,7 +75,9 @@ def get_parser(argv):
     parser.add_argument('--depths', type=int, nargs='+', help="depths of layer")
     parser.add_argument('--use_init_weights',  action="store_true", help="use init weights")
     parser.add_argument('--is_conv_stem',  action="store_true", help=" is conv stem")
+    parser.add_argument("--skip_encoder_name", default=None, type=str, help="skip encoder name")
     parser.add_argument('--deep_sup',  action="store_true", help="use deeply supervised")
+    
     
     # loss
     parser.add_argument("--loss", default=None, type=str, help="type of loss")

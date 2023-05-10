@@ -354,8 +354,6 @@ if __name__ == "__main__":
     elif args.tune_mode == 'network':
         search_space = {
             'depths': tune.grid_search([
-                [4, 4, 4, 4],
-                [4, 4, 8, 4],
                 [4, 4, 12, 4],
             ])
         }
@@ -377,12 +375,9 @@ if __name__ == "__main__":
     elif args.tune_mode == 'optim':
         search_space = {
             'optim': tune.grid_search([
-                {'lr': 9e-04, 'weight_decay': 3e-04},
-                {'lr': 9e-04, 'weight_decay': 7e-04},
-                {'lr': 9e-04, 'weight_decay': 9e-04},
-                {'lr': 3e-03, 'weight_decay': 5e-04},
-                {'lr': 5e-03, 'weight_decay': 5e-04},
-                {'lr': 7e-03, 'weight_decay': 5e-04},
+                {'lr': 1e-04, 'weight_decay': 5e-04},
+                {'lr': 5e-04, 'weight_decay': 5e-04},
+                {'lr': 9e-04, 'weight_decay': 5e-04},
             ])
         }
     elif args.tune_mode == 'lrschedule':

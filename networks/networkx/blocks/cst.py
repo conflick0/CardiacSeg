@@ -137,6 +137,23 @@ class WideFocusBlock(nn.Module):
         added = x1 + x2 + x3
         x_out = self.conv4(added)
         return x_out
+    
+
+class ConvAttnWideFocusBlock(nn.Module):
+    def __init__(self, dim, drop_rate=0.1, drop_path=0.0):
+        super().__init__()
+        self.conv_attn = Conv2FormerBlock(dim, drop_path=drop_path)
+        self.wide_forcus = WideFocusBlock(dim, drop_rate)
+        self.norm = LayerNorm(dim, eps=1e-6)
+        
+    def forward(self, x):
+        x1 = self.conv_attn(x)
+        x2 = x1.permute(0, 2, 3, 4, 1) # (N, C, H, W, D) -> (N, H, W, D, C)
+        x2 = self.norm(x2)
+        x2 = x2.permute(0, 4, 1, 2, 3) # (N, H, W, D, C) -> (N, C, H, W, D)
+        x3 = self.wide_forcus(x2)
+        out = x1 + x3
+        return out
 
 
 class ConvBlock_A1(nn.Module):

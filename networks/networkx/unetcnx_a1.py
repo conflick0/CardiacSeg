@@ -10,6 +10,8 @@ from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetOutBlock
 
 from .blocks.convnext_v2 import ConvNeXtBlock_V2
 from .blocks.utils import LayerNorm
+from .blocks.cbam import CBAM
+from .blocks.cst import WideFocusBlock, ConvAttnWideFocusBlock
 
 
 class UNETCNX_A1(nn.Module):
@@ -25,7 +27,8 @@ class UNETCNX_A1(nn.Module):
             drop_path_rate=0.0, 
             use_init_weights=False,
             is_conv_stem=False,
-            **kwargs
+            skip_encoder_name=None,
+            **kwargs,
     ) -> None:
         super().__init__()
         
@@ -58,6 +61,74 @@ class UNETCNX_A1(nn.Module):
             use_init_weights=use_init_weights,
             is_conv_stem=is_conv_stem
         )
+        
+        self.skip_encoder_name = skip_encoder_name
+        if self.skip_encoder_name == 'cbam':
+            print('use skip encoder: cbam')
+            self.skip_encoder0 = CBAM(feature_sizes[0], reduction=16, kernel_size=7)
+            self.skip_encoder1 = CBAM(feature_sizes[0], reduction=16, kernel_size=7)
+            self.skip_encoder2 = CBAM(feature_sizes[1], reduction=16, kernel_size=7)
+            self.skip_encoder3 = CBAM(feature_sizes[2], reduction=16, kernel_size=7)
+            self.skip_encoder4 = CBAM(feature_sizes[3], reduction=16, kernel_size=7)
+        elif self.skip_encoder_name == 'res':
+            print('use skip encoder: cbam')
+            self.skip_encoder0 = UnetrBasicBlock(
+                spatial_dims=spatial_dims,
+                in_channels=feature_sizes[0],
+                out_channels=feature_sizes[0],
+                kernel_size=3,
+                stride=1,
+                norm_name=decoder_norm_name,
+                res_block=res_block,
+            )
+            self.skip_encoder1 = UnetrBasicBlock(
+                spatial_dims=spatial_dims,
+                in_channels=feature_sizes[0],
+                out_channels=feature_sizes[0],
+                kernel_size=3,
+                stride=1,
+                norm_name=decoder_norm_name,
+                res_block=res_block,
+            )
+            self.skip_encoder2 = UnetrBasicBlock(
+                spatial_dims=spatial_dims,
+                in_channels=feature_sizes[1],
+                out_channels=feature_sizes[1],
+                kernel_size=3,
+                stride=1,
+                norm_name=decoder_norm_name,
+                res_block=res_block,
+            )
+            self.skip_encoder3 = UnetrBasicBlock(
+                spatial_dims=spatial_dims,
+                in_channels=feature_sizes[2],
+                out_channels=feature_sizes[2],
+                kernel_size=3,
+                stride=1,
+                norm_name=decoder_norm_name,
+                res_block=res_block,
+            )
+            self.skip_encoder4 = UnetrBasicBlock(
+                spatial_dims=spatial_dims,
+                in_channels=feature_sizes[3],
+                out_channels=feature_sizes[3],
+                kernel_size=3,
+                stride=1,
+                norm_name=decoder_norm_name,
+                res_block=res_block,
+            )
+        elif self.skip_encoder_name == 'wf':
+            self.skip_encoder0 = WideFocusBlock(feature_sizes[0])
+            self.skip_encoder1 = WideFocusBlock(feature_sizes[0])
+            self.skip_encoder2 = WideFocusBlock(feature_sizes[1])
+            self.skip_encoder3 = WideFocusBlock(feature_sizes[2])
+            self.skip_encoder4 = WideFocusBlock(feature_sizes[3])
+        elif self.skip_encoder_name == 'cawf':
+            self.skip_encoder0 = ConvAttnWideFocusBlock(feature_sizes[0])
+            self.skip_encoder1 = ConvAttnWideFocusBlock(feature_sizes[0])
+            self.skip_encoder2 = ConvAttnWideFocusBlock(feature_sizes[1])
+            self.skip_encoder3 = ConvAttnWideFocusBlock(feature_sizes[2])
+            self.skip_encoder4 = ConvAttnWideFocusBlock(feature_sizes[3])
         
         self.decoder4 = UnetrUpBlock(
             spatial_dims=spatial_dims,
@@ -112,6 +183,13 @@ class UNETCNX_A1(nn.Module):
         enc3 = hidden_states_out[2]
         enc4 = hidden_states_out[3]
         
+        if self.skip_encoder_name:
+            enc0 = self.skip_encoder0(enc0)
+            enc1 = self.skip_encoder1(enc1)
+            enc2 = self.skip_encoder2(enc2)
+            enc3 = self.skip_encoder3(enc3)
+            enc4 = self.skip_encoder4(enc4)
+            
         # print('e0:', enc0.shape)
         # print('e1:', enc1.shape)
         # print('e2:', enc2.shape)
