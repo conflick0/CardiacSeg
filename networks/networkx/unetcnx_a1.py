@@ -118,10 +118,10 @@ class UNETCNX_A1(nn.Module):
                 res_block=res_block,
             )
         elif self.skip_encoder_name == 'wf':
-            self.skip_encoder0 = WideFocusBlock(feature_sizes[0])
-            self.skip_encoder1 = WideFocusBlock(feature_sizes[0])
-            self.skip_encoder2 = WideFocusBlock(feature_sizes[1])
-            self.skip_encoder3 = WideFocusBlock(feature_sizes[2])
+            self.skip_encoder0 = nn.Identity()
+            self.skip_encoder1 = nn.Identity()
+            self.skip_encoder2 = nn.Identity()
+            self.skip_encoder3 = nn.Identity()
             self.skip_encoder4 = WideFocusBlock(feature_sizes[3])
         elif self.skip_encoder_name == 'cawf':
             self.skip_encoder0 = ConvAttnWideFocusBlock(feature_sizes[0])

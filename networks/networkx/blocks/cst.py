@@ -13,7 +13,7 @@ from monai.utils import ensure_tuple_rep, optional_import
 rearrange, _ = optional_import("einops", name="rearrange")
 
 from .convnext import DiConvNeXt
-from .conv2former import Conv2FormerBlock
+from .conv2former import Conv2FormerBlock, ConvMod
 from .utils import LayerNorm, Permute
 
 
@@ -100,7 +100,7 @@ class MLPBlock(nn.Module):
         return result
 
 
-class WideFocusBlock(nn.Module): 
+class WideFocusModule(nn.Module): 
     """
     Wide-Focus module.
     https://arxiv.org/ftp/arxiv/papers/2206/2206.00566.pdf
@@ -139,18 +139,40 @@ class WideFocusBlock(nn.Module):
         return x_out
     
 
-class ConvAttnWideFocusBlock(nn.Module):
+class WideFocusBlock(nn.Module):
     def __init__(self, dim, drop_rate=0.1, drop_path=0.0):
         super().__init__()
-        self.conv_attn = Conv2FormerBlock(dim, drop_path=drop_path)
-        self.wide_forcus = WideFocusBlock(dim, drop_rate)
+        self.wide_forcus = WideFocusModule(dim, drop_rate)
         self.norm = LayerNorm(dim, eps=1e-6)
         
     def forward(self, x):
-        x1 = self.conv_attn(x)
+        # layer nrom
+        x2 = x.permute(0, 2, 3, 4, 1) # (N, C, H, W, D) -> (N, H, W, D, C)
+        x2 = self.norm(x2)
+        x2 = x2.permute(0, 4, 1, 2, 3) # (N, H, W, D, C) -> (N, C, H, W, D)
+        # wide forcus
+        x3 = self.wide_forcus(x2)
+        out = x + x3
+        return out
+
+class ConvAttnWideFocusBlock(nn.Module):
+    def __init__(self, dim, drop_rate=0.1, drop_path=0.0):
+        super().__init__()
+        self.conv_attn = ConvMod(dim)
+        self.wide_forcus = WideFocusModule(dim, drop_rate)
+        
+        self.norm = LayerNorm(dim, eps=1e-6)
+        self.layer_scale = nn.Parameter(torch.ones(dim, 1, 1, 1) * 1e-6)
+        self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+        
+    def forward(self, x):
+        # conv attn
+        x1 = x + self.drop_path(self.layer_scale * self.conv_attn(x))
+        # layer nrom
         x2 = x1.permute(0, 2, 3, 4, 1) # (N, C, H, W, D) -> (N, H, W, D, C)
         x2 = self.norm(x2)
         x2 = x2.permute(0, 4, 1, 2, 3) # (N, H, W, D, C) -> (N, C, H, W, D)
+        # wide forcus
         x3 = self.wide_forcus(x2)
         out = x1 + x3
         return out
