@@ -178,8 +178,8 @@ class UNETCNX_A1(nn.Module):
         self.deep_sup = deep_sup
         if deep_sup:
             print('use deep sup')
-            self.ds_block1 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=first_feature_size, out_channels=out_channels)
-            self.ds_block2 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_sizes[0], out_channels=out_channels)
+            self.ds_block1 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_sizes[0], out_channels=out_channels)
+            self.ds_block2 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_sizes[1], out_channels=out_channels)
 
     def forward(self, x):
         enc0 = self.encoder0(x)
@@ -217,8 +217,8 @@ class UNETCNX_A1(nn.Module):
         out = self.out_block(dec1)
         
         if self.deep_sup and self.training:
-            out1 = self.ds_block1(dec1)
-            out2 = self.ds_block2(dec2)
+            out1 = self.ds_block1(dec2)
+            out2 = self.ds_block2(dec3)
             return [out, out1, out2]
         else:
             return out
