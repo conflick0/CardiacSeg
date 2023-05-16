@@ -28,6 +28,7 @@ class UNETCNX_A1(nn.Module):
             use_init_weights=False,
             is_conv_stem=False,
             skip_encoder_name=None,
+            deep_sup=False,
             **kwargs,
     ) -> None:
         super().__init__()
@@ -172,6 +173,13 @@ class UNETCNX_A1(nn.Module):
 
 
         self.out_block = UnetOutBlock(spatial_dims=3, in_channels=first_feature_size, out_channels=out_channels)
+        
+        # deeply supervised
+        self.deep_sup = deep_sup
+        if deep_sup:
+            print('use deep sup')
+            self.ds_block1 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=first_feature_size, out_channels=out_channels)
+            self.ds_block2 = UnetOutBlock(spatial_dims=spatial_dims, in_channels=feature_sizes[0], out_channels=out_channels)
 
     def forward(self, x):
         enc0 = self.encoder0(x)
@@ -207,7 +215,14 @@ class UNETCNX_A1(nn.Module):
         # print('d1:', dec1.shape)
         
         out = self.out_block(dec1)
-        return out
+        
+        if self.deep_sup and self.training:
+            out1 = self.ds_block1(dec1)
+            out2 = self.ds_block2(dec2)
+            return [out, out1, out2]
+        else:
+            return out
+
 
     def encode(self, x):
         hidden_states_out = self.backbone(x)

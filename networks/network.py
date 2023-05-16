@@ -207,7 +207,8 @@ def network(model_name, args):
             drop_path_rate=args.drop_rate,
             use_init_weights=args.use_init_weights,
             is_conv_stem=args.is_conv_stem,
-            skip_encoder_name=args.skip_encoder_name
+            skip_encoder_name=args.skip_encoder_name,
+            deep_sup=args.deep_sup
           ).to(args.device)
     elif model_name == 'unetcnx_a2':
         return UNETCNX_A2(
