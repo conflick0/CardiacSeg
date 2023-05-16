@@ -5,7 +5,7 @@ pip install "monai[nibabel, tqdm, einops]" && \
 pip install monailabel && \
 pip install -U openmim && \
 mim install -U mmcv-full && \
-pip install timm && \
+pip install timm==0.6.13 && \
 pip install tensorboard && \
 pip install ml-collections && \
 pip install scikit-learn && \
