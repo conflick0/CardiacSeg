@@ -94,10 +94,15 @@ def main_worker(args):
     if args.data_dicts_json:
         data_dicts = load_data_dict_json(args.data_dir, args.data_dicts_json)
     else:
-        data_dicts = [{
-            'image': args.img_pth,
-            'label': args.lbl_pth
-        }]
+        if args.lbl_pth is not None:
+            data_dicts = [{
+                'image': args.img_pth,
+                'label': args.lbl_pth
+            }]
+        else:
+            data_dicts = [{
+                'image': args.img_pth,
+            }]
 
     # run infer
     for data_dict in data_dicts:
