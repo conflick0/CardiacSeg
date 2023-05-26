@@ -11,6 +11,8 @@ from monai.networks.blocks import UnetrBasicBlock, UnetrUpBlock, UnetOutBlock
 from .blocks.convnext_v2 import ConvNeXtBlock_V2
 from .blocks.utils import LayerNorm
 from .blocks.cbam import CBAM
+from .blocks.eca import ECA
+from .blocks.conv2former import ConvMod
 from .blocks.cst import WideFocusBlock, ConvAttnWideFocusBlock
 
 
@@ -71,8 +73,22 @@ class UNETCNX_A1(nn.Module):
             self.skip_encoder2 = CBAM(feature_sizes[1], reduction=16, kernel_size=7)
             self.skip_encoder3 = CBAM(feature_sizes[2], reduction=16, kernel_size=7)
             self.skip_encoder4 = CBAM(feature_sizes[3], reduction=16, kernel_size=7)
+        elif self.skip_encoder_name == 'eca':
+            print('use skip encoder: eca')
+            self.skip_encoder0 = ECA(feature_sizes[0], k_size=3)
+            self.skip_encoder1 = ECA(feature_sizes[0], k_size=3)
+            self.skip_encoder2 = ECA(feature_sizes[1], k_size=3)
+            self.skip_encoder3 = ECA(feature_sizes[2], k_size=3)
+            self.skip_encoder4 = ECA(feature_sizes[3], k_size=3)
+        elif self.skip_encoder_name == 'convmod':
+            print('use skip encoder: convmod')
+            self.skip_encoder0 = nn.Identity()
+            self.skip_encoder1 = nn.Identity()
+            self.skip_encoder2 = ConvMod(feature_sizes[1])
+            self.skip_encoder3 = ConvMod(feature_sizes[2])
+            self.skip_encoder4 = ConvMod(feature_sizes[3])
         elif self.skip_encoder_name == 'res':
-            print('use skip encoder: cbam')
+            print('use skip encoder: res')
             self.skip_encoder0 = UnetrBasicBlock(
                 spatial_dims=spatial_dims,
                 in_channels=feature_sizes[0],

@@ -45,9 +45,6 @@ def main_worker(args):
         print("cuda is not available")
         args.device = torch.device("cpu")
 
-    # load train and test data
-    loader = DataLoader(args.data_name, args)()
-
     # model
     model = network(args.model_name, args)
 
@@ -106,6 +103,9 @@ def main_worker(args):
     writer = SummaryWriter(log_dir=args.log_dir)
 
     if not args.test_mode:
+        # load train and test data
+        loader = DataLoader(args.data_name, args)()
+        
         tr_loader, val_loader = loader
 
         # training
@@ -134,7 +134,19 @@ def main_worker(args):
         label_names = get_label_names(args.data_name)
         
         # prepare data_dict
-        _, _, test_dicts = load_data_dict_json(args.data_dir, args.data_dicts_json)
+        tr_dicts, val_dicts, test_dicts = load_data_dict_json(args.data_dir, args.data_dicts_json)
+        
+        eval_file_name = f'best_model.csv'
+        
+        # test train data or val data for eda
+        if args.eda_test_data == 'train':
+            print('use train data')
+            test_dicts = tr_dicts
+            eval_file_name = f'tr_best_model.csv'
+        elif args.eda_test_data == 'val':
+            print('use val data')
+            test_dicts = val_dicts
+            eval_file_name = f'val_best_model.csv'
         
         # infer post transform
         keys = ['pred']
@@ -203,7 +215,7 @@ def main_worker(args):
         ], axis=1, join='inner').reset_index(drop=True)
         
 
-        eval_df.to_csv(os.path.join(args.eval_dir, f'best_model.csv'), index=False)
+        eval_df.to_csv(os.path.join(args.eval_dir, eval_file_name), index=False)
         
         print("\neval result:")
         print('avg tt dice:', avg_tt_dice)

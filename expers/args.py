@@ -24,6 +24,7 @@ def get_parser(argv):
     parser.add_argument("--img_pth", default=None, help="target img for infer")
     parser.add_argument("--lbl_pth", default=None, help="target lbl for infer")
     parser.add_argument("--pred_pth", default=None, help="target lbl for infer")
+    parser.add_argument("--eda_test_data", default=None, type=str, help="test train data or val data for eda (train, val), default is test data")
 
     # train loop
     parser.add_argument("--start_epoch", default=0, type=int, help="start epoch")
