@@ -100,6 +100,8 @@ def get_parser(argv):
     # infer
     parser.add_argument("--sw_batch_size", default=4, type=int, help="number of sliding window batch size")
     parser.add_argument("--infer_overlap", default=0.25, type=float, help="sliding window inference overlap")
+    parser.add_argument("--infer_post_process", action="store_true", help="infer post process")
+
     
     # get args
     args = parser.parse_args(argv)

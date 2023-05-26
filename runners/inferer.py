@@ -5,12 +5,15 @@ from pathlib import PurePath
 
 import torch
 
+import numpy as np
+
 from monai.data import decollate_batch
 from monai.transforms import (
     LoadImaged,
     AddChannel,
     SqueezeDimd,
-    AsDiscrete
+    AsDiscrete,
+    KeepLargestConnectedComponent
 )
 from monai.metrics import DiceMetric, HausdorffDistanceMetric
 
@@ -105,6 +108,12 @@ def run_infering(
     end_time  = time.time()
     ret_dict['inf_time'] = end_time-start_time
     print(f'infer time: {ret_dict["inf_time"]} sec')
+    
+    # post process transform
+    if args.infer_post_process:
+        print('use post process infer')
+        applied_labels = np.unique(data['pred'].flatten())[1:]
+        data['pred'] = KeepLargestConnectedComponent(applied_labels=applied_labels)(data['pred'])
     
     # eval infer tta
     if 'label' in data.keys():
