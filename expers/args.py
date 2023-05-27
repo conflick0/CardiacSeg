@@ -78,6 +78,7 @@ def get_parser(argv):
     parser.add_argument('--is_conv_stem',  action="store_true", help=" is conv stem")
     parser.add_argument("--skip_encoder_name", default=None, type=str, help="skip encoder name")
     parser.add_argument('--deep_sup',  action="store_true", help="use deeply supervised")
+    parser.add_argument('--first_feature_size_half',  action="store_true", help="first feature size half")
     
     
     # loss

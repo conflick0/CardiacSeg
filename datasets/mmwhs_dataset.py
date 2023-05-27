@@ -13,3 +13,14 @@ def get_data_dicts(data_dir):
             "label": lbl_pth
         })
     return data_dicts
+
+
+def get_inf_data_dicts(data_dir):
+    img_fns = sorted(os.listdir(data_dir))
+    img_pths = list(map(lambda fn: os.path.join(data_dir, fn), img_fns))
+    data_dicts = []
+    for img_pth in img_pths:
+        data_dicts.append({
+            "image": img_pth
+        })
+    return data_dicts

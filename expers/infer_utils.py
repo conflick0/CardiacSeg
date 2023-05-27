@@ -62,6 +62,13 @@ def get_eval_csv_path(root_dir):
     )
 
 
+def get_eda_eval_csv_path(root_dir):
+    return os.path.join(
+        root_dir, 
+        'eda_evals',
+        'best_model.csv'
+    )
+
 def get_eval_val(csv_pth, pid):
     df = pd.read_csv(csv_pth)
     idx = df['patientId'] == pid

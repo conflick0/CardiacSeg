@@ -208,7 +208,8 @@ def network(model_name, args):
             use_init_weights=args.use_init_weights,
             is_conv_stem=args.is_conv_stem,
             skip_encoder_name=args.skip_encoder_name,
-            deep_sup=args.deep_sup
+            deep_sup=args.deep_sup,
+            first_feature_size_half=args.first_feature_size_half
           ).to(args.device)
     elif model_name == 'unetcnx_a2':
         return UNETCNX_A2(

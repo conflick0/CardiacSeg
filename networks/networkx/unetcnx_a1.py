@@ -31,13 +31,18 @@ class UNETCNX_A1(nn.Module):
             is_conv_stem=False,
             skip_encoder_name=None,
             deep_sup=False,
+            first_feature_size_half=False,
             **kwargs,
     ) -> None:
         super().__init__()
         
         feature_sizes = [feature_size*(2**i) for i in range(len(depths))]
         
-        first_feature_size = feature_sizes[0]
+        if first_feature_size_half:
+            print('first feature size half:',first_feature_size_half)
+            first_feature_size = feature_sizes[0] // 2
+        else:
+            first_feature_size = feature_sizes[0]
         
         decoder_norm_name = 'instance' 
         res_block = True

@@ -1,0 +1,122 @@
+[
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2001_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2002_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2003_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2004_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2005_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2006_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2007_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2008_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2009_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2010_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2011_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2012_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2013_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2014_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2015_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2016_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2017_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2018_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2019_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2020_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2021_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2022_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2023_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2024_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2025_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2026_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2027_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2028_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2029_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2030_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2031_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2032_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2033_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2034_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2035_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2036_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2037_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2038_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2039_image.nii.gz"
+    },
+    {
+        "image": "/nfs/Workspace/CardiacSeg/dataset/mmwhs/ct_test/ct_test_2040_image.nii.gz"
+    }
+]

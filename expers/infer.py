@@ -54,7 +54,7 @@ def main_worker(args):
     if args.checkpoint is not None:
         checkpoint = torch.load(args.checkpoint, map_location="cpu")
         
-        if is_deep_sup(checkpoint):
+        if is_deep_sup(checkpoint) and args.model_name != 'cotr':
             # load check point epoch and best acc
             print("Tag 'ds (deeply supervised)' found in state dict - fixing!")
             for key in list(checkpoint["state_dict"].keys()):
@@ -91,8 +91,10 @@ def main_worker(args):
     )
 
     # prepare data_dict
-    if args.data_dicts_json:
+    if args.data_dicts_json and args.data_name != 'mmwhs':
         data_dicts = load_data_dict_json(args.data_dir, args.data_dicts_json)
+    elif args.data_dicts_json and args.data_name == 'mmwhs':
+        data_dicts = load_json(args.data_dicts_json)
     else:
         if args.lbl_pth is not None:
             data_dicts = [{

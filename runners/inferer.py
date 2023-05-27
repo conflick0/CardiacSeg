@@ -13,7 +13,12 @@ from monai.transforms import (
     AddChannel,
     SqueezeDimd,
     AsDiscrete,
-    KeepLargestConnectedComponent
+    KeepLargestConnectedComponent,
+    Compose,
+    LabelFilter,
+    MapLabelValue,
+    Spacing,
+    SqueezeDim
 )
 from monai.metrics import DiceMetric, HausdorffDistanceMetric
 
@@ -148,6 +153,20 @@ def run_infering(
         ret_dict['ori_dc'] = ori_dc_vals
         ret_dict['ori_hd'] = ori_hd95_vals
     
+    if args.data_name == 'mmwhs':
+        mmwhs_transform = Compose([
+            LabelFilter(applied_labels=[1, 2, 3, 4, 5, 6, 7]),
+            MapLabelValue(orig_labels=[0, 1, 2, 3, 4, 5, 6, 7],
+                            target_labels=[0, 500, 600, 420, 550, 205, 820, 850]),
+            # AddChannel(),
+            # Spacing(
+            #     pixdim=(args.space_x, args.space_y, args.space_z),
+            #     mode=("nearest"),
+            # ),
+            # SqueezeDim()
+        ])
+        data['pred'] = mmwhs_transform(data['pred'])
+        
     
     if not args.test_mode:
         # save pred result
