@@ -84,9 +84,6 @@ def main_worker(args):
         print("cuda is not available")
         args.device = torch.device("cpu")
 
-    # load train and test data
-    loader = DataLoader(args.data_name, args)()
-
     # model
     model = network(args.model_name, args)
     
@@ -207,6 +204,9 @@ def main_worker(args):
     writer = SummaryWriter(log_dir=args.log_dir)
 
     if not args.test_mode:
+        # load train and test data
+        loader = DataLoader(args.data_name, args)()
+        
         tr_loader, val_loader = loader
         
         # training
@@ -442,7 +442,6 @@ if __name__ == "__main__":
     if args.resume_tuner:
         print(f'resume tuner form {args.root_exp_dir}')
         restored_tuner = tune.Tuner.restore(os.path.join(args.root_exp_dir, args.exp_name))
-        result = restored_tuner.fit()
         
         # for manual test
         if args.tune_mode == 'test':
@@ -457,6 +456,8 @@ if __name__ == "__main__":
             args.test_mode = True
             args.checkpoint = os.path.join(model_pth)
             main_worker(args)
+        else:
+            result = restored_tuner.fit()
     else:
         tuner = tune.Tuner(
             trainable_with_cpu_gpu,

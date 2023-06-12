@@ -11,7 +11,7 @@ pip install ml-collections && \
 pip install scikit-learn && \
 pip install pandas==1.5.3 && \
 pip install matplotlib && \
-pip install ray && \
+pip install ray==2.4.0 && \
 pip install lion-pytorch && \
 pip install torchsummaryX && \
 pip install --user ipykernel && \
