@@ -75,6 +75,7 @@ def main_worker(args):
         axcodes = 'LAS'
     else:
         axcodes = 'LPS'
+    # axcodes = 'RAS'
     post_transform = Compose([
         Orientationd(keys=keys, axcodes=axcodes),
         ToNumpyd(keys=keys),
