@@ -72,11 +72,16 @@ def get_eda_eval_csv_path(root_dir):
 def get_eval_val(csv_pth, pid):
     df = pd.read_csv(csv_pth)
     idx = df['patientId'] == pid
-    return {
-        'dice': df[idx]['inf_diceC'].tolist()[0], 
-        'hd95': df[idx]['inf_hd95C'].tolist()[0]
-    }
-    
+    if 'inf_diceLV' in df[idx]:
+        return {
+            'dice': df[idx].filter(regex=("inf_dice*")).T.mean().tolist()[0], 
+            'hd95': df[idx].filter(regex=("inf_hd*")).T.mean().tolist()[0]
+        }
+    else:
+        return {
+            'dice': df[idx]['inf_diceC'].tolist()[0], 
+            'hd95': df[idx]['inf_hd95C'].tolist()[0]
+        }
 
 def get_slice(img, slice_idx, mode, is_trans):
     '''

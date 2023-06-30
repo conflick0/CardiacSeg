@@ -6,6 +6,7 @@ def get_parser(argv):
     # mode
     parser.add_argument("--tune_mode", default=None, type=str, help="tune mode")
     parser.add_argument("--test_mode", action="store_true", help="test mode")
+    parser.add_argument("--save_eval_csv", action="store_true", help="save eval csv")
     parser.add_argument("--resume_tuner", action="store_true", help="test mode")
 
     # dir and path

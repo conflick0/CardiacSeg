@@ -315,7 +315,7 @@ def main_worker(args):
             eval_inf_dice_val_df, eval_inf_hd95_val_df, eval_inf_time_df
         ], axis=1, join='inner').reset_index(drop=True)
         
-        if args.tune_mode != 'test':
+        if args.save_eval_csv:
             eval_df.to_csv(os.path.join(args.eval_dir, f'best_model.csv'), index=False)
         
         print("\neval result:")
@@ -455,6 +455,8 @@ if __name__ == "__main__":
             args.max_epochs = args.max_epoch
             args.test_mode = True
             args.checkpoint = os.path.join(model_pth)
+            args.eval_dir = os.path.join(best_result.log_dir, 'evals')
+            
             main_worker(args)
         else:
             result = restored_tuner.fit()
