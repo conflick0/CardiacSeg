@@ -44,7 +44,7 @@ def main_worker(args):
         
       
         # load infer data
-        data = get_infer_data(args.data_name, data_dict, args)
+        data = get_infer_data(data_dict, args)
 
         # eval
         dc_vals, hd95_vals = eval_label_pred(
