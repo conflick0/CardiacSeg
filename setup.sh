@@ -11,5 +11,7 @@ pip install pandas==1.5.3 && \
 pip install matplotlib==3.7.1 && \
 pip install ray==2.4.0 && \
 pip install torchsummaryX==1.3.0 && \
+pip install toml==0.10.2 && \
+pip install gdown==4.7.1 && \
 pip install --user ipykernel && \
 python -m ipykernel install --user --name base
