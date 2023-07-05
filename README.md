@@ -95,7 +95,7 @@ pid = 'pid_1000'
 ### Run
 * after the inference is completed, the program will output the inference result and display the path of the output result (last line).
 
-![](images/train_run.png)
+![](images/infer_run.png)
 
 ### Download
 * download inference result
