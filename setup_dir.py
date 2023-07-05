@@ -20,7 +20,10 @@ for m in model_names:
         print('mkdir exp:', model_exp_dir)
         
         # make infer dir
-        task_id = 't_5' if m == 'unetcnx_a1' else 't_4'
+        if d == 'mmwhs':
+            task_id = 'exp_2_tn2'
+        else:
+            task_id = 't_5' if m == 'unetcnx_a1' else 't_4'
         model_exp_dir = os.path.join(exp_dir, m, d, 'infers', task_id)
         os.makedirs(model_exp_dir, exist_ok=True)
         print('mkdir exp:', model_exp_dir)

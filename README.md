@@ -3,20 +3,45 @@
 * miniconda
 * python 3.9
 ## Install
+* install packages.
 ```shell
 ./setup.sh
 ```
-## Dataset
-* unzip dataset ,and put dataset into `CardiacSeg`.
+* setup data and model dir.
+```shell
+python setup_dir.py
 ```
-CardiacSeg/
-├── README.md
-...
-└── dataset
+* set config to `config.toml`, for download data and model.
+```toml
+# dataset google dirve file id
+[dataset]
+chgh='<google_drive_id>'
+mmwhs='<google_drive_id>'
+
+# model google dirve file id
+[model.chgh]
+unet3d='<google_drive_id>'
+attention_unet='<google_drive_id>'
+cotr='<google_drive_id>'
+unetr='<google_drive_id>'
+swinunetr='<google_drive_id>'
+unetcnx_a1='<google_drive_id>'
+
+[model.mmwhs]
+unet3d='<google_drive_id>'
+attention_unet='<google_drive_id>'
+cotr='<google_drive_id>'
+unetr='<google_drive_id>'
+swinunetr='<google_drive_id>'
+unetcnx_a1='<google_drive_id>'
+```
+* download data and model.
+```shell
+python download_data.py
 ```
 ## Training/Test
 ### Open Notebook
-* open training notebook from `CardiacSeg/exps/main_train.ipynb`.
+* open training notebook from `CardiacSeg/exps/exp_chgh.ipynb`.
 ### Setup Config
 #### workspace
 * setup absolute path of workspace.
@@ -25,12 +50,67 @@ workspace = '<workspace>/CardiacSeg'
 ```
 #### model name
 * setup model name.
-* The model name used in this study is `unetcnx_x3_2_2_a5`. 
+* The model name used in this study is `unetcnx_a1`. 
 * If you want to replace it with other research methods, you can change it to a different model name, such as `swinunetr`, `unetr`, `cotr`, `attention_unet` and `unet`.
 ```
-model_name = 'unetcnx_x3_2_2_a5'
+model_name = 'unetcnx_a1'
 ```
+
+![](https://hackmd.io/_uploads/BkYODIzKh.png)
+
 ### Run
 * run all cells, and the final results of the program will display validation scores and inference scores.
 
-![](https://i.imgur.com/ZdmPaNC.png)
+![](https://hackmd.io/_uploads/S1QNwUfF3.png)
+
+## Infer
+### Open Notebook
+* open training notebook from `CardiacSeg/exps/infer_chgh.ipynb`.
+### Setup Config
+#### workspace
+* setup absolute path of workspace.
+```
+workspace = '<workspace>/CardiacSeg'
+```
+#### model name
+* setup model name.
+* The model name used in this study is `unetcnx_a1`. 
+* If you want to replace it with other research methods, you can change it to a different model name, such as `swinunetr`, `unetr`, `cotr`, `attention_unet` and `unet`.
+```
+model_name = 'unetcnx_a1'
+```
+#### exp name
+* setup model name.
+* If you want to replace it with other research methods, such as `swinunetr`, `unetr`, `cotr`, `attention_unet` and `unet`. you can change it to a different exp name `'t_4'`.
+```
+exp_name = 't_5'
+```
+#### pid
+* setup pid (patient id).
+```
+pid = 'pid_1000'
+```
+![](https://hackmd.io/_uploads/rJnFdLGF3.png)
+
+### Run
+* after the inference is completed, the program will output the inference result and display the path of the output result (last line).
+
+![](https://hackmd.io/_uploads/r1WtFLftn.png)
+
+### Download
+* download inference result
+
+![](https://hackmd.io/_uploads/Syf458zK2.png)
+
+### Show
+* display the inference results using 3D Slicer.
+
+![](https://hackmd.io/_uploads/HkOuqIfF2.png)
+
+## CardiacLab
+* integrate MONAI Label with 3D Slicer.
+* https://github.com/conflick0/CardiacLab
+
+
+![](https://hackmd.io/_uploads/rJ_tjIfK2.png)
+
