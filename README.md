@@ -56,12 +56,12 @@ workspace = '<workspace>/CardiacSeg'
 model_name = 'unetcnx_a1'
 ```
 
-![](https://hackmd.io/_uploads/BkYODIzKh.png)
+![](images/train_config.png)
 
 ### Run
 * run all cells, and the final results of the program will display validation scores and inference scores.
 
-![](https://hackmd.io/_uploads/S1QNwUfF3.png)
+![](images/train_run.png)
 
 ## Infer
 ### Open Notebook
@@ -90,27 +90,27 @@ exp_name = 't_5'
 ```
 pid = 'pid_1000'
 ```
-![](https://hackmd.io/_uploads/rJnFdLGF3.png)
+![](images/infer_config.png)
 
 ### Run
 * after the inference is completed, the program will output the inference result and display the path of the output result (last line).
 
-![](https://hackmd.io/_uploads/r1WtFLftn.png)
+![](images/train_run.png)
 
 ### Download
 * download inference result
 
-![](https://hackmd.io/_uploads/Syf458zK2.png)
+![](images/infer_download.png)
 
 ### Show
 * display the inference results using 3D Slicer.
 
-![](https://hackmd.io/_uploads/HkOuqIfF2.png)
+![](images/infer_show.png)
 
 ## CardiacLab
 * integrate MONAI Label with 3D Slicer.
 * https://github.com/conflick0/CardiacLab
 
 
-![](https://hackmd.io/_uploads/rJ_tjIfK2.png)
+![](images/cardiaclab.png)
 
