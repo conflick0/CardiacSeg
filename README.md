@@ -1,5 +1,4 @@
 # CardiacSeg
-![](images/unetcnx.png)
 ## Requirements
 * miniconda
 * python 3.9
