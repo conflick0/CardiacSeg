@@ -46,7 +46,7 @@ for d  in data_names:
         print('dir exist:', target_dir)
     else:
         print('download:', target_dir)
-        download_file(model_exp_dir, fn, id=config['dataset'][d])
+        download_file(data_dir, sub_data_dirs[d], id=config['dataset'][d])
 
 
 # download models    
